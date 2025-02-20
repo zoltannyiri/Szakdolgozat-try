@@ -1,36 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrl: './login.component.scss'
 })
+
+
 export class LoginComponent {
-  loginObj: any = {
-    username: '',
-    password: ''
-  };
+onSubmit() {
+throw new Error('Method not implemented.');
+}
+f: any;
+submitted: any;
+loginForm: any;
 
-  apiLoginObj: any = {
-    "EmailId": "",
-    "Password": ""
-  };
-
-  router = inject(Router);
-  http = inject(HttpClient);
-
-  onLogin() {
-    debugger;
-    // if (this.loginObj.username == 'admin' && this.loginObj.password == '1234') {
-    //   this.router.navigateByUrl("admin");
-    // } else {
-    //   alert('wrong credentials');
-    // }
-  }
 }
