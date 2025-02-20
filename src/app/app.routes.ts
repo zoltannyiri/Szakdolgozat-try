@@ -3,11 +3,13 @@ import { LoginComponent } from './components/login/login.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { HomeComponent } from './components/home/home.component';
 import { AdminComponent } from './components/admin/admin.component';
+import { RegisterComponent } from './components/register/register.component';
 
 export const routes: Routes = [
     {'path': '', component: HomeComponent},
-    {'path': 'login', component: LoginComponent},
     {'path': 'layout', component: LayoutComponent},
     {'path': 'home', component: HomeComponent},
-    {'path': 'admin', component: AdminComponent}
+    {'path': 'admin', component: AdminComponent},
+    {'path': 'register', component: RegisterComponent},
+    {'path': 'login', component: LoginComponent}
 ];
