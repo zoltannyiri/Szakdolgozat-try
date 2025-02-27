@@ -1,18 +1,20 @@
 <div class="bg-indigo-50 flex">
-    <div class="h-12 bg-white w-full m-4 rounded-xl flex items-center justify-between p-1.5">
+    <div class="h-12 bg-white w-full m-4 rounded-xl flex items-center justify-between p-1.5 border-0.5 shadow-md p-4">
         <div class="flex items-center">
-            <div class="size-4 bg-orange-500 rounded-full -mr-1.5"></div>
-            <div class="size-4 bg-indigo-500 rounded-full -mr-1"></div>
-            <span class="font-semibold">Logo</span>
+            <!-- <div class="size-4 bg-orange-500 rounded-full -mr-1.5"></div>
+            <div class="size-4 bg-indigo-500 rounded-full -mr-1"></div> -->
+            <!-- <span class="font-semibold">Logo</span> -->
+			 <img src="assets/logo-try2.png" alt="logo" class="h-10 w-10">
         </div>
         <nav class="space-x-6">
-            <a href="" class="hover:text-indigo-600">Home</a>
-            <a href="" class="hover:text-indigo-600">Services</a>
-            <a href="" class="hover:text-indigo-600">Projects</a>
-            <a href="" class="hover:text-indigo-600">About</a>
-            <a href="" class="hover:text-indigo-600">Team</a>
+            <a href="" class="text-black no-underline decoration-0 !important">Hom3e</a>
+            <a href="" class="hover:underline text-black no-underline">Services</a>
+            <a href="" class="hover:text-indigo-600 text-black no-underline">Projects</a>
+            <a href="" class="hover:text-indigo-600 text-black no-underline">About</a>
+            <a href="" class="hover:text-indigo-600 text-black no-underline">Team</a>
         </nav>
         <button class="bg-indigo-600 py-2 px-4 rounded-lg text-white hover:bg-orange-600 transition-colors duration-200">Sign Up</button>
+		<button class="bg-indigo-600 py-2 px-4 rounded-lg text-white hover:bg-orange-600 transition-colors duration-200" [routerLink]="['/login']">Login</button>
     </div>
 </div>
 

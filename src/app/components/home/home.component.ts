@@ -10,7 +10,7 @@ export class HomeComponent implements AfterViewInit, OnInit{
   @ViewChild('videoPlayer') videoElement!: ElementRef<HTMLVideoElement>;
 
   currentTextIndex = 0;
-  headerText: string[] = ["hihats?", "drumsets?", "melodies?", "loops?"];
+  headerText: string[] = ["hihats", "drumsets", "melodies", "loops"];
   displayedText: string = "";
 
   ngOnInit(): void {
