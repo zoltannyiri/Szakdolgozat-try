@@ -4,6 +4,7 @@ import { HomeComponent } from './components/home/home.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
+import { LoopsComponent } from './components/loops/loops.component';
 
 export const routes: Routes = [
     {'path': '', component: HomeComponent},
@@ -11,5 +12,6 @@ export const routes: Routes = [
     {'path': 'home', component: HomeComponent},
     {'path': 'admin', component: AdminComponent},
     {'path': 'register', component: RegisterComponent},
-    {'path': 'login', component: LoginComponent}
+    {'path': 'login', component: LoginComponent},
+    {'path': 'loops', component: LoopsComponent}
 ];

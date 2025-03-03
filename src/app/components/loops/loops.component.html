@@ -1,0 +1,67 @@
+<section class="bg-gray-100 py-8">
+    <div class="container mx-auto">
+      <!-- Filter Section -->
+      <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-8">
+        
+        <!-- Search Bar -->
+        <div class="flex items-center space-x-2 w-full sm:w-1/2">
+          <input 
+            type="text" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Search for music...">
+        </div>
+  
+        <!-- Filter Button -->
+        <div class="flex items-center">
+          <button 
+            class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300"
+            id="filter-button">
+            Filter
+          </button>
+        </div>
+  
+        <!-- Dropdown Filter -->
+        <div class="hidden sm:flex items-center ml-4 space-x-4">
+          <!-- Genre Filter -->
+          <select 
+            class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="" disabled selected>Genre</option>
+            <option value="pop">Pop</option>
+            <option value="rock">Rock</option>
+            <option value="jazz">Jazz</option>
+            <option value="classical">Classical</option>
+          </select>
+  
+          <!-- BPM Filter -->
+          <select 
+            class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="" disabled selected>BPM</option>
+            <option value="120">120</option>
+            <option value="140">140</option>
+            <option value="160">160</option>
+          </select>
+        </div>
+      </div>
+  
+      <!-- Music Samples List (Placeholder for your music items) -->
+      <!-- <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="bg-white p-4 rounded-md shadow-md">
+          <p class="text-lg font-semibold">Sample 1</p>
+          <p class="text-sm text-gray-500">Genre: Pop</p>
+        </div>
+        <div class="bg-white p-4 rounded-md shadow-md">
+          <p class="text-lg font-semibold">Sample 2</p>
+          <p class="text-sm text-gray-500">Genre: Rock</p>
+        </div>
+        <div class="bg-white p-4 rounded-md shadow-md">
+          <p class="text-lg font-semibold">Sample 3</p>
+          <p class="text-sm text-gray-500">Genre: Jazz</p>
+        </div>
+        <div class="bg-white p-4 rounded-md shadow-md">
+          <p class="text-lg font-semibold">Sample 4</p>
+          <p class="text-sm text-gray-500">Genre: Classical</p>
+        </div>
+      </div> -->
+    </div>
+  </section>
+  
