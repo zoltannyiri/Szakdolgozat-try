@@ -1,67 +1,103 @@
-<section class="bg-gray-100 py-8">
-    <div class="container mx-auto">
-      <!-- Filter Section -->
-      <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-8">
-        
-        <!-- Search Bar -->
-        <div class="flex items-center space-x-2 w-full sm:w-1/2">
-          <input 
-            type="text" 
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Search for music...">
-        </div>
-  
-        <!-- Filter Button -->
-        <div class="flex items-center">
-          <button 
-            class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300"
-            id="filter-button">
-            Filter
-          </button>
-        </div>
-  
-        <!-- Dropdown Filter -->
-        <div class="hidden sm:flex items-center ml-4 space-x-4">
-          <!-- Genre Filter -->
-          <select 
-            class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="" disabled selected>Genre</option>
-            <option value="pop">Pop</option>
-            <option value="rock">Rock</option>
-            <option value="jazz">Jazz</option>
-            <option value="classical">Classical</option>
-          </select>
-  
-          <!-- BPM Filter -->
-          <select 
-            class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="" disabled selected>BPM</option>
-            <option value="120">120</option>
-            <option value="140">140</option>
-            <option value="160">160</option>
-          </select>
+<div class="w-full max-w-3xl mx-auto mt-12">
+  <!-- Search Bar -->
+  <div class="flex justify-between bg-gray-200 p-4 rounded-xl shadow-md">
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+      Upload Loop
+    </button>
+    <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+      Quick Search
+    </button>
+    <button (click)="toggleAdvancedSearch()" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition">
+      Advanced Search
+    </button>
+  </div>
+</div>
+
+<!-- Modal (Felugró ablak) -->
+<div *ngIf="isAdvancedSearchOpen" class="modal-overlay" (click)="closeAdvancedSearch($event)">
+  <div class="modal-content">
+    <button (click)="toggleAdvancedSearch()" class="close-button">&times;</button>
+    <h2 class="text-lg font-semibold mb-4">Advanced Search</h2>
+
+    <form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Genre</label>
+        <select class="w-full p-2 border rounded-lg focus:ring focus:ring-indigo-300">
+          <option>All Genres</option>
+          <option>Hip Hop</option>
+          <option>EDM</option>
+          <option>Rock</option>
+        </select>
+      </div>
+
+      <!-- Key -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Key</label>
+        <select class="w-full p-2 border rounded-lg focus:ring focus:ring-indigo-300">
+          <option>Any Key</option>
+          <option>A</option>
+          <option>Am</option>
+          <option>A#</option>
+          <option>A#m</option>
+          <option>B</option>
+          <option>Bm</option>
+          <option>C</option>
+          <option>Cm</option>
+          <option>C#</option>
+          <option>C#m</option>
+          <option>D</option>
+          <option>Dm</option>
+          <option>D#</option>
+          <option>D#m</option>
+          <option>E</option>
+          <option>Em</option>
+          <option>F</option>
+          <option>Fm</option>
+          <option>F#</option>
+          <option>F#m</option>
+          <option>G</option>
+          <option>Gm</option>
+          <option>G#</option>
+          <option>G#m</option>
+        </select>
+      </div>
+
+      <!-- BPM -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">BPM Range</label>
+        <div class="flex space-x-2">
+          <input type="number" placeholder="Min" class="w-1/2 p-2 border rounded-lg">
+          <input type="number" placeholder="Max" class="w-1/2 p-2 border rounded-lg">
         </div>
       </div>
-  
-      <!-- Music Samples List (Placeholder for your music items) -->
-      <!-- <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <div class="bg-white p-4 rounded-md shadow-md">
-          <p class="text-lg font-semibold">Sample 1</p>
-          <p class="text-sm text-gray-500">Genre: Pop</p>
-        </div>
-        <div class="bg-white p-4 rounded-md shadow-md">
-          <p class="text-lg font-semibold">Sample 2</p>
-          <p class="text-sm text-gray-500">Genre: Rock</p>
-        </div>
-        <div class="bg-white p-4 rounded-md shadow-md">
-          <p class="text-lg font-semibold">Sample 3</p>
-          <p class="text-sm text-gray-500">Genre: Jazz</p>
-        </div>
-        <div class="bg-white p-4 rounded-md shadow-md">
-          <p class="text-lg font-semibold">Sample 4</p>
-          <p class="text-sm text-gray-500">Genre: Classical</p>
-        </div>
-      </div> -->
-    </div>
-  </section>
-  
+
+      <!-- Type -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Type</label>
+        <select class="w-full p-2 border rounded-lg focus:ring focus:ring-indigo-300">
+          <option>All Types</option>
+          <option>Drums</option>
+          <option>Melody</option>
+          <option>Vocal</option>
+        </select>
+      </div>
+
+      <!-- Sort By -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Sort By</label>
+        <select class="w-full p-2 border rounded-lg focus:ring focus:ring-indigo-300">
+          <option>Most Recent</option>
+          <option>Most Downloaded</option>
+          <option>Highest Rated</option>
+        </select>
+      </div>
+
+      <!-- Search Button -->
+      <div class="flex items-end">
+        <button class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
+          Search
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
