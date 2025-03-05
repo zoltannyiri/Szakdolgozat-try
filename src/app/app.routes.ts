@@ -5,6 +5,7 @@ import { AdminComponent } from './components/admin/admin.component';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { LoopsComponent } from './components/loops/loops.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 
 export const routes: Routes = [
     {'path': '', component: HomeComponent},
@@ -13,5 +14,6 @@ export const routes: Routes = [
     {'path': 'admin', component: AdminComponent},
     {'path': 'register', component: RegisterComponent},
     {'path': 'login', component: LoginComponent},
-    {'path': 'loops', component: LoopsComponent}
+    {'path': 'loops', component: LoopsComponent},
+    {'path': 'forgot-password', component: ForgotPasswordComponent}
 ];

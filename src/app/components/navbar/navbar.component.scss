@@ -2,7 +2,15 @@
 //     text-decoration: none;
 // }
 a{
-    text-decoration-line: none;
+    text-decoration: none;
+    cursor: pointer;
+    transition: .3s ease-out;
+
+    &:hover{
+        letter-spacing: .04rem;
+        transition: .3s ease;
+        color: oklch(0.511 0.262 276.966) !important;
+    }
 }
 
 

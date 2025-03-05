@@ -24,15 +24,14 @@
           </div>
   
           <button type="submit"
-            class="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600">Login</button>
+            class="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600">Login</button>
   
           <p class="text-sm text-center mt-4">
             Don’t have an account?
-            <a href="#" class="text-orange-500 hover:underline">Create an account</a>
+            <a class="text-orange-500 hover:underline" [routerLink]="['/register']">Create an account</a>
           </p>
         </form>
   
-        <!-- Divider -->
         <div class="flex items-center my-6">
           <div class="flex-grow h-px bg-gray-300"></div>
           <span class="px-4 text-sm text-gray-500">Or</span>
@@ -48,7 +47,7 @@
    -->
         <button
           class="w-full flex items-center justify-center gap-2 border py-2 rounded-full hover:bg-gray-50">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG5FqrS9OkN5XrA5_GXcN7OV-SoLIl0KPwoQ&s" alt="Google" class="h-5">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG5FqrS9OkN5XrA5_GXcN7OV-SoLIl0KPwoQ&s" alt="Google" class="h-5 rounded">
           Continue with Google
         </button>
       </div>
