@@ -1,17 +1,18 @@
 <div class="w-full max-w-3xl mx-auto mt-12">
   <!-- Search Bar -->
   <div class="flex justify-between bg-gray-200 p-4 rounded-xl shadow-md">
-    <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition rounded">
       Upload Loop
     </button>
-    <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+    <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition rounded">
       Quick Search
     </button>
-    <button (click)="toggleAdvancedSearch()" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition">
+    <button (click)="toggleAdvancedSearch()" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition rounded">
       Advanced Search
     </button>
   </div>
 </div>
+
 
 <!-- Modal (Felugró ablak) -->
 <div *ngIf="isAdvancedSearchOpen" class="modal-overlay" (click)="closeAdvancedSearch($event)">

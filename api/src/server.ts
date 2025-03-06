@@ -1,5 +1,5 @@
 import express from 'express';
-import { Request, Response } from 'express-serve-static-core';
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import dotenv from 'dotenv';

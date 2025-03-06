@@ -11,6 +11,12 @@ import { RegisterComponent } from '../register/register.component';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
+
+  menuOpen = false;
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
   // ngOnInit(): void {
   //   document.addEventListener('DOMContentLoaded', () => {
   //     const burger = document.querySelectorAll('.navbar-burger');
