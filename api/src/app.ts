@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 export default class App {
     public app: express.Application;
-    private mongoUrl: string = process.env['MONGO_DB_URL'] ?? "mongodb+srv://zoltannyiri02:RO2NxaLIe4lBzf4r@loophub.s8igs.mongodb.net/?retryWrites=true&w=majority&appName=LoopHub";
+    private mongoUrl: string = process.env.MONGO_DB_URL ?? "mongodb+srv://zoltannyiri:testpw02@loophub.s8igs.mongodb.net/?retryWrites=true&w=majority&appName=LoopHub";
 
     constructor(controllers: any[]) {
         this.app = express();
