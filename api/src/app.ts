@@ -16,7 +16,7 @@ export default class App {
         });
 
         controllers.forEach(controller => {
-            this.app.use("/api", controller); // 🔥 NINCS `.router`, csak `controller`
+            this.app.use("/api", controller);
         });
     }
 
