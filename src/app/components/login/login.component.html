@@ -1,5 +1,27 @@
 <section class="min-h-screen flex flex-col">
-    <!-- Login Form -->
+  <div class="flex justify-center items-center py-15">
+    <div class="border rounded-md p-8 w-full max-w-md shadow-sm mt-4">
+      <h2 class="text-2xl font-bold mb-6">Login</h2>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1">Username</label>
+          <input formControlName="username" type="text" class="w-full border-b border-gray-300 outline-none py-2">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1">Password</label>
+          <input formControlName="password" type="password" class="w-full border-b border-gray-300 outline-none py-2">
+        </div>
+
+        <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600">Login</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<!-- <section class="min-h-screen flex flex-col">
     <div class="flex justify-center items-center py-15">
       <div class="border rounded-md p-8 w-full max-w-md shadow-sm mt-4">
         <h2 class="text-2xl font-bold mb-6">Login</h2>
@@ -38,13 +60,6 @@
           <div class="flex-grow h-px bg-gray-300"></div>
         </div>
   
-        <!-- Social Buttons -->
-        <!-- <button
-          class="w-full flex items-center justify-center gap-2 border py-2 rounded-full mb-3 hover:bg-gray-50">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGFKGkE0n-MIDhhhVId5GpfwSz5wcPvTJ_Zw&s" alt="Facebook" class="h-5">
-          Continue with Facebook
-        </button>
-   -->
         <button
           class="w-full flex items-center justify-center gap-2 border py-2 rounded-full hover:bg-gray-50">
           <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG5FqrS9OkN5XrA5_GXcN7OV-SoLIl0KPwoQ&s" alt="Google" class="h-5 rounded">
@@ -52,4 +67,4 @@
         </button>
       </div>
     </div>
-  </section>
+  </section> -->
