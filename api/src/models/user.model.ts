@@ -1,23 +1,47 @@
 import mongoose, { Schema, Document } from "mongoose";
-import bcrypt from "bcryptjs";
 
+// Felhasználó interfész a típusbiztonság miatt
 export interface IUser extends Document {
-    username: string;
-    password: string;
+  email: string;
+  username: string;
+  password: string;
 }
 
-const UserSchema: Schema = new Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
+const UserSchema: Schema = new Schema<IUser>({
+  email: { type: String, required: true, unique: true },
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
 });
 
-// Jelszó hashelése mentés előtt
-UserSchema.pre<IUser>("save", function (next) {
-    if (!this.isModified("password")) return next();
-    const salt = bcrypt.genSaltSync(10);
-    this.password = bcrypt.hashSync(this.password, salt);
-    next();
-});
+// Default exporttal, hogy `import User from "./models/user.model";` működjön
+export default mongoose.model<IUser>("User", UserSchema);
 
-const UserModel = mongoose.model<IUser>("User", UserSchema);
-export default UserModel;
+
+
+
+
+
+// commented at 03.11 19:00
+// import mongoose, { Schema, Document } from "mongoose";
+// import bcrypt from "bcryptjs";
+
+// export interface IUser extends Document {
+//     username: string;
+//     password: string;
+// }
+
+// const UserSchema: Schema = new Schema({
+//     username: { type: String, required: true, unique: true },
+//     password: { type: String, required: true }
+// });
+
+// // Jelszó hashelése mentés előtt
+// UserSchema.pre<IUser>("save", function (next) {
+//     if (!this.isModified("password")) return next();
+//     const salt = bcrypt.genSaltSync(10);
+//     this.password = bcrypt.hashSync(this.password, salt);
+//     next();
+// });
+
+// const UserModel = mongoose.model<IUser>("User", UserSchema);
+// export default UserModel;

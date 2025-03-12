@@ -1,17 +1,53 @@
-// auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
+import { environment } from '../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api/login';
+  constructor(private http: HttpClient, private router: Router) {}
 
-  constructor(private http: HttpClient) {}
+  register(username: string, email: string, password: string) {
+    const body = { username, email, password };
+    return this.http.post(`${environment.apiUrl}/api/register`, body);
+  }
 
-  login(username: string, password: string): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(this.apiUrl, { username, password });
+  login(username: string, email: string, password: string) {
+    const body = { username, email, password };
+    return this.http.post<{token: string}>(`${environment.apiUrl}/api/login`, body);
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']);
+  }
+
+  isLoggedIn() {
+    return !!localStorage.getItem('token');
+  }
+
+  getToken() {
+    return localStorage.getItem('token');
   }
 }
+
+//commented at 03.11 19:00
+// // auth.service.ts
+// import { Injectable } from '@angular/core';
+// import { HttpClient } from '@angular/common/http';
+// import { Observable } from 'rxjs';
+
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class AuthService {
+//   private apiUrl = 'http://localhost:8000/api/login';
+
+//   constructor(private http: HttpClient) {}
+
+//   login(username: string, password: string): Observable<{ token: string }> {
+//     return this.http.post<{ token: string }>(this.apiUrl, { username, password });
+//   }
+// }

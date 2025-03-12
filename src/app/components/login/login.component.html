@@ -3,19 +3,20 @@
     <div class="border rounded-md p-8 w-full max-w-md shadow-sm mt-4">
       <h2 class="text-2xl font-bold mb-6">Login</h2>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Username</label>
-          <input formControlName="username" type="text" class="w-full border-b border-gray-300 outline-none py-2">
+          <input formControlName="username" type="text" class="w-full border-b border-gray-300 outline-none py-2" required="required">
         </div>
 
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Password</label>
-          <input formControlName="password" type="password" class="w-full border-b border-gray-300 outline-none py-2">
+          <input formControlName="password" type="password" class="w-full border-b border-gray-300 outline-none py-2" required="required">
         </div>
 
         <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600">Login</button>
       </form>
+      <p class="error" *ngIf="errorMessage">{{errorMessage}}</p>
     </div>
   </div>
 </section>
