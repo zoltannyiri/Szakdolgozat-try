@@ -65,7 +65,7 @@ app.listen(PORT, () => {
 //     }
 // });
 
-app.use("/api", registerRoutes);
+app.use("/api", registerRoutes); //ird át authra
 
 app.use("/api", loginRoutes);
 
