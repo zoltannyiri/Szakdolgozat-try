@@ -19,12 +19,21 @@
             type="email" id="email" name="email" placeholder="music.maker02@example.com" required="required" [(ngModel)]="registerData.email">
         </div>
 
+        <!--Country-->
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Country</label>
+          <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+            type="string" id="country" name="country" placeholder="Hungary" required="required" [(ngModel)]="registerData.country">
+        </div>
+
         <!-- Password -->
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
           <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
             type="password" id="password" name="password" placeholder="********" required="required" [(ngModel)]="registerData.password">
         </div>
+
+        
 
         <!-- Confirm Password -->
         <div class="mb-4">

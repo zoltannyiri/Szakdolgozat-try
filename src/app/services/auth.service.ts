@@ -9,8 +9,8 @@ import { environment } from '../environments/environment';
 export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
-  register(username: string, email: string, password: string) {
-    const body = { username, email, password };
+  register(username: string, email: string, password: string, country: string) {
+    const body = { username, email, password, country };
     return this.http.post(`${environment.apiUrl}/api/register`, body);
   }
 

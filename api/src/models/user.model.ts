@@ -5,12 +5,21 @@ export interface IUser extends Document {
   email: string;
   username: string;
   password: string;
+  role: string;
+  date: Date;
+  country: string;
+  city: string;
+  firstName: string;
+  lastName: string;
 }
 
 const UserSchema: Schema = new Schema<IUser>({
   email: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: { type: String, default: "user" },
+  date: { type: Date, default: Date.now },
+  country: { type: String, required: true },
 });
 
 // Default exporttal, hogy `import User from "./models/user.model";` működjön

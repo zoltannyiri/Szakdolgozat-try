@@ -15,7 +15,8 @@ export class RegisterComponent {
   registerData = {
     username: '',
     email: '',
-    password: ''
+    password: '',
+    country: '',
   }
   successMessage: string = '';
   errorMessage: string = '';
@@ -24,12 +25,12 @@ export class RegisterComponent {
   onRegister() {
     this.errorMessage = '';
     this.successMessage = '';
-    const { username, email, password } = this.registerData;
-    this.authService.register(username, email, password).subscribe({
+    const { username, email, password, country } = this.registerData;
+    this.authService.register(username, email, password, country).subscribe({
       next:() => {
         this.successMessage = 'Registration successful!';
 
-        this.registerData = {username: '', email: '', password: ''};
+        this.registerData = {username: '', email: '', password: '', country: ''};
       },
       error:(err) => {
         this.errorMessage = err.errors?.message || 'Register failed. Please try again.';
