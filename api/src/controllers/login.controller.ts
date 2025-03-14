@@ -20,13 +20,17 @@ router.post("/login", async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Invalid login credentials" });
         }
 
+        await User.updateOne({ _id: user._id }, { lastLogin: new Date() });
+
         const token = jwt.sign(
             { userId: user._id, email: user.email },
             process.env.JWT_SECRET as string,
             { expiresIn: "1h" }
         );
 
-        res.json({ token, user: { email: user.email } });
+        const updatedUser = await User.findById(user._id);
+
+        res.json({ token, user: { email: user.email, lastLogin: updatedUser?.lastLogin } });
     } catch (error) {
         console.error("Login error:", error);
         res.status(500).json({ message: "Server error" });

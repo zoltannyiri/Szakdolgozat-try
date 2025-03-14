@@ -22,8 +22,13 @@
         <!--Country-->
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Country</label>
-          <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-            type="string" id="country" name="country" placeholder="Hungary" required="required" [(ngModel)]="registerData.country">
+          <!-- <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+            type="string" id="country" name="country" placeholder="Hungary"  required="required" [(ngModel)]="registerData.country"> -->
+            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500" id="country" name="country" required="required" [(ngModel)]="registerData.country">
+              <option *ngFor="let country of countries" [value]="country">
+                {{ country }}
+              </option>
+            </select>
         </div>
 
         <!-- Password -->
@@ -39,7 +44,7 @@
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="confirm-password">Confirm Password</label>
           <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-            type="password" id="confirm-password" name="confirm-password" placeholder="********" required>
+            type="password" id="confirm-password" name="confirm-password" placeholder="********" required [(ngModel)]="registerData.confirmPassword">
         </div>
 
         <!-- Google reCAPTCHA -->

@@ -11,6 +11,7 @@ export interface IUser extends Document {
   city: string;
   firstName: string;
   lastName: string;
+  lastLogin: Date;
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -20,6 +21,7 @@ const UserSchema: Schema = new Schema<IUser>({
   role: { type: String, default: "user" },
   date: { type: Date, default: Date.now },
   country: { type: String, required: true },
+  lastLogin: { type: Date, default: Date.now },
 });
 
 // Default exporttal, hogy `import User from "./models/user.model";` működjön
