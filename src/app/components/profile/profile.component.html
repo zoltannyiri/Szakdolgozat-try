@@ -1,6 +1,8 @@
-<div class="profile-container">
+<div class="profile-container border-1 text-center w-full max-w-[80%] mx-auto rounded">
     <h2>Profile</h2>
     <div *ngIf="userData; else loadingOrError">
+        <img class="rounded-sm w-36 h-36" src="/docs/images/people/profile-picture-5.jpg" alt="Extra large avatar">
+        <p><strong>Username:</strong> {{userData.username}} </p>
         <p><strong>Email:</strong> {{ userData.email}}</p>
         <p><strong>User ID:</strong> {{ userData._id}}</p>
         <button (click)="onLogout()" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Logout</button>

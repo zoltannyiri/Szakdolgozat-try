@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 export class ProfileComponent implements OnInit {
   userData: any = null;
   errorMessage = '';
+user: any;
 
   constructor(private authService: AuthService, private http: HttpClient) { }
 

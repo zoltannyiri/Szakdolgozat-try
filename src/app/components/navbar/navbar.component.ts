@@ -2,21 +2,63 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { RegisterComponent } from '../register/register.component';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [CommonModule, RouterModule, RouterLink],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent {
+  // toggleProfileMenu() {
+  //   throw new Error('Method not implemented.');
+  // }
 
   menuOpen = false;
+  showProfileMenu = false;
+  isLoggedIn = false;
+  userName : string = '';
+
+  private subscription: Subscription;
+
+  constructor(public authService: AuthService) {
+    this.subscription = this.authService.isLoggedIn$.subscribe(
+      (loggedIn) => {
+        this.isLoggedIn = loggedIn;
+        if (loggedIn) {
+          this.userName = this.authService.getUsernameFromToken() || '';
+        }
+      }
+    );
+  }
+
+  ngOnInit() {
+    // Kényszerítjük az állapot ellenőrzését
+    this.authService.checkToken();
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
   }
+
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
+  }
+
+  logout() {
+    this.authService.logout();
+    this.showProfileMenu = false;
+  }
+
   // ngOnInit(): void {
   //   document.addEventListener('DOMContentLoaded', () => {
   //     const burger = document.querySelectorAll('.navbar-burger');

@@ -50,7 +50,9 @@ export class LoginComponent {
     
     this.authService.login(username, email, password).subscribe({
       next: (response) => {
-        console.log("Sikeres bejelentkezés:", response);
+        console.log("Sikeres bejelentkezés:",
+          // console.log(response); logolja a bejelentkezést konzolra
+        );
         const token = response.token;
         localStorage.setItem('token', token);
         this.router.navigate(['/profile']);

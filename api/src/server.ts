@@ -177,7 +177,7 @@ app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Respo
         if (!user){
             return res.status(404).json({ message: "User not found" });
         }
-
+        console.log(user.username)
         return res.json({ user });
     } catch (error){
         console.log("Error fetching profile:", error);
@@ -185,6 +185,18 @@ app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Respo
     }
 });
 
+
+app.get('/api/validate-token', authenticateToken, async (req: CustomRequest, res: Response) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(401).json({ isValid: false });
+    }
+    res.json({ isValid: true });
+  } catch (error) {
+    res.status(401).json({ isValid: false });
+  }
+});
 
 
 
