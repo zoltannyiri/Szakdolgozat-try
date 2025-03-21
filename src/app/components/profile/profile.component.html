@@ -1,4 +1,4 @@
-<div class="profile-container border-1 text-center w-full max-w-[80%] mx-auto rounded">
+<!-- <div class="profile-container border-1 text-center w-full max-w-[80%] mx-auto rounded">
     <h2>Profile</h2>
     <div *ngIf="userData; else loadingOrError">
         <img class="rounded-sm w-36 h-36" src="/docs/images/people/profile-picture-5.jpg" alt="Extra large avatar">
@@ -12,4 +12,37 @@
         <p *ngIf="!errorMessage">Loading profile...</p>
     </ng-template>
     
+</div> -->
+
+<div class="profile-container bg-gray-900 text-white w-full max-w-[80%] mx-auto rounded-lg shadow-2xl p-8">
+    <h2 class="text-3xl font-bold mb-8 text-center text-indigo-400">Profile</h2>
+    <div *ngIf="userData; else loadingOrError" class="space-y-6">
+        <!-- Avatar és név keret -->
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md text-center">
+            <!-- Avatar (dinamikus kezdőbetűvel) -->
+            <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl font-bold {{ getAvatarColor(userData.username) }}">
+                {{ getInitials(userData.username) }}
+            </div>
+            <p class="mt-4 text-xl font-semibold text-gray-100">{{userData.username}}</p>
+        </div>
+
+        <!-- Adatok -->
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
+            <p class="text-gray-300"><strong class="text-indigo-400">Email:</strong> {{ userData.email }}</p>
+            <p class="text-gray-300"><strong class="text-indigo-400">User ID:</strong> {{ userData._id }}</p>
+        </div>
+
+        <!-- Logout gomb -->
+        <button (click)="onLogout()" class="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-transform transform hover:scale-105 shadow-md">
+            Logout
+        </button>
+    </div>
+
+    <!-- Betöltés vagy hiba üzenet -->
+    <ng-template #loadingOrError>
+        <div class="text-center">
+            <p *ngIf="errorMessage" class="text-red-400">{{ errorMessage }}</p>
+            <p *ngIf="!errorMessage" class="text-gray-300">Loading profile...</p>
+        </div>
+    </ng-template>
 </div>

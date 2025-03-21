@@ -54,6 +54,23 @@ export class NavbarComponent {
     this.showProfileMenu = !this.showProfileMenu;
   }
 
+  // Avatar háttérszínének generálása
+  getAvatarColor(username: string): string {
+    const colors = ['bg-blue-500', 'bg-red-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500'];
+    const firstLetter = username.charAt(0).toUpperCase();
+    const colorIndex = firstLetter.charCodeAt(0) % colors.length;
+    return colors[colorIndex];
+  }
+
+  // Felhasználó nevének kezdőbetűi
+  getInitials(username: string): string {
+    const names = username.split(' ');
+    if (names.length > 1) {
+      return names[0].charAt(0) + names[1].charAt(0);
+    }
+    return names[0].charAt(0);
+  }
+
   logout() {
     this.authService.logout();
     this.showProfileMenu = false;
