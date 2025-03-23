@@ -18,13 +18,18 @@
     <h2 class="text-3xl font-bold mb-8 text-center text-indigo-400">Profile</h2>
     <div *ngIf="userData; else loadingOrError" class="space-y-6">
         <!-- Avatar és név keret -->
-        <div class="bg-gray-800 p-6 rounded-lg shadow-md text-center">
-            <!-- Avatar (dinamikus kezdőbetűvel) -->
-            <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl font-bold {{ getAvatarColor(userData.username) }}">
-                {{ getInitials(userData.username) }}
+
+        <div class="flex flex-col items-center p-7 rounded-2xl">
+            <div class="flex">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-md text-center">
+                    <!-- Avatar (dinamikus kezdőbetűvel) -->
+                    <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl font-bold {{ getAvatarColor(userData.username) }}">
+                        {{ getInitials(userData.username) }}
+                    </div>
+                    <p class="mt-4 text-xl font-semibold text-gray-100">{{userData.username}}</p>
+                </div>
             </div>
-            <p class="mt-4 text-xl font-semibold text-gray-100">{{userData.username}}</p>
-        </div>
+          </div>
 
         <!-- Adatok -->
         <div class="bg-gray-800 p-6 rounded-lg shadow-md space-y-4">

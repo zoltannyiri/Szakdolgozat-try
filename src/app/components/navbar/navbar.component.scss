@@ -14,3 +14,24 @@ a{
 }
 
 
+// styles.scss vagy komponens.scss
+// .sidenav-overlay {
+//     background-color: rgba(0, 0, 0, 0.5);
+//     backdrop-filter: blur(4px); // Opcionális, de javítja a megjelenést
+//   }
+  
+//   .sidenav-container {
+//     position: fixed;
+//     right: 0;
+//     top: 0;
+//     height: 100vh;
+//     width: 300px;
+//     background-color: white;
+//     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+//     transform: translateX(100%);
+//     transition: transform 0.3s ease-in-out;
+//   }
+  
+//   .sidenav-container.active {
+//     transform: translateX(0);
+//   }

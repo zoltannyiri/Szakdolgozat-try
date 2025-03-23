@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, HostListener, TemplateRef } from '@angular/core';
+import { CommonModule, NgIfContext } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { RegisterComponent } from '../register/register.component';
 import { AuthService } from '../../services/auth.service';
@@ -20,9 +20,13 @@ export class NavbarComponent {
   menuOpen = false;
   showProfileMenu = false;
   isLoggedIn = false;
+  isSidebarOpen = false;
   userName : string = '';
+  userData: any = null;
 
   private subscription: Subscription;
+loggedInView: TemplateRef<NgIfContext<boolean>> | null | undefined;
+profileMenuOpen: any;
 
   constructor(public authService: AuthService) {
     this.subscription = this.authService.isLoggedIn$.subscribe(
@@ -34,6 +38,7 @@ export class NavbarComponent {
       }
     );
   }
+  
 
   ngOnInit() {
     // Kényszerítjük az állapot ellenőrzését
@@ -71,9 +76,18 @@ export class NavbarComponent {
     return names[0].charAt(0);
   }
 
+  @HostListener('document:click', ['$event'])
+  closeSidebar(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.sidebar') && !target.closest('.menu-button')) {
+      this.isSidebarOpen = false;
+    }
+  }
+
   logout() {
     this.authService.logout();
     this.showProfileMenu = false;
+    this.isSidebarOpen = false;
   }
 
   // ngOnInit(): void {
