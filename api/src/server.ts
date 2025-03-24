@@ -145,6 +145,27 @@ app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Respo
   });
 
 
+  //létrehozva: 03. 24. 
+  app.get("/api/profile/:username", async (req: CustomRequest, res: Response) => {
+    try {
+      const { username } = req.params;  // Az URL-ben szereplő felhasználónév
+      const user = await User.findOne({ username }).select("-password");  // Megkeressük a felhasználót
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      return res.json({ user });
+    } catch (error) {
+      console.log("Error fetching profile:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  
+  
+
+
 // áthelyezve a middlewarebe
 // export const authenticateToken = (req: CustomRequest, res: Response, next: NextFunction) =>{
 //     const authHeader = req.headers["authorization"];

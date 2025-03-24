@@ -11,7 +11,6 @@ export class AuthService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
-
   constructor(private http: HttpClient, private router: Router) {
     this.checkToken();
   }
@@ -23,7 +22,7 @@ export class AuthService {
 
   login(username: string, email: string, password: string) {
     const body = { username, email, password };
-    return this.http.post<{token: string}>(`${environment.apiUrl}/api/login`, body).pipe(
+    return this.http.post<{ token: string }>(`${environment.apiUrl}/api/login`, body).pipe(
       tap(({ token }) => {
         localStorage.setItem('token', token);
         this.isLoggedInSubject.next(true);
@@ -54,6 +53,7 @@ export class AuthService {
       this.isLoggedInSubject.next(false);
     }
   }
+
   private validateToken(token: string) {
     return this.http.get(`${environment.apiUrl}/api/validate-token`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -78,35 +78,26 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
+  // Felhasználó azonosítójának lekérése a tokenből
+  getUserId(): string | null {
+    const token = this.getToken();
+    if (token) {
+      const decodedToken: any = jwtDecode(token); // Token dekódolása
+      return decodedToken.userId || null; // Feltételezve, hogy a token tartalmaz egy `userId` mezőt
+    }
+    return null;
+  }
+
   getUsernameFromToken(): string | null {
     const token = this.getToken();
     if (token) {
-      const decoded: any = jwt_decode(token);
+      const decoded: any = jwtDecode(token);
       return decoded.username || null;
     }
     return null;
   }
 }
 
-
-function jwt_decode(token: string): any {
+function jwtDecode(token: string): any {
   throw new Error('Function not implemented.');
 }
-//commented at 03.11 19:00
-// // auth.service.ts
-// import { Injectable } from '@angular/core';
-// import { HttpClient } from '@angular/common/http';
-// import { Observable } from 'rxjs';
-
-// @Injectable({
-//   providedIn: 'root'
-// })
-// export class AuthService {
-//   private apiUrl = 'http://localhost:8000/api/login';
-
-//   constructor(private http: HttpClient) {}
-
-//   login(username: string, password: string): Observable<{ token: string }> {
-//     return this.http.post<{ token: string }>(this.apiUrl, { username, password });
-//   }
-// }

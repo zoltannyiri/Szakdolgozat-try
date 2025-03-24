@@ -1,53 +1,115 @@
-<!-- <div class="profile-container border-1 text-center w-full max-w-[80%] mx-auto rounded">
-    <h2>Profile</h2>
-    <div *ngIf="userData; else loadingOrError">
-        <img class="rounded-sm w-36 h-36" src="/docs/images/people/profile-picture-5.jpg" alt="Extra large avatar">
-        <p><strong>Username:</strong> {{userData.username}} </p>
-        <p><strong>Email:</strong> {{ userData.email}}</p>
-        <p><strong>User ID:</strong> {{ userData._id}}</p>
-        <button (click)="onLogout()" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Logout</button>
-    </div>
-    <ng-template #loadingOrError>
-        <p *ngIf="errorMessage">{{ errorMessage }}</p>
-        <p *ngIf="!errorMessage">Loading profile...</p>
-    </ng-template>
-    
-</div> -->
+<div class="bg-indigo-50 min-h-screen">
+    <div class="profile-container bg-gray-900 text-white w-full max-w-[60%] mx-auto rounded-lg shadow-2xl p-8">
+        <h2 class="text-3xl font-bold mb-8 text-center text-indigo-400">Profile</h2>
 
-<div class="profile-container bg-gray-900 text-white w-full max-w-[80%] mx-auto rounded-lg shadow-2xl p-8">
-    <h2 class="text-3xl font-bold mb-8 text-center text-indigo-400">Profile</h2>
-    <div *ngIf="userData; else loadingOrError" class="space-y-6">
-        <!-- Avatar és név keret -->
+        <!-- Fül menü -->
+        <div class="py-6 flex justify-center space-x-4 mb-8 max-w-5xl items-center justify-content-center mx-auto">
+            <button 
+                (click)="activeTab = 'general'"
+                [ngClass]="{'bg-indigo-600 text-white': activeTab === 'general', 'bg-gray-700 text-gray-300': activeTab !== 'general'}"
+                class="px-6 py-2 rounded-full transition-colors hover:bg-indigo-500">
+                General
+            </button>
+            <button 
+                (click)="activeTab = 'advanced'"
+                [ngClass]="{'bg-indigo-600 text-white': activeTab === 'advanced', 'bg-gray-700 text-gray-300': activeTab !== 'advanced'}"
+                class="px-6 py-2 rounded-full transition-colors hover:bg-indigo-500">
+                Advanced
+            </button>
+            <button 
+                (click)="activeTab = 'preferences'"
+                [ngClass]="{'bg-indigo-600 text-white': activeTab === 'preferences', 'bg-gray-700 text-gray-300': activeTab !== 'preferences'}"
+                class="px-6 py-2 rounded-full transition-colors hover:bg-indigo-500">
+                Preferences
+            </button>
+        </div>
 
-        <div class="flex flex-col items-center p-7 rounded-2xl">
-            <div class="flex">
-                <div class="bg-gray-800 p-6 rounded-lg shadow-md text-center">
-                    <!-- Avatar (dinamikus kezdőbetűvel) -->
-                    <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl font-bold {{ getAvatarColor(userData.username) }}">
-                        {{ getInitials(userData.username) }}
+        <!-- Tartalom -->
+        <div *ngIf="userData; else loadingOrError" class="space-y-6">
+            <!-- General fül -->
+            <div *ngIf="activeTab === 'general'" class="space-y-6">
+                <div class="flex flex-col items-center p-1 rounded-2xl justify-between">
+                    <div class="flex w-full max-w-5xl bg-gray-800 p-6 rounded-lg shadow-md">
+                        <!-- Bal oldali adatok -->
+                        <div class="flex-1 space-y-4">
+                            <p class="text-gray-300"><strong class="text-indigo-400">Email:</strong> {{ userData.email }}</p>
+                            <p class="text-gray-300"><strong class="text-indigo-400"><i class="bi bi-geo-alt-fill"></i> Location:</strong> {{ userData.country }}</p>
+                            <p class="text-gray-300"><strong class="text-indigo-400"><i class="bi bi-calendar-event-fill"></i> Joined:</strong> {{ userData.date | date: 'yyyy-MM-dd HH:mm:ss'}} </p>
+                            <p class="text-gray-300"><strong class="text-indigo-400"><i class="bi bi-calendar-event-fill"></i> Last Online:</strong> {{ userData.lastLogin | date: 'yyyy-MM-dd HH:mm:ss'}} </p>
+                        </div>
+                        
+                        <!-- Jobb oldali avatar és név -->
+                        <div class="flex-1">
+                            <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl font-bold {{ getAvatarColor(userData.username) }}">
+                                {{ getInitials(userData.username) }}
+                            </div>
+                            <p class="mt-4 text-2xl font-semibold text-center text-gray-100">{{userData.username}}</p>
+                        </div>
                     </div>
-                    <p class="mt-4 text-xl font-semibold text-gray-100">{{userData.username}}</p>
                 </div>
             </div>
-          </div>
 
-        <!-- Adatok -->
-        <div class="bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
-            <p class="text-gray-300"><strong class="text-indigo-400">Email:</strong> {{ userData.email }}</p>
-            <p class="text-gray-300"><strong class="text-indigo-400">User ID:</strong> {{ userData._id }}</p>
+            <!-- Advanced fül -->
+            <div *ngIf="activeTab === 'advanced'" class="text-center text-gray-300">
+                <div *ngIf="activeTab === 'advanced'" class="space-y-6">
+                    <div class="flex flex-col items-center p-1 rounded-2xl justify-between">
+                        <div class="w-full max-w-5xl bg-gray-800 p-6 rounded-lg shadow-md">
+                            <!-- About Me szekció -->
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-indigo-400">About Me</h3>
+                                <!-- Ceruza ikon (csak a bejelentkezett felhasználó láthatja) -->
+                                <button 
+                                    *ngIf="isCurrentUser && !isEditing"
+                                    (click)="startEditing()"
+                                    class="text-gray-400 hover:text-indigo-500 transition-colors">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                
+                            <!-- About Me szövegmező -->
+                            <textarea 
+                                [(ngModel)]="aboutMe" 
+                                [disabled]="!isEditing" 
+                                class="w-full p-3 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                rows="5"
+                                placeholder="Write something about yourself...">
+                            </textarea>
+                
+                            <!-- Szerkesztési gombok (csak szerkesztési módban jelennek meg) -->
+                            <div *ngIf="isEditing" class="flex space-x-4 mt-4">
+                                <button 
+                                    (click)="saveAboutMe()"
+                                    class="flex-1 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                                    Save
+                                </button>
+                                <button 
+                                    (click)="cancelEditing()"
+                                    class="flex-1 bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                
+                            <!-- Információs üzenet (ha nem a bejelentkezett felhasználó) -->
+                            <p *ngIf="!isCurrentUser" class="mt-4 text-gray-400 text-center">
+                                Only the profile owner can edit this section.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences fül -->
+            <div *ngIf="activeTab === 'preferences'" class="text-center text-gray-300">
+                <p>Preferences settings will be available soon.</p>
+            </div>
         </div>
 
-        <!-- Logout gomb -->
-        <button (click)="onLogout()" class="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-transform transform hover:scale-105 shadow-md">
-            Logout
-        </button>
+        <!-- Betöltés vagy hiba üzenet -->
+        <ng-template #loadingOrError>
+            <div class="text-center">
+                <p *ngIf="errorMessage" class="text-red-400">{{ errorMessage }}</p>
+                <p *ngIf="!errorMessage" class="text-gray-300">Loading profile...</p>
+            </div>
+        </ng-template>
     </div>
-
-    <!-- Betöltés vagy hiba üzenet -->
-    <ng-template #loadingOrError>
-        <div class="text-center">
-            <p *ngIf="errorMessage" class="text-red-400">{{ errorMessage }}</p>
-            <p *ngIf="!errorMessage" class="text-gray-300">Loading profile...</p>
-        </div>
-    </ng-template>
 </div>

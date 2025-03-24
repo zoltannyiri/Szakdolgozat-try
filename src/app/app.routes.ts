@@ -18,4 +18,5 @@ export const routes: Routes = [
     {'path': 'loops', component: LoopsComponent},
     {'path': 'forgot-password', component: ForgotPasswordComponent},
     {'path': 'profile', component: ProfileComponent},
+    {'path': 'profile/:username', component: ProfileComponent }
 ];

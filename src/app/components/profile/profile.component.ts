@@ -1,32 +1,108 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';  // Az URL paraméterek kezeléséhez
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.scss'
+  styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
   userData: any = null;
   errorMessage = '';
-  user: any;
+  activeTab: string = 'general';
+  aboutMe: string = '';
+  isCurrentUser: boolean = false; // A bejelentkezett felhasználó egyezik-e a profil tulajdonosával
+  isEditing: boolean = false; // Szerkesztési mód
+  originalAboutMe: string = ''; // Eredeti About Me szöveg (visszavonáshoz)
+  usernameFromUrl: string = ''; // Az URL-ben szereplő felhasználónév
 
-  constructor(private authService: AuthService, private http: HttpClient) { }
+  constructor(
+    private authService: AuthService,
+    private http: HttpClient,
+    private route: ActivatedRoute // URL paraméterek lekérése
+  ) { }
 
   ngOnInit(): void {
-    this.http.get(environment.apiUrl+'/api/profile').subscribe({
+    this.route.paramMap.subscribe(params => {
+      const username = params.get('username');  // A felhasználó neve az URL-ből
+
+      if (username) {
+        // Ha a felhasználó nevét megadjuk az URL-ben, akkor annak megfelelő adatokat kérjük le
+        this.http.get(`${environment.apiUrl}/api/profile/${username}`, {
+          headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
+        }).subscribe({
+          next: (response: any) => {
+            this.userData = response.user;
+            const loggedInUserId = this.authService.getUserId();
+            this.isCurrentUser = loggedInUserId === this.userData._id;
+            this.originalAboutMe = this.userData.aboutMe || ''; // Eredeti szöveg mentése
+            this.aboutMe = this.userData.aboutMe || ''; // Inicializáljuk az aboutMe változót
+          },
+          error: (err: any) => {
+            console.error('Failed to fetch profile:', err);
+            this.errorMessage = 'Could not load profile data';
+          }
+        });
+      } else {
+        // Ha nincs URL-ben felhasználónév, akkor a bejelentkezett felhasználó saját profilját kérjük le
+        this.http.get(`${environment.apiUrl}/api/profile`, {
+          headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
+        }).subscribe({
+          next: (response: any) => {
+            this.userData = response.user;
+            const loggedInUserId = this.authService.getUserId();
+            this.isCurrentUser = loggedInUserId === this.userData._id;
+            this.originalAboutMe = this.userData.aboutMe || ''; // Eredeti szöveg mentése
+            this.aboutMe = this.userData.aboutMe || ''; // Inicializáljuk az aboutMe változót
+          },
+          error: (err: any) => {
+            console.error('Failed to fetch profile:', err);
+            this.errorMessage = 'Could not load profile data';
+          }
+        });
+      }
+    });
+  }
+
+  loadProfileData(): void {
+    // Profil adatok betöltése az URL-ben szereplő felhasználónév alapján
+    this.http.get(environment.apiUrl + '/api/profile/' + this.usernameFromUrl).subscribe({
       next: (response: any) => {
         this.userData = response.user;
+        // Ellenőrizzük, hogy a bejelentkezett felhasználó egyezik-e a profil tulajdonosával
+        const loggedInUserId = this.authService.getUserId();
+        this.isCurrentUser = loggedInUserId === this.userData._id;
+        this.originalAboutMe = this.userData.aboutMe || ''; // Eredeti szöveg mentése
+        this.aboutMe = this.userData.aboutMe || ''; // Inicializáljuk az aboutMe változót
       },
       error: (err: any) => {
         console.error('Failed to fetch profile:', err);
         this.errorMessage = 'Could not load profile data';
       }
-    });
+    });}
+
+  // Szerkesztés indítása
+  startEditing() {
+    this.isEditing = true;
+  }
+
+  // About Me mentése
+  saveAboutMe() {
+    console.log('About Me saved:', this.aboutMe);
+    this.isEditing = false;
+    // Itt lehetne elküldeni a szerverre a változtatásokat
+  }
+
+  // Szerkesztés visszavonása
+  cancelEditing() {
+    this.aboutMe = this.originalAboutMe; // Visszaállítjuk az eredeti szöveget
+    this.isEditing = false;
   }
 
   // Dinamikus avatar háttérszín generálása
