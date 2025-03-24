@@ -162,6 +162,31 @@ app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Respo
     }
   });
 
+  // A PUT végpont hozzáadása (aboutme miatt)
+app.put("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
+  try {
+    const { aboutMe } = req.body;  // A frissített adat
+    const userId = req.user.userId;  // A bejelentkezett felhasználó ID-ja
+
+    // A felhasználó keresése ID alapján
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // A felhasználó adatainak frissítése
+    user.aboutMe = aboutMe;
+    await user.save();  // Az adatok mentése
+
+    return res.json({ message: "Profile updated successfully", user });
+  } catch (error) {
+    console.log("Error updating profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
   
   
 

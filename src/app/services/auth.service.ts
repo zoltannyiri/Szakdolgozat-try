@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../environments/environment';
 import { BehaviorSubject, catchError, map, of, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+
+
 
 @Injectable({
   providedIn: 'root',
@@ -81,11 +84,17 @@ export class AuthService {
   // Felhasználó azonosítójának lekérése a tokenből
   getUserId(): string | null {
     const token = this.getToken();
-    if (token) {
-      const decodedToken: any = jwtDecode(token); // Token dekódolása
-      return decodedToken.userId || null; // Feltételezve, hogy a token tartalmaz egy `userId` mezőt
+    console.log("Token:", token);
+    if (!token) return null;
+  
+    try {
+      const decoded: any = jwtDecode(token);
+      console.log("Decoded token:", decoded);
+      return decoded.userId || null;
+    } catch (error) {
+      console.error('Invalid token:', error);
+      return null;
     }
-    return null;
   }
 
   getUsernameFromToken(): string | null {
@@ -98,6 +107,6 @@ export class AuthService {
   }
 }
 
-function jwtDecode(token: string): any {
-  throw new Error('Function not implemented.');
-}
+// function jwtDecode(token: string): any {
+//   throw new Error('Function not implemented.');
+// }

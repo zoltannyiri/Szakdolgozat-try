@@ -30,45 +30,42 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const username = params.get('username');  // A felhasználó neve az URL-ből
+        const username = params.get('username');
 
-      if (username) {
-        // Ha a felhasználó nevét megadjuk az URL-ben, akkor annak megfelelő adatokat kérjük le
-        this.http.get(`${environment.apiUrl}/api/profile/${username}`, {
-          headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
-        }).subscribe({
-          next: (response: any) => {
-            this.userData = response.user;
-            const loggedInUserId = this.authService.getUserId();
-            this.isCurrentUser = loggedInUserId === this.userData._id;
-            this.originalAboutMe = this.userData.aboutMe || ''; // Eredeti szöveg mentése
-            this.aboutMe = this.userData.aboutMe || ''; // Inicializáljuk az aboutMe változót
-          },
-          error: (err: any) => {
-            console.error('Failed to fetch profile:', err);
-            this.errorMessage = 'Could not load profile data';
-          }
-        });
-      } else {
-        // Ha nincs URL-ben felhasználónév, akkor a bejelentkezett felhasználó saját profilját kérjük le
-        this.http.get(`${environment.apiUrl}/api/profile`, {
-          headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
-        }).subscribe({
-          next: (response: any) => {
-            this.userData = response.user;
-            const loggedInUserId = this.authService.getUserId();
-            this.isCurrentUser = loggedInUserId === this.userData._id;
-            this.originalAboutMe = this.userData.aboutMe || ''; // Eredeti szöveg mentése
-            this.aboutMe = this.userData.aboutMe || ''; // Inicializáljuk az aboutMe változót
-          },
-          error: (err: any) => {
-            console.error('Failed to fetch profile:', err);
-            this.errorMessage = 'Could not load profile data';
-          }
-        });
-      }
+        if (username) {
+            // Fetch profile by username
+            this.http.get(`${environment.apiUrl}/api/profile/${username}`, {
+                headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
+            }).subscribe({
+                next: (response: any) => {
+                    this.userData = response.user;
+                    this.isCurrentUser = this.authService.getUserId() === this.userData._id;
+                    this.originalAboutMe = this.userData?.aboutMe || '';
+                    this.aboutMe = this.userData?.aboutMe || '';
+                },
+                error: (err: any) => {
+                    this.errorMessage = 'Could not load profile data';
+                }
+            });
+        } else {
+            // Fetch logged-in user's profile
+            this.http.get(`${environment.apiUrl}/api/profile`, {
+                headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
+            }).subscribe({
+                next: (response: any) => {
+                    this.userData = response.user;
+                    this.isCurrentUser = this.authService.getUserId() === this.userData._id;
+                    this.originalAboutMe = this.userData?.aboutMe || '';
+                    this.aboutMe = this.userData?.aboutMe || '';
+                },
+                error: (err: any) => {
+                    this.errorMessage = 'Could not load profile data';
+                }
+            });
+        }
     });
-  }
+}
+
 
   loadProfileData(): void {
     // Profil adatok betöltése az URL-ben szereplő felhasználónév alapján
@@ -94,10 +91,19 @@ export class ProfileComponent implements OnInit {
 
   // About Me mentése
   saveAboutMe() {
-    console.log('About Me saved:', this.aboutMe);
-    this.isEditing = false;
-    // Itt lehetne elküldeni a szerverre a változtatásokat
-  }
+    const updatedData = { aboutMe: this.aboutMe };
+    this.http.put(`${environment.apiUrl}/api/profile`, updatedData, {
+        headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
+    }).subscribe({
+        next: () => {
+            this.isEditing = false;
+        },
+        error: (err: any) => {
+            console.error('Failed to update profile:', err);
+        }
+    });
+}
+
 
   // Szerkesztés visszavonása
   cancelEditing() {
