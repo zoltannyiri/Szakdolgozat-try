@@ -12,6 +12,9 @@ import registerRoutes from "./controllers/register.controller";
 import User from "./models/user.model";
 import { authenticateToken } from "./middlewares/auth.middleware";
 import { validateUser } from "./middlewares/validation.middleware";
+import { upload, validateLoopMetadata } from "./middlewares/upload.middleware";
+import { uploadLoop, getLoops, downloadLoop } from "./controllers/loop.controller";
+import loopRoutes from "./routes/loop.routes";
 
 
 dotenv.config({
@@ -244,6 +247,16 @@ app.get('/api/validate-token', authenticateToken, async (req: CustomRequest, res
   }
 });
 
+// feltöltés
+app.use("/api", loopRoutes);
+// Loop routes közvetlenül a server.ts-ben
+app.use("/api", loopRoutes);  // "/api/upload", "/api/loops" stb. lesz az útvonal
+
+app.use(cors({
+  origin: 'http://localhost:4200', // Your Angular app URL
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 
 // commented at 03.11 19:00

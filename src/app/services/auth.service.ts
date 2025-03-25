@@ -77,19 +77,21 @@ export class AuthService {
     return !!localStorage.getItem('token');
   }
 
-  getToken() {
+  getToken(): string | null {
     return localStorage.getItem('token');
   }
+
+  
 
   // Felhasználó azonosítójának lekérése a tokenből
   getUserId(): string | null {
     const token = this.getToken();
-    console.log("Token:", token);
+    // console.log("Token:", token);
     if (!token) return null;
   
     try {
       const decoded: any = jwtDecode(token);
-      console.log("Decoded token:", decoded);
+      // console.log("Decoded token:", decoded);
       return decoded.userId || null;
     } catch (error) {
       console.error('Invalid token:', error);
@@ -106,6 +108,8 @@ export class AuthService {
     return null;
   }
 }
+
+
 
 // function jwtDecode(token: string): any {
 //   throw new Error('Function not implemented.');

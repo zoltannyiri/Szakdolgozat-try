@@ -38,7 +38,7 @@ export class LoginComponent {
   // constructor(private authService: AuthService, private router:Router) { }
 
   onLogin() {
-    console.log("Login gomb megnyomva!"); // Debug üzenet
+    // console.log("Login gomb megnyomva!"); // Debug üzenet
     this.errorMessage = '';
   
     if (this.loginForm.invalid) {

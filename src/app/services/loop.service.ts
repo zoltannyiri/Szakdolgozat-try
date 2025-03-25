@@ -1,0 +1,102 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../environments/environment';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { AuthService } from './auth.service'; // Importáljuk az AuthService-t
+
+// Szűrő interfész típusdefiníció
+interface LoopFilters {
+  minBpm?: number | null;
+  maxBpm?: number | null;
+  key?: string;
+  scale?: string;
+  instrument?: string;
+  tags?: string;
+  sortBy?: 'recent' | 'downloads' | 'likes';
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class LoopService {
+  apiUrl = environment.apiUrl;
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService // Dependency injection
+  ) {}
+
+  // Loop feltöltése
+  uploadLoop(file: File, metadata: any): Observable<any> {
+    const formData = new FormData();
+    
+    // 1. Fájl hozzáadása
+    formData.append('loop', file, file.name);
+    
+    // 2. Metaadatok létrehozása JSON-ként
+    const metadataJson = {
+      customName: metadata.customName || '', // Egyéni név vagy üres
+      bpm: Number(metadata.bpm), // Biztos, hogy számként küldjük
+      key: metadata.key,
+      scale: metadata.scale,
+      instrument: metadata.instrument,
+      tags: metadata.tags ? metadata.tags.split(',').map((t: string) => t.trim()) : []
+    };
+
+    // 3. Metaadatok hozzáadása JSON stringként
+    formData.append('metadata', JSON.stringify(metadataJson));
+  
+    // 4. Token hozzáadása
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  
+    return this.http.post(`${environment.apiUrl}/api/upload`, formData, { 
+      headers: headers
+    }).pipe(
+      catchError(error => {
+        console.error('Feltöltési hiba részletei:', error);
+        return throwError(() => error);
+      })
+    );
+}
+
+  // Loopok lekérése szűrőkkel
+  getLoops(filters: LoopFilters): Observable<any> {
+    // Query paraméterek létrehozása
+    const params: any = {};
+    
+    // if (filters.bpm) params.bpm = filters.bpm.toString();
+  if (filters.minBpm) params.minBpm = filters.minBpm.toString();
+  if (filters.maxBpm) params.maxBpm = filters.maxBpm.toString();
+    if (filters.key) params.key = filters.key;
+    if (filters.scale) params.scale = filters.scale;
+    if (filters.instrument) params.instrument = filters.instrument;
+    if (filters.tags) params.tags = filters.tags;
+    if (filters.sortBy) params.sortBy = filters.sortBy;
+
+    // console.log('Request params:', params);
+
+    return this.http.get(`${this.apiUrl}/api/loops`, { params })
+      .pipe(
+        catchError(error => {
+          console.error('Loopok betöltési hiba:', error);
+          throw error;
+        })
+      );
+  }
+
+  // Loop letöltése
+  downloadLoop(loopId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/api/loops/download/${loopId}`, {
+      responseType: 'blob' // Bináris választ várunk
+    }).pipe(
+      catchError(error => {
+        console.error('Letöltési hiba:', error);
+        throw error;
+      })
+    );
+  }
+}
