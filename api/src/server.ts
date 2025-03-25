@@ -255,9 +255,12 @@ app.use("/api", loopRoutes);  // "/api/upload", "/api/loops" stb. lesz az útvon
 app.use(cors({
   origin: 'http://localhost:4200', // Your Angular app URL
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Length', 'Content-Type'],
 }));
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('uploads'));
 
 // commented at 03.11 19:00
 // import App from "./app";

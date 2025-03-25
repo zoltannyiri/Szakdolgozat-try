@@ -3,6 +3,8 @@ import { uploadLoop, getLoops, downloadLoop } from "../controllers/loop.controll
 import { authenticateToken } from "../middlewares/auth.middleware";
 import { upload, validateLoopMetadata } from "../middlewares/upload.middleware";
 
+import { getLoopById } from '../controllers/loop.controller';
+
 const router = Router();
 
 router.post(
@@ -14,6 +16,7 @@ router.post(
 );
 
 router.get("/loops", getLoops);
+router.get('/loops/:id', getLoopById);
 router.get("/loops/download/:id", downloadLoop);
 
 

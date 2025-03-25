@@ -63,6 +63,24 @@ export class LoopService {
     );
 }
 
+getLoopById(id: string): Observable<any> {
+    // Ellenőrizd, hogy helyes-e az URL
+    return this.http.get(`${this.apiUrl}/loops/${id}`).pipe(
+      catchError(error => {
+        console.error('API hiba:', error);
+        return throwError(() => new Error('Nem sikerült betölteni a loop-ot'));
+      })
+    );
+  }
+  
+  getAudioUrl(path: string): string {
+    // Ha a path relatív útvonal, akkor hozzáfűzzük az API URL-t
+    if (path && !path.startsWith('http')) {
+      return `${this.apiUrl}/uploads/${path.split('/').pop()}`;
+    }
+    return path || '';
+  }
+
   // Loopok lekérése szűrőkkel
   getLoops(filters: LoopFilters): Observable<any> {
     // Query paraméterek létrehozása
@@ -100,3 +118,4 @@ export class LoopService {
     );
   }
 }
+

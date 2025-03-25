@@ -46,7 +46,8 @@ export const uploadLoop = async (req: CustomRequest, res: Response) => {
     // Új loop létrehozása
     const newLoop = new Loop({
       filename: displayName,
-      path: filePath,
+      // path: filePath,
+      path: `uploads/${filename}`,
       uploader,
       bpm: parseInt(bpm),
       key,
@@ -136,6 +137,23 @@ export const downloadLoop = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Download error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getLoopById = async (req: Request, res: Response) => {
+  try {
+    const loop = await Loop.findById(req.params.id)
+      .populate('uploader', 'username')
+      .exec();
+    
+    if (!loop) {
+      return res.status(404).json({ message: "Loop not found" });
+    }
+
+    res.json(loop);
+  } catch (error) {
+    console.error("Error fetching loop:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

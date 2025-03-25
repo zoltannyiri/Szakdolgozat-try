@@ -1,0 +1,46 @@
+<div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h1 class="text-2xl font-bold mb-4">{{loop?.filename}}</h1>
+      
+      <div class="flex items-center space-x-4 mb-6">
+        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+          {{loop?.bpm}} BPM
+        </span>
+        <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
+          {{loop?.key}} {{loop?.scale}}
+        </span>
+        <span class="text-gray-500 text-sm">
+          Feltöltve: {{loop?.uploadDate | date:'yyyy.MM.dd.'}}
+        </span>
+      </div>
+  
+      <div class="mb-6">
+        <audio controls class="w-full">
+          <source [src]="getAudioUrl(loop?.path)" type="audio/mpeg">
+        </audio>
+      </div>
+  
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-3">Kommentek</h2>
+        <div *ngIf="comments.length === 0" class="text-gray-500">
+          Még nincsenek kommentek. Legyél te az első!
+        </div>
+        
+        <div *ngFor="let comment of comments" class="mb-4 p-4 bg-gray-50 rounded-lg">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-medium">{{comment.user?.username}}</span>
+            <span class="text-sm text-gray-500">{{comment.createdAt | date:'yyyy.MM.dd. HH:mm'}}</span>
+          </div>
+          <p>{{comment.text}}</p>
+        </div>
+      </div>
+  
+      <div *ngIf="isLoggedIn" class="mt-6">
+        <h3 class="text-lg font-medium mb-3">Új komment</h3>
+        <textarea [(ngModel)]="newComment" class="w-full p-3 border rounded-lg mb-2"></textarea>
+        <button (click)="addComment()" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
+          Küldés
+        </button>
+      </div>
+    </div>
+  </div>

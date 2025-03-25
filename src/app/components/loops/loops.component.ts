@@ -1,20 +1,31 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoopService } from '../../services/loop.service';
 import { AuthService } from '../../services/auth.service';
 import { ILoop } from '../../../../api/src/models/loop.model'; // Import your Loop interface/model
 import { catchError, retry, throwError, timeout, timer } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LoopDetailComponent } from '../loop-detail/loop-detail.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-loops',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './loops.component.html',
   styleUrls: ['./loops.component.scss']
 })
+
 export class LoopsComponent implements OnInit {
+  @ViewChild('audioPlayer') audioPlayerRef: ElementRef<HTMLAudioElement> | undefined;
+
+  // Audio vezérlőhöz szükséges változók
+  @ViewChildren('audioPlayer') audioPlayers!: QueryList<ElementRef<HTMLAudioElement>>;
+
+  currentlyPlaying: HTMLAudioElement | null = null;
+  isPlaying = false;
+
   // UI States
   isAdvancedSearchOpen = false;
   isUploadModalOpen = false;
@@ -78,9 +89,17 @@ export class LoopsComponent implements OnInit {
 
   getSafeAudioUrl(path: string | undefined): string {
     if (!path) return '';
-    return this.loopService.apiUrl ? 
-      `${this.loopService.apiUrl}/${path.replace(/\\/g, '/')}` : 
-      '';
+    
+    // Ha már teljes URL (http:// vagy https://), akkor visszaadja változatlanul
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    const cleanPath = path.replace(/\\/g, '/').replace(/^\/?uploads\//, '');
+  return `${this.loopService.apiUrl}/uploads/${cleanPath}`
+    // Egyébként hozzáfűzi az API alap URL-t
+    // return this.loopService.apiUrl ? 
+    //   `${this.loopService.apiUrl}/${path.replace(/\\/g, '/')}` : 
+    //   '';
   }
 
   searchLoops(): void {
@@ -105,6 +124,68 @@ export class LoopsComponent implements OnInit {
       this.resetUploadForm();
     }
   }
+
+  // Audio control methods
+  togglePlay(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): void {
+    const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
+    try {
+      if (this.currentlyPlaying && this.currentlyPlaying !== audio) {
+        this.currentlyPlaying.pause();
+        this.currentlyPlaying.currentTime = 0;
+        this.isPlaying = false;
+      }
+  
+      if (audio.paused) {
+        this.currentlyPlaying = audio;
+        audio.play().then(() => {
+          this.isPlaying = true;
+        });
+      } else {
+        audio.pause();
+        this.currentlyPlaying = null;
+        this.isPlaying = false;
+      }
+    } catch (error) {
+      console.error('Hibás hangfájl:', audio.src);
+      console.error('Hiba részletei:', error);
+      this.isPlaying = false;
+    }
+  }
+
+
+// teszt
+  testAudioPlayback(): void {
+    const testAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+    testAudio.play()
+      .then(() => console.log('Teszt hang lejátszása sikeres'))
+      .catch(err => console.error('Teszt hang hibája:', err));
+  }
+
+  
+
+  onAudioError(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): void {
+    const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
+    console.error('Hiba a lejátszás során:', audio.error);
+    console.error('Fájl elérési út:', audio.src);
+    this.isPlaying = false;
+  }
+
+  onAudioPlay() {
+    const audioElement = this.audioPlayerRef?.nativeElement;
+    // használd az audioElement-et itt
+  }
+  
+  onAudioPause(): void {
+    this.isPlaying = false;
+    console.log('Lejátszás szüneteltetve');
+  }
+  
+  // onAudioError(audioRef: ElementRef<HTMLAudioElement>): void {
+  //   const audio = audioRef.nativeElement;
+  //   console.error('Hiba a lejátszás során:', audio.error);
+  //   console.error('Fájl elérési út:', audio.src);
+  //   this.isPlaying = false;
+  // }
 
   closeUploadModal(event: Event): void {
     if ((event.target as HTMLElement).classList.contains('bg-black')) {
@@ -261,6 +342,39 @@ downloadLoop(loopId: string): void {
 
   getAudioUrl(path: string): string {
     return `${this.loopService.apiUrl}/${path.replace(/\\/g, '/')}`;
+  }
+
+  
+  getProgress(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): number {
+    const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
+    if (!audio || !audio.duration) return 0;
+    return (audio.currentTime / audio.duration) * 100;
+  }
+
+  getCurrentTime(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): number {
+    const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
+    return audio?.currentTime || 0;
+  }
+  
+  getDuration(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): number {
+    const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
+    return audio?.duration || 0;
+  }
+
+  // Helper to safely get native element
+  getAudioElement(ref: ElementRef<HTMLAudioElement>): HTMLAudioElement {
+    return ref.nativeElement;
+  }
+
+  // Helper method to get native element from template reference
+  getNativeElement(ref: HTMLAudioElement | ElementRef<HTMLAudioElement>): HTMLAudioElement {
+    return ref instanceof ElementRef ? ref.nativeElement : ref;
+  }
+
+  formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   }
 
   formatDuration(seconds: number): string {
