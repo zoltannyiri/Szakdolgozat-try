@@ -1,4 +1,148 @@
 <div class="max-w-4xl mx-auto p-6">
+  <!-- Betöltési állapot megjelenítése -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+  </div>
+
+  <!-- Vissza gomb -->
+  <button *ngIf="!isLoading" (click)="goBack()" class="mb-4 text-blue-600 hover:text-blue-800 flex items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+    </svg>
+    Vissza a loop-okhoz
+  </button>
+
+  <!-- Hibaüzenet megjelenítése -->
+  <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    {{errorMessage}}
+  </div>
+
+  <div *ngIf="!isLoading" class="bg-white rounded-lg shadow-lg p-6">
+    <!-- Loop részletek -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold mb-2">{{loop?.title || 'Loop'}}</h1>
+      <div class="flex items-center text-sm text-gray-500 mb-4">
+        <span>{{loop?.user?.username || 'Ismeretlen'}}</span>
+        <span class="mx-2">•</span>
+        <span>{{loop?.createdAt | date:'yyyy.MM.dd. HH:mm'}}</span>
+      </div>
+      
+      <!-- Audio player -->
+      <div *ngIf="loop?.path" class="mb-6">
+        <audio controls class="w-full">
+          <source [src]="getAudioUrl(loop.path)" type="audio/mpeg">
+          A böngésződ nem támogatja az audio elemet.
+        </audio>
+      </div>
+      
+      <p class="whitespace-pre-wrap text-gray-700">{{loop?.description}}</p>
+    </div>
+
+    <!-- Komment szekció -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-4 border-b pb-2">
+        <h2 class="text-xl font-semibold">Hozzászólások</h2>
+        <span class="text-sm text-gray-500">{{comments.length}} {{comments.length === 1 ? 'hozzászólás' : 'hozzászólás'}}</span>
+      </div>
+
+      <!-- Nincs komment üzenet -->
+      <div *ngIf="comments.length === 0" class="text-center py-8 bg-gray-50 rounded-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        <p class="text-gray-500 mt-2">Még nincsenek hozzászólások.</p>
+        <p *ngIf="!isLoggedIn" class="text-sm mt-1">Jelentkezz be, hogy te lehess az első!</p>
+        <button *ngIf="!isLoggedIn" (click)="handleLogin()"
+          class="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Bejelentkezés
+        </button>
+      </div>
+
+      <!-- Komment lista rész -->
+<div *ngIf="comments.length > 0" class="space-y-4">
+  <div *ngFor="let comment of comments" class="p-4 bg-gray-50 rounded-lg">
+    <div class="flex items-start space-x-3">
+      <!-- Felhasználó avatárja -->
+      <div class="flex-shrink-0">
+        <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+          <img *ngIf="comment.user?.profileImage" 
+               [src]="comment.user.profileImage" 
+               class="h-full w-full object-cover">
+          <span *ngIf="!comment.user?.profileImage" 
+                class="text-gray-600 font-medium">
+            {{comment.user?.username?.charAt(0) || '?'}}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Komment tartalma -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-baseline">
+          <p class="text-sm font-medium text-gray-900 mr-2">
+            {{comment.user?.username || 'Ismeretlen'}}
+          </p>
+          <span *ngIf="comment.user?.role === 'admin'" 
+                class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
+            Admin
+          </span>
+          <span class="ml-auto text-xs text-gray-500">
+            {{comment.createdAt | date:'yyyy.MM.dd. HH:mm'}}
+          </span>
+        </div>
+        <p class="mt-1 text-sm text-gray-700 whitespace-pre-wrap">
+          {{comment.text}}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Komment űrlap -->
+    <div *ngIf="isLoggedIn" class="mt-8 border-t pt-6">
+      <h3 class="text-lg font-medium mb-3">Új hozzászólás</h3>
+      <textarea [(ngModel)]="newComment" placeholder="Írd ide a hozzászólásodat..."
+        class="w-full p-3 border rounded-lg mb-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+        rows="4" maxlength="500"></textarea>
+
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-gray-500">
+          {{newComment.length}} / 500 karakter
+        </div>
+        <button (click)="addComment()" 
+          [disabled]="isAddingComment || !newComment.trim() || newComment.length > 500"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition duration-200 flex items-center">
+          
+          <span *ngIf="!isAddingComment">Küldés</span>
+          <span *ngIf="isAddingComment" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Küldés...
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bejelentkezés felhívás -->
+    <div *ngIf="!isLoggedIn" class="mt-8 border-t pt-6 text-center">
+      <div class="bg-blue-50 p-4 rounded-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <p class="text-gray-600 mt-2">A hozzászóláshoz be kell jelentkezned.</p>
+        <button (click)="handleLogin()"
+          class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Bejelentkezés
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- <div class="max-w-4xl mx-auto p-6">
     <div class="bg-white rounded-lg shadow-lg p-6">
       <h1 class="text-2xl font-bold mb-4">{{loop?.filename}}</h1>
       
@@ -43,4 +187,4 @@
         </button>
       </div>
     </div>
-  </div>
+  </div> -->

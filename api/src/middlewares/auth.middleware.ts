@@ -9,6 +9,20 @@ interface DecodedToken {
   user: any;
 }
 
+// export const authenticateToken = (req: CustomRequest, res: Response, next: NextFunction) => {
+//   const authHeader = req.headers["authorization"];
+//   const token = authHeader && authHeader.split(" ")[1];
+//   if (!token) return res.status(401).json({ message: "No token provided, authorization denied" });
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedToken;
+//     req.user = decoded;
+//     // console.log("Authenticated user:", decoded.user);
+//     next();
+//   } catch (error) {
+//     return res.status(403).json({ message: "Invalid or expired token" });
+//   }
+// };
 export const authenticateToken = (req: CustomRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];

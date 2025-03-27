@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -21,6 +21,7 @@ interface LoopFilters {
 })
 export class LoopService {
   apiUrl = environment.apiUrl;
+  loopService: any;
 
   constructor(
     private http: HttpClient,
@@ -63,23 +64,61 @@ export class LoopService {
     );
 }
 
+// getLoopById(id: string): Observable<any> {
+//     // Ellenőrizd, hogy helyes-e az URL
+//     return this.http.get(`${this.apiUrl}/loops/${id}`).pipe(
+//       catchError(error => {
+//         console.error('API hiba:', error);
+//         return throwError(() => new Error('Nem sikerült betölteni a loop-ot'));
+//       })
+//     );
+//   }
+
+// getLoopById(id: string): Observable<any> {
+//   return this.http.get(`${this.apiUrl}/loops/${id}`).pipe(
+//     catchError((error: HttpErrorResponse) => {
+//       if (error.status === 404) {
+//         console.error('A loop nem található:', id);
+//         return throwError(() => new Error('A loop nem található az adatbázisban'));
+//       }
+//       console.error('API hiba:', error);
+//       return throwError(() => new Error('Hiba történt a kérés feldolgozása során'));
+//     })
+//   );
+// }
+// loop.service.ts
 getLoopById(id: string): Observable<any> {
-    // Ellenőrizd, hogy helyes-e az URL
-    return this.http.get(`${this.apiUrl}/loops/${id}`).pipe(
-      catchError(error => {
-        console.error('API hiba:', error);
-        return throwError(() => new Error('Nem sikerült betölteni a loop-ot'));
-      })
-    );
-  }
+  // Használd az /api prefixet, hogy egyezzen a backend route-tal
+  return this.http.get(`${this.apiUrl}/api/loops/${id}`).pipe(
+    catchError(error => {
+      console.error('API hiba:', error);
+      return throwError(() => new Error('Nem sikerült betölteni a loop-ot'));
+    })
+  );
+}
+
   
-  getAudioUrl(path: string): string {
-    // Ha a path relatív útvonal, akkor hozzáfűzzük az API URL-t
-    if (path && !path.startsWith('http')) {
-      return `${this.apiUrl}/uploads/${path.split('/').pop()}`;
+  // getAudioUrl(path: string): string {
+  //   // Ha a path relatív útvonal, akkor hozzáfűzzük az API URL-t
+  //   if (path && !path.startsWith('http')) {
+  //     return `${this.apiUrl}/uploads/${path.split('/').pop()}`;
+  //   }
+  //   return path || '';
+  // }
+  getAudioUrl(path: string | undefined): string {
+    if (!path) return '';
+    
+    // Ha már teljes URL
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
     }
-    return path || '';
+    
+    // API URL hozzáadása és elérési út tisztítása
+    const cleanPath = path.replace(/\\/g, '/').replace(/^\/?uploads\//, '');
+    return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
   }
+
+
 
   // Loopok lekérése szűrőkkel
   getLoops(filters: LoopFilters): Observable<any> {
