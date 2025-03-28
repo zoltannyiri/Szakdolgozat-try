@@ -3,11 +3,11 @@ import { Component, OnInit, ViewChild, ViewChildren, QueryList, ElementRef } fro
 import { FormsModule } from '@angular/forms';
 import { LoopService } from '../../services/loop.service';
 import { AuthService } from '../../services/auth.service';
-import { ILoop } from '../../../../api/src/models/loop.model'; // Import your Loop interface/model
+import { ILoop } from '../../../../api/src/models/loop.model';
 import { catchError, retry, throwError, timeout, timer } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LoopDetailComponent } from '../loop-detail/loop-detail.component';
 import { RouterModule } from '@angular/router';
+import { WaveformService } from '../../services/waveform.service';
 
 @Component({
   selector: 'app-loops',
@@ -16,15 +16,17 @@ import { RouterModule } from '@angular/router';
   templateUrl: './loops.component.html',
   styleUrls: ['./loops.component.scss']
 })
-
 export class LoopsComponent implements OnInit {
-  @ViewChild('audioPlayer') audioPlayerRef: ElementRef<HTMLAudioElement> | undefined;
-
-  // Audio vezérlőhöz szükséges változók
   @ViewChildren('audioPlayer') audioPlayers!: QueryList<ElementRef<HTMLAudioElement>>;
 
-  currentlyPlaying: HTMLAudioElement | null = null;
-  isPlaying = false;
+  // Audio state variables
+  currentlyPlayingId: string | null = null;
+  waveforms: { [key: string]: number[] } = {};
+  progressValues: { [key: string]: number } = {};
+  currentTimes: { [key: string]: number } = {};
+  durations: { [key: string]: number } = {};
+  volumes: { [key: string]: number } = {};
+  currentPositions: { [key: string]: number } = {};
 
   // UI States
   isAdvancedSearchOpen = false;
@@ -34,7 +36,7 @@ export class LoopsComponent implements OnInit {
   
   // Search
   searchQuery = '';
-  loops: ILoop[] = []; // Use proper type instead of any[]
+  loops: ILoop[] = [];
   
   // Upload
   selectedFile: File | null = null;
@@ -66,7 +68,8 @@ export class LoopsComponent implements OnInit {
 
   constructor(
     private loopService: LoopService,
-    private authService: AuthService
+    private authService: AuthService,
+    private waveformService: WaveformService
   ) {}
 
   ngOnInit(): void {
@@ -78,6 +81,10 @@ export class LoopsComponent implements OnInit {
     this.loopService.getLoops(this.filters).subscribe({
       next: (loops: ILoop[]) => {
         this.loops = loops;
+        loops.forEach(loop => {
+          this.volumes[loop._id] = 0.7;
+          this.generateWaveform(loop._id);
+        });
         this.isLoading = false;
       },
       error: (err: any) => {
@@ -89,17 +96,10 @@ export class LoopsComponent implements OnInit {
 
   getSafeAudioUrl(path: string | undefined): string {
     if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
     
-    // Ha már teljes URL (http:// vagy https://), akkor visszaadja változatlanul
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      return path;
-    }
     const cleanPath = path.replace(/\\/g, '/').replace(/^\/?uploads\//, '');
-  return `${this.loopService.apiUrl}/uploads/${cleanPath}`
-    // Egyébként hozzáfűzi az API alap URL-t
-    // return this.loopService.apiUrl ? 
-    //   `${this.loopService.apiUrl}/${path.replace(/\\/g, '/')}` : 
-    //   '';
+    return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
   }
 
   searchLoops(): void {
@@ -125,67 +125,99 @@ export class LoopsComponent implements OnInit {
     }
   }
 
-  // Audio control methods
-  togglePlay(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): void {
+  togglePlay(loopId: string, audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): void {
     const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
-    try {
-      if (this.currentlyPlaying && this.currentlyPlaying !== audio) {
-        this.currentlyPlaying.pause();
-        this.currentlyPlaying.currentTime = 0;
-        this.isPlaying = false;
+    
+    if (this.currentlyPlayingId && this.currentlyPlayingId !== loopId) {
+      const prevAudio = document.querySelector(`#audio-${this.currentlyPlayingId}`) as HTMLAudioElement;
+      if (prevAudio) {
+        prevAudio.pause();
+        prevAudio.currentTime = 0;
       }
-  
-      if (audio.paused) {
-        this.currentlyPlaying = audio;
-        audio.play().then(() => {
-          this.isPlaying = true;
+    }
+
+    if (audio.paused) {
+      audio.play()
+        .then(() => {
+          this.currentlyPlayingId = loopId;
+          audio.volume = this.volumes[loopId] ?? 0.7;
+          audio.ontimeupdate = () => {
+            this.currentPositions[loopId] = audio.currentTime;
+            this.durations[loopId] = audio.duration;
+          };
+        })
+        .catch(err => {
+          console.error('Playback error:', err);
+          this.currentlyPlayingId = null;
         });
-      } else {
-        audio.pause();
-        this.currentlyPlaying = null;
-        this.isPlaying = false;
-      }
-    } catch (error) {
-      console.error('Hibás hangfájl:', audio.src);
-      console.error('Hiba részletei:', error);
-      this.isPlaying = false;
+    } else {
+      audio.pause();
+      this.currentlyPlayingId = null;
     }
   }
 
-
-// teszt
-  testAudioPlayback(): void {
-    const testAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
-    testAudio.play()
-      .then(() => console.log('Teszt hang lejátszása sikeres'))
-      .catch(err => console.error('Teszt hang hibája:', err));
+  seekAudio(event: MouseEvent, loopId: string, isWaveform: boolean = true): void {
+    const progressBar = event.currentTarget as HTMLElement;
+    const rect = progressBar.getBoundingClientRect();
+    const pos = (event.clientX - rect.left) / rect.width;
+    const audio = document.querySelector(`#audio-${loopId}`) as HTMLAudioElement;
+    
+    if (audio) {
+      audio.currentTime = pos * audio.duration;
+      this.currentPositions[loopId] = audio.currentTime;
+    }
   }
 
-  
+  updateProgress(loopId: string): void {
+    const audio = document.querySelector(`#audio-${loopId}`) as HTMLAudioElement;
+    if (!audio || isNaN(audio.duration)) return;
+
+    this.currentTimes[loopId] = audio.currentTime;
+    this.durations[loopId] = audio.duration;
+    this.progressValues[loopId] = (audio.currentTime / audio.duration) * 100;
+  }
+
+  getProgress(loopId: string): number {
+    const audio = document.querySelector(`#audio-${loopId}`) as HTMLAudioElement;
+    if (!audio || !audio.duration) return 0;
+    return (audio.currentTime / audio.duration) * 100;
+  }
+
+  setVolume(loopId: string, newVolume: number | string): void {
+    const volume = typeof newVolume === 'string' ? +newVolume : newVolume;
+    this.volumes[loopId] = volume;
+    
+    if (this.currentlyPlayingId === loopId) {
+      const audio = document.querySelector(`#audio-${loopId}`) as HTMLAudioElement;
+      if (audio) audio.volume = volume;
+    }
+  }
+
+  onAudioPlay(loopId: string): void {
+    this.currentlyPlayingId = loopId;
+  }
+
+  onAudioPause(): void {
+    this.currentlyPlayingId = null;
+  }
+
+  isCurrentPosition(index: number, loopId: string): boolean {
+    if (!this.currentlyPlayingId || this.currentlyPlayingId !== loopId) return false;
+    
+    const audio = document.querySelector(`#audio-${loopId}`) as HTMLAudioElement;
+    if (!audio || !audio.duration) return false;
+    
+    const position = index / 100;
+    const currentPos = audio.currentTime / audio.duration;
+    return Math.abs(position - currentPos) < 0.02;
+  }
 
   onAudioError(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): void {
     const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
-    console.error('Hiba a lejátszás során:', audio.error);
-    console.error('Fájl elérési út:', audio.src);
-    this.isPlaying = false;
+    console.error('Playback error:', audio.error);
+    console.error('File path:', audio.src);
+    this.currentlyPlayingId = null;
   }
-
-  onAudioPlay() {
-    const audioElement = this.audioPlayerRef?.nativeElement;
-    // használd az audioElement-et itt
-  }
-  
-  onAudioPause(): void {
-    this.isPlaying = false;
-    console.log('Lejátszás szüneteltetve');
-  }
-  
-  // onAudioError(audioRef: ElementRef<HTMLAudioElement>): void {
-  //   const audio = audioRef.nativeElement;
-  //   console.error('Hiba a lejátszás során:', audio.error);
-  //   console.error('Fájl elérési út:', audio.src);
-  //   this.isPlaying = false;
-  // }
 
   closeUploadModal(event: Event): void {
     if ((event.target as HTMLElement).classList.contains('bg-black')) {
@@ -208,7 +240,6 @@ export class LoopsComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       
-      // Validate file type
       const validTypes = ['audio/wav', 'audio/mpeg', 'audio/aiff'];
       if (!validTypes.includes(file.type)) {
         this.fileError = "Only WAV, MP3, or AIFF files are allowed.";
@@ -216,7 +247,6 @@ export class LoopsComponent implements OnInit {
         return;
       }
 
-      // Validate file size
       if (file.size > 20 * 1024 * 1024) {
         this.fileError = "File size must be under 20MB.";
         this.selectedFile = null;
@@ -228,42 +258,9 @@ export class LoopsComponent implements OnInit {
     }
   }
 
-  // uploadFile(): void {
-  //   if (!this.selectedFile) {
-  //     this.fileError = "Válassz ki egy fájlt!";
-  //     return;
-  //   }
-    
-  //   if (!this.metadata.bpm || !this.metadata.key || !this.metadata.instrument) {
-  //     this.fileError = "Töltsd ki az összes kötelező mezőt!";
-  //     return;
-  //   }
-  
-  //   this.isUploading = true;
-    
-  //   this.loopService.uploadLoop(this.selectedFile, this.metadata).subscribe({
-  //     next: (response) => {
-  //       console.log('Sikeres feltöltés:', response);
-  //       this.isUploading = false;
-  //       this.isUploadModalOpen = false;
-  //       this.loadLoops();
-  //     },
-  //     error: (err) => {
-  //       console.error('Feltöltési hiba:', err);
-  //       this.isUploading = false;
-        
-  //       if (err.status === 400) {
-  //         this.fileError = 'Érvénytelen kérés. Ellenőrizd a megadott adatokat!';
-  //       } else {
-  //         this.fileError = 'Hiba történt a feltöltés során. Próbáld újra később.';
-  //       }
-  //     }
-  //   });
-  // }
-
   uploadFile(): void {
     if (!this.selectedFile) {
-        this.fileError = "Válassz ki egy fájlt!";
+        this.fileError = "Please select a file!";
         return;
     }
 
@@ -274,31 +271,30 @@ export class LoopsComponent implements OnInit {
         retry({
             count: 3,
             delay: error => {
-                console.error('Feltöltési hiba:', error);
-                return timer(1000); // 1 másodperc várakozás
+                console.error('Upload error:', error);
+                return timer(1000);
             }
         }),
-        timeout(30000), // 30 másodperc időtúllépés
+        timeout(30000),
         catchError(error => {
             this.isUploading = false;
             const duration = (Date.now() - startTime) / 1000;
             
             if (error instanceof HttpErrorResponse) {
                 if (error.status === 500) {
-                    this.fileError = `Szerverhiba történt a feltöltés során (${duration.toFixed(1)} másodperc után).
-                    Kérlek, próbáld újra később.`;
+                    this.fileError = `Server error occurred during upload (after ${duration.toFixed(1)} seconds). Please try again later.`;
                 } else if (error.status === 413) {
-                    this.fileError = 'A fájl túl nagy a szerver számára.';
+                    this.fileError = 'The file is too large for the server.';
                 } else {
-                    this.fileError = `Hálózati hiba történt (${error.status})`;
+                    this.fileError = `Network error occurred (${error.status})`;
                 }
             } else if (error.name === 'TimeoutError') {
-                this.fileError = 'A feltöltés túl sokáig tartott. Kérlek, próbáld újra.';
+                this.fileError = 'Upload took too long. Please try again.';
             } else {
-                this.fileError = 'Ismeretlen hiba történt a feltöltés során.';
+                this.fileError = 'Unknown error occurred during upload.';
             }
             
-            console.error('Feltöltési hiba részletei:', {
+            console.error('Upload error details:', {
                 status: error.status,
                 message: error.message,
                 duration: duration
@@ -313,74 +309,77 @@ export class LoopsComponent implements OnInit {
             this.loadLoops();
         }
     });
-}
-
-downloadLoop(loopId: string): void {
-  if (!loopId) {
-    console.warn('Érvénytelen loop ID');
-    return;
   }
 
-  this.loopService.downloadLoop(loopId).subscribe({
-    next: (blob: Blob) => {
-      const filename = this.loops.find(l => l._id === loopId)?.filename || 'loop';
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      this.loadLoops();
-    },
-    error: (err) => {
-      console.error('Letöltési hiba:', err);
+  formatTime(seconds: number | undefined): string {
+    if (seconds === undefined || isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+
+  async generateWaveform(loopId: string): Promise<void> {
+    let audioContext: AudioContext | null = null;
+    try {
+      const audioUrl = this.getSafeAudioUrl(this.loops.find(l => l._id === loopId)?.path);
+      if (!audioUrl) return;
+
+      audioContext = new AudioContext();
+      const response = await fetch(audioUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      
+      const channelData = audioBuffer.getChannelData(0);
+      const samplesPerPixel = Math.floor(channelData.length / 100);
+      const waveform = [];
+      
+      for (let i = 0; i < 100; i++) {
+        let sum = 0;
+        const start = i * samplesPerPixel;
+        const end = Math.min(start + samplesPerPixel, channelData.length);
+        
+        for (let j = start; j < end; j++) {
+          sum += Math.abs(channelData[j]);
+        }
+        
+        const avg = sum / (end - start);
+        waveform.push(Math.min(100, Math.floor(avg * 200)));
+      }
+      
+      this.waveforms[loopId] = waveform;
+    } catch (error) {
+      console.error('Waveform generation error:', error);
+      this.waveforms[loopId] = new Array(100).fill(30);
+    } finally {
+      if (audioContext && audioContext.state !== 'closed') {
+        await audioContext.close();
+      }
     }
-  });
-}
-
-  getAudioUrl(path: string): string {
-    return `${this.loopService.apiUrl}/${path.replace(/\\/g, '/')}`;
   }
 
-  
-  getProgress(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): number {
-    const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
-    if (!audio || !audio.duration) return 0;
-    return (audio.currentTime / audio.duration) * 100;
-  }
+  downloadLoop(loopId: string): void {
+    if (!loopId) {
+      console.warn('Invalid loop ID');
+      return;
+    }
 
-  getCurrentTime(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): number {
-    const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
-    return audio?.currentTime || 0;
-  }
-  
-  getDuration(audioElement: HTMLAudioElement | ElementRef<HTMLAudioElement>): number {
-    const audio = audioElement instanceof ElementRef ? audioElement.nativeElement : audioElement;
-    return audio?.duration || 0;
-  }
-
-  // Helper to safely get native element
-  getAudioElement(ref: ElementRef<HTMLAudioElement>): HTMLAudioElement {
-    return ref.nativeElement;
-  }
-
-  // Helper method to get native element from template reference
-  getNativeElement(ref: HTMLAudioElement | ElementRef<HTMLAudioElement>): HTMLAudioElement {
-    return ref instanceof ElementRef ? ref.nativeElement : ref;
-  }
-
-  formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  }
-
-  formatDuration(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    this.loopService.downloadLoop(loopId).subscribe({
+      next: (blob: Blob) => {
+        const filename = this.loops.find(l => l._id === loopId)?.filename || 'loop';
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        this.loadLoops();
+      },
+      error: (err) => {
+        console.error('Download error:', err);
+      }
+    });
   }
 
   private resetUploadForm(): void {
