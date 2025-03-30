@@ -21,4 +21,5 @@ export const routes: Routes = [
     {'path': 'profile', component: ProfileComponent},
     {'path': 'profile/:username', component: ProfileComponent },
     {'path': 'loop-detail/:id', component: LoopDetailComponent},
+    // {'path': 'profile/:userId', component: ProfileComponent }
 ];

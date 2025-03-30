@@ -96,10 +96,14 @@ export class LoopsComponent implements OnInit {
 
   getSafeAudioUrl(path: string | undefined): string {
     if (!path) return '';
-    if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    
-    const cleanPath = path.replace(/\\/g, '/').replace(/^\/?uploads\//, '');
-    return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
+  
+  // Ha már teljes URL, akkor visszaadjuk azt
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  
+  // Egyébként összeállítjuk a teljes URL-t
+  return `${this.loopService.apiUrl}/${path.replace(/^\/?uploads\//, 'uploads/')}`;
   }
 
   searchLoops(): void {
@@ -156,25 +160,31 @@ export class LoopsComponent implements OnInit {
     }
   }
 
-  seekAudio(event: MouseEvent, loopId: string, isWaveform: boolean = true): void {
-    const progressBar = event.currentTarget as HTMLElement;
-    const rect = progressBar.getBoundingClientRect();
-    const pos = (event.clientX - rect.left) / rect.width;
-    const audio = document.querySelector(`#audio-${loopId}`) as HTMLAudioElement;
+  seekAudio(event: MouseEvent, loopId: string, isWaveform: boolean) {
+    const audioElement = document.getElementById(`audio-${loopId}`) as HTMLAudioElement;
+    if (!audioElement) return;
+  
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const clickPosition = event.clientX - rect.left;
+    const percentClicked = (clickPosition / rect.width) * 100;
     
-    if (audio) {
-      audio.currentTime = pos * audio.duration;
-      this.currentPositions[loopId] = audio.currentTime;
+    // Calculate new time
+    const newTime = (percentClicked / 100) * audioElement.duration;
+    audioElement.currentTime = newTime;
+    
+    // Update progress immediately
+    if (this.currentlyPlayingId === loopId) {
+      this.currentPositions[loopId] = newTime;
     }
   }
 
-  updateProgress(loopId: string): void {
-    const audio = document.querySelector(`#audio-${loopId}`) as HTMLAudioElement;
-    if (!audio || isNaN(audio.duration)) return;
-
-    this.currentTimes[loopId] = audio.currentTime;
-    this.durations[loopId] = audio.duration;
-    this.progressValues[loopId] = (audio.currentTime / audio.duration) * 100;
+  updateProgress(loopId: string) {
+    const audioElement = document.getElementById(`audio-${loopId}`) as HTMLAudioElement;
+    if (audioElement) {
+      this.currentPositions[loopId] = audioElement.currentTime;
+      this.durations[loopId] = audioElement.duration;
+    }
   }
 
   getProgress(loopId: string): number {
@@ -193,11 +203,14 @@ export class LoopsComponent implements OnInit {
     }
   }
 
-  onAudioPlay(loopId: string): void {
+  onAudioPlay(loopId: string) {
     this.currentlyPlayingId = loopId;
+    if (this.bandHeights[loopId]) {
+      this.animateBands(loopId);
+    }
   }
 
-  onAudioPause(): void {
+  onAudioPause() {
     this.currentlyPlayingId = null;
   }
 
@@ -357,30 +370,80 @@ export class LoopsComponent implements OnInit {
     }
   }
 
-  downloadLoop(loopId: string): void {
-    if (!loopId) {
-      console.warn('Invalid loop ID');
-      return;
-    }
-
-    this.loopService.downloadLoop(loopId).subscribe({
-      next: (blob: Blob) => {
-        const filename = this.loops.find(l => l._id === loopId)?.filename || 'loop';
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        this.loadLoops();
-      },
-      error: (err) => {
-        console.error('Download error:', err);
-      }
-    });
+  trackDownload(loopId: string) {
+    console.log(`Letöltve a loop: ${loopId}`);
+    // this.loopService.recordDownload(loopId).subscribe();
   }
+
+  
+  async downloadLoop(loop: ILoop): Promise<void> {
+    try {
+      // 1. Fetch the file
+      const response = await fetch(this.getSafeAudioUrl(loop.path));
+      const blob = await response.blob();
+      
+      // 2. Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = loop.filename || `loop_${loop._id}.wav`;
+      
+      // 3. Trigger download
+      document.body.appendChild(a);
+      a.click();
+      
+      // 4. Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      // 5. Track download
+      this.trackDownload(loop._id);
+    } catch (err) {
+      console.error('Letöltési hiba:', err);
+      // Fallback: új lapon megnyitás
+      window.open(this.getSafeAudioUrl(loop.path), '_blank');
+    }
+  }
+
+  // Add this with your other component properties
+  bandHeights: { [key: string]: number[] } = {};
+  // Add this method to your component class
+getBandHeight(loopId: string, bandIndex: number): number {
+  if (!this.bandHeights[loopId]) {
+    // Initialize random heights for each band (16 bands)
+    this.bandHeights[loopId] = Array(16).fill(0).map(() => 
+      Math.floor(Math.random() * 30) + 10 // Random between 10-40%
+    );
+    
+    // If audio is playing this loop, animate the bands
+    if (this.currentlyPlayingId === loopId) {
+      this.animateBands(loopId);
+    }
+  }
+  return this.bandHeights[loopId][bandIndex];
+}
+
+initializeWaveforms() {
+  this.loops.forEach(loop => {
+    // Generate random waveform data (replace with actual waveform data if available)
+    this.waveforms[loop._id] = Array(100).fill(0).map(() => Math.random() * 40 + 10);
+  });
+}
+
+animateBands(loopId: string) {
+  if (this.currentlyPlayingId === loopId) {
+    this.bandHeights[loopId] = this.bandHeights[loopId].map(height => {
+      // Random fluctuation for animation effect
+      const change = Math.random() > 0.7 ? Math.random() * 30 : 0;
+      return Math.min(100, Math.max(5, height + change));
+    });
+    
+    // Continue animation if still playing
+    setTimeout(() => this.animateBands(loopId), 100);
+  }
+}
+
 
   private resetUploadForm(): void {
     this.selectedFile = null;

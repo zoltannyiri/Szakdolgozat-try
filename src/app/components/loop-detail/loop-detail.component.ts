@@ -1,21 +1,30 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LoopService } from '../../services/loop.service';
 import { AuthService } from '../../services/auth.service';
 import { CommentService } from '../../services/comment.service';
 import { Location } from '@angular/common';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-loop-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './loop-detail.component.html',
   styleUrl: './loop-detail.component.scss'
 })
 export class LoopDetailComponent implements OnInit {
-  loop: any;
+  @ViewChild('audioPlayer') audioPlayer!: ElementRef<HTMLAudioElement>;
+
+  loop: any = {
+    uploader: {
+      _id: '',
+      username: 'Ismeretlen',
+      profileImage: ''
+    }
+  };
   comments: any[] = [];
   newComment: string = '';
   isLoggedIn: boolean = false;
@@ -23,12 +32,22 @@ export class LoopDetailComponent implements OnInit {
   isAddingComment: boolean = false;
   errorMessage: string = '';
 
+  // Audio player state
+  isPlaying = false;
+  progress = 0;
+  currentTime = 0;
+  duration = 0;
+  volume = 0.7;
+  waveform: number[] = [];
+
   constructor(
     private location: Location,
     private route: ActivatedRoute,
+    private router: Router,
     private loopService: LoopService,
     private commentService: CommentService,
-    public authService: AuthService // Publikussá tettük a template számára
+    private userService: UserService,
+    public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -41,17 +60,6 @@ export class LoopDetailComponent implements OnInit {
     });
   }
 
-  // checkAuthStatus(): void {
-  //   this.authService.isAuthenticated().subscribe({
-  //     next: (isAuthenticated: boolean) => {
-  //       this.isLoggedIn = isAuthenticated;
-  //     },
-  //     error: (err: any) => {
-  //       console.error('Hitelesítés ellenőrzése sikertelen:', err);
-  //       this.isLoggedIn = false;
-  //     }
-  //   });
-  // }
   checkAuthStatus(): void {
     this.authService.isAuthenticated().subscribe({
       next: (isAuthenticated) => {
@@ -63,7 +71,6 @@ export class LoopDetailComponent implements OnInit {
       }
     });
   }
-  
 
   handleLogin(): void {
     const currentRoute = this.route.snapshot.url.join('/');
@@ -84,13 +91,44 @@ export class LoopDetailComponent implements OnInit {
     this.location.back();
   }
 
+  // A loadLoop metódus módosítása
   loadLoop(id: string): void {
     this.isLoading = true;
     this.loopService.getLoopById(id).subscribe({
       next: (loop) => {
+        console.log('Loop response:', loop); // Debug log
         this.loop = loop;
-        this.loadComments();
-        this.isLoading = false;
+        
+        // Ha az uploader stringként van (ID)
+        if (typeof this.loop.uploader === 'string') {
+          this.userService.getUserById(this.loop.uploader).subscribe({
+            next: (user) => {
+              this.loop.uploader = user || { username: 'Ismeretlen' };
+              this.loadComments();
+              this.generateWaveform();
+              this.isLoading = false;
+            },
+            error: () => {
+              this.loop.uploader = { username: 'Ismeretlen' };
+              this.loadComments();
+              this.generateWaveform();
+              this.isLoading = false;
+            }
+          });
+        }
+        // Ha az uploader objektum, de nincs username
+        else if (!this.loop.uploader?.username) {
+          this.loop.uploader = this.loop.uploader || { username: 'Ismeretlen' };
+          this.loadComments();
+          this.generateWaveform();
+          this.isLoading = false;
+        }
+        // Minden rendben
+        else {
+          this.loadComments();
+          this.generateWaveform();
+          this.isLoading = false;
+        }
       },
       error: (err) => {
         console.error('Hiba a loop betöltésekor:', err);
@@ -100,19 +138,68 @@ export class LoopDetailComponent implements OnInit {
     });
   }
 
+
+  fetchUserDetails(userId: string): void {
+    this.userService.getUserById(userId).subscribe({
+      next: (user: any) => {
+        this.loop.user = user || {
+          _id: '',
+          username: 'Ismeretlen',
+          profileImage: ''
+        };
+        this.loadComments();
+        this.generateWaveform();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Hiba a felhasználó betöltésekor:', err);
+        this.loop.user = {
+          _id: '',
+          username: 'Ismeretlen',
+          profileImage: ''
+        };
+        this.loadComments();
+        this.generateWaveform();
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // ... rest of the methods remain the same ...
   loadComments(): void {
     if (!this.loop?._id) return;
     
     this.commentService.getCommentsForLoop(this.loop._id).subscribe({
       next: (response: any) => {
-        // Ellenőrizzük a válasz struktúrát
-        console.log('Komment válasz:', response);
         this.comments = Array.isArray(response?.data) ? response.data : [];
       },
       error: (err) => {
         console.error('Kommentek betöltése sikertelen:', err);
         this.comments = [];
         this.errorMessage = 'Hiba a kommentek betöltésekor';
+      }
+    });
+  }
+
+  addComment(): void {
+    if (!this.newComment.trim() || this.newComment.length > 500 || !this.loop?._id) {
+      this.errorMessage = 'Érvénytelen komment';
+      return;
+    }
+  
+    this.isAddingComment = true;
+    this.errorMessage = '';
+  
+    this.commentService.addComment(this.loop._id, this.newComment).subscribe({
+      next: (newComment) => {
+        this.comments.unshift(newComment);
+        this.newComment = '';
+        this.isAddingComment = false;
+      },
+      error: (err) => {
+        console.error('Hiba:', err);
+        this.errorMessage = this.getErrorMessage(err);
+        this.isAddingComment = false;
       }
     });
   }
@@ -127,31 +214,6 @@ export class LoopDetailComponent implements OnInit {
     return 'Hiba történt a komment hozzáadásakor';
   }
 
-  addComment(): void {
-    if (!this.newComment.trim() || this.newComment.length > 500 || !this.loop?._id) {
-      this.errorMessage = 'Érvénytelen komment';
-      return;
-    }
-  
-    this.isAddingComment = true;
-    this.errorMessage = '';
-  
-    this.commentService.addComment(this.loop._id, this.newComment).subscribe({
-      next: (newComment) => {
-        console.log('Sikeres komment:', newComment);
-        // Hozzáadjuk az új kommentet a meglévő kommentekhez
-        this.comments.unshift(newComment); // Az új komment legyen elől
-        this.newComment = '';
-        this.isAddingComment = false;
-      },
-      error: (err) => {
-        console.error('Hiba:', err);
-        this.errorMessage = this.getErrorMessage(err);
-        this.isAddingComment = false;
-      }
-    });
-  }
-
   getAudioUrl(path: string | undefined): string {
     if (!path) return '';
     
@@ -162,131 +224,140 @@ export class LoopDetailComponent implements OnInit {
     const cleanPath = path.replace(/\\/g, '/').replace(/^\/?uploads\//, '');
     return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
   }
-}
 
+  // Audio player methods
+  togglePlay(): void {
+    const audio = this.audioPlayer.nativeElement;
+    
+    if (audio.paused) {
+      audio.play()
+        .then(() => {
+          this.isPlaying = true;
+          audio.volume = this.volume;
+        })
+        .catch(err => {
+          console.error('Playback error:', err);
+          this.isPlaying = false;
+        });
+    } else {
+      audio.pause();
+      this.isPlaying = false;
+    }
+  }
 
-// import { CommonModule } from '@angular/common';
-// import { Component, OnInit } from '@angular/core';
-// import { FormsModule } from '@angular/forms';
-// import { ActivatedRoute } from '@angular/router';
-// import { LoopService } from '../../services/loop.service';
-// import { AuthService } from '../../services/auth.service';
-// import { CommentService } from '../../services/comment.service';
-// import { Location } from '@angular/common';
+  onAudioPlay(): void {
+    this.isPlaying = true;
+  }
 
-// @Component({
-//   selector: 'app-loop-detail',
-//   standalone: true,
-//   imports: [CommonModule, FormsModule],
-//   templateUrl: './loop-detail.component.html',
-//   styleUrl: './loop-detail.component.scss'
-// })
+  onAudioPause(): void {
+    this.isPlaying = false;
+  }
 
+  onAudioError(audioElement: HTMLAudioElement): void {
+    console.error('Playback error:', audioElement.error);
+    console.error('File path:', audioElement.src);
+    this.isPlaying = false;
+  }
 
-// export class LoopDetailComponent implements OnInit {
-//   goBack(): void {
-//     this.location.back();
-//   }
-//   loop: any;
-//   comments: any[] = [];
-//   newComment: string = '';
-//   isLoggedIn: boolean = false;
-//   isLoading: boolean = false; // Hiányzó property hozzáadva
-//   errorMessage: string = ''; // Hibakezeléshez
+  updateProgress(): void {
+    const audio = this.audioPlayer.nativeElement;
+    this.currentTime = audio.currentTime;
+    this.duration = audio.duration || 0;
+    this.progress = (this.currentTime / this.duration) * 100 || 0;
+  }
 
-//   constructor(
-//     private location: Location,
-//     private route: ActivatedRoute,
-//     private loopService: LoopService,
-//     private commentService: CommentService,
-//     private authService: AuthService
-//   ) {}
-
-//   ngOnInit(): void {
-//     this.route.paramMap.subscribe(params => {
-//       const id = params.get('id');
-//       if (id) {
-//         this.loadLoop(id);
-//       }
-//     });
-//   }
-
+  seekAudio(event: MouseEvent, isWaveform: boolean): void {
+    const audio = this.audioPlayer.nativeElement;
+    if (!audio) return;
   
-
-//   // loadLoop(id: string): void {
-//   //   this.isLoading = true;
-//   //   this.loopService.getLoopById(id).subscribe({
-//   //     next: (loop) => {
-//   //       this.loop = loop;
-//   //       this.loadComments(); // Kommentek külön betöltése
-//   //       this.isLoading = false;
-//   //     },
-//   //     error: (err) => {
-//   //       console.error('Hiba:', err);
-//   //       this.isLoading = false;
-//   //       // Hibakezelés a felhasználónak
-//   //     }
-//   //   });
-//   // }
-//   loadLoop(id: string): void {
-//     this.isLoading = true;
-//     this.loopService.getLoopById(id).subscribe({
-//       next: (loop) => {
-//         // console.log('Loop adatok:', loop);
-//         // console.log('Generált audio URL:', this.getAudioUrl(loop.path));
-//         this.loop = loop;
-//         this.loadComments();
-//         this.isLoading = false;
-//       },
-//       error: (err) => {
-//         console.error('Hiba a loop betöltésekor:', err);
-//         this.isLoading = false;
-//         this.errorMessage = 'Nem sikerült betölteni a loop-ot';
-//       }
-//     });
-//   }
-
-
-
-//   loadComments(): void {
-//     if (!this.loop?._id) return;
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const clickPosition = event.clientX - rect.left;
+    const percentClicked = (clickPosition / rect.width) * 100;
     
-//     this.commentService.getCommentsForLoop(this.loop._id).subscribe({
-//       next: (comments: any) => { // Explicit típus vagy használj interfészt
-//         this.comments = Array.isArray(comments) ? comments : [];
-//       },
-//       error: (err) => {
-//         console.error('Kommentek betöltése sikertelen:', err);
-//         this.comments = [];
-//       }
-//     });
-//   }
-
-//   addComment(): void {
-//     if (this.newComment.trim() && this.loop?._id) {
-//       this.commentService.addComment(this.loop._id, this.newComment).subscribe({
-//         next: () => {
-//           this.newComment = '';
-//           this.loadComments();
-//         },
-//         error: (err: any) => console.error('Error adding comment:', err)
-//       });
-//     }
-//   }
-
-//   // getAudioUrl(path: string): string {
-//   //   return this.loopService.getAudioUrl(path);
-//   // }
-//   getAudioUrl(path: string | undefined): string {
-//     if (!path) return '';
+    const newTime = (percentClicked / 100) * audio.duration;
+    audio.currentTime = newTime;
     
-//     // Ha már teljes URL (http:// vagy https://), akkor változatlanul visszaadja
-//     if (path.startsWith('http://') || path.startsWith('https://')) {
-//       return path;
-//     }
+    this.currentTime = newTime;
+    this.progress = percentClicked;
+  }
+
+  setVolume(): void {
+    const audio = this.audioPlayer.nativeElement;
+    if (audio) {
+      audio.volume = this.volume;
+    }
+  }
+
+  formatTime(seconds: number | undefined): string {
+    if (seconds === undefined || isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+
+  async generateWaveform(): Promise<void> {
+    if (!this.loop?.path) return;
     
-//     // API URL hozzáadása és elérési út tisztítása
-//     const cleanPath = path.replace(/\\/g, '/').replace(/^\/?uploads\//, '');
-//     return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
-//   }
-// }
+    let audioContext: AudioContext | null = null;
+    try {
+      const audioUrl = this.getAudioUrl(this.loop.path);
+      if (!audioUrl) return;
+
+      audioContext = new AudioContext();
+      const response = await fetch(audioUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      
+      const channelData = audioBuffer.getChannelData(0);
+      const samplesPerPixel = Math.floor(channelData.length / 100);
+      const waveform = [];
+      
+      for (let i = 0; i < 100; i++) {
+        let sum = 0;
+        const start = i * samplesPerPixel;
+        const end = Math.min(start + samplesPerPixel, channelData.length);
+        
+        for (let j = start; j < end; j++) {
+          sum += Math.abs(channelData[j]);
+        }
+        
+        const avg = sum / (end - start);
+        waveform.push(Math.min(100, Math.floor(avg * 200)));
+      }
+      
+      this.waveform = waveform;
+    } catch (error) {
+      console.error('Waveform generation error:', error);
+      this.waveform = new Array(100).fill(30);
+    } finally {
+      if (audioContext && audioContext.state !== 'closed') {
+        await audioContext.close();
+      }
+    }
+  }
+
+  async downloadLoop(): Promise<void> {
+    if (!this.loop?.path) return;
+    
+    try {
+      const response = await fetch(this.getAudioUrl(this.loop.path));
+      const blob = await response.blob();
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = this.loop.filename || `loop_${this.loop._id}.wav`;
+      
+      document.body.appendChild(a);
+      a.click();
+      
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Letöltési hiba:', err);
+      window.open(this.getAudioUrl(this.loop.path), '_blank');
+    }
+  }
+}

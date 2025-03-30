@@ -147,14 +147,13 @@ getLoopById(id: string): Observable<any> {
 
   // Loop letöltése
   downloadLoop(loopId: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/api/loops/download/${loopId}`, {
-      responseType: 'blob' // Bináris választ várunk
-    }).pipe(
-      catchError(error => {
-        console.error('Letöltési hiba:', error);
-        throw error;
+    return this.http.get(`${this.apiUrl}/loops/${loopId}/download`, {
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Content-Disposition': 'attachment',
+        'Accept': 'audio/wav'
       })
-    );
+    });
   }
 }
 
