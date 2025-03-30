@@ -155,5 +155,16 @@ getLoopById(id: string): Observable<any> {
       })
     });
   }
+
+
+  // Módosítsd a recordDownload metódust GET kérésre
+  recordDownload(loopId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/api/loops/download/${loopId}`).pipe(
+      catchError(error => {
+        console.error('Download tracking error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }
 

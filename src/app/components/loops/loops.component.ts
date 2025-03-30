@@ -370,40 +370,47 @@ export class LoopsComponent implements OnInit {
     }
   }
 
-  trackDownload(loopId: string) {
-    console.log(`Letöltve a loop: ${loopId}`);
-    // this.loopService.recordDownload(loopId).subscribe();
-  }
+  // trackDownload(loopId: string) {
+  //   console.log(`Letöltve a loop: ${loopId}`);
+  //   // this.loopService.recordDownload(loopId).subscribe();
+  // }
 
   
   async downloadLoop(loop: ILoop): Promise<void> {
     try {
-      // 1. Fetch the file
+      // 1. Először kezdjük el a letöltést
       const response = await fetch(this.getSafeAudioUrl(loop.path));
       const blob = await response.blob();
       
-      // 2. Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
       a.download = loop.filename || `loop_${loop._id}.wav`;
       
-      // 3. Trigger download
       document.body.appendChild(a);
       a.click();
       
-      // 4. Cleanup
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
-      // 5. Track download
-      this.trackDownload(loop._id);
+  
+      // 2. Utána jelezzük a letöltést a backendnek
+      this.loopService.recordDownload(loop._id).subscribe({
+        next: () => console.log('Letöltés nyilvántartva'),
+        error: (err) => console.error('Hiba a letöltés nyilvántartásakor:', err)
+      });
     } catch (err) {
       console.error('Letöltési hiba:', err);
-      // Fallback: új lapon megnyitás
       window.open(this.getSafeAudioUrl(loop.path), '_blank');
     }
+  }
+  // A trackDownload metódus aktiválása
+  trackDownload(loopId: string) {
+    console.log(`Letöltve a loop: ${loopId}`);
+    this.loopService.recordDownload(loopId).subscribe({
+      next: () => console.log('Letöltés nyilvántartva'),
+      error: (err) => console.error('Hiba a letöltés nyilvántartásakor:', err)
+    });
   }
 
   // Add this with your other component properties
