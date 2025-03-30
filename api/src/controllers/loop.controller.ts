@@ -121,7 +121,7 @@ export const downloadLoop = async (req: Request, res: Response) => {
     const { id } = req.params;
     const loop = await Loop.findByIdAndUpdate(
       id,
-      { $inc: { downloads: 1 } },  // Ez növeli a downloads mezőt 1-gyel
+      { $inc: { downloads: 1 } },
       { new: true }
     );
 
