@@ -360,4 +360,50 @@ export class LoopDetailComponent implements OnInit {
       window.open(this.getAudioUrl(this.loop.path), '_blank');
     }
   }
+
+
+  //likeolás
+  // A komponens osztályhoz új metódusok
+hasLiked(): boolean {
+  const userId = this.authService.getUserId();
+  if (!userId || !this.loop?.likedBy) return false;
+  
+  const userIdStr = userId.toString();
+  return this.loop.likedBy.some((id: any) => id.toString() === userIdStr);
+}
+
+toggleLike(): void {
+  const userId = this.authService.getUserId();
+  if (!userId) {
+    this.handleLogin();
+    return;
+  }
+
+  if (this.hasLiked()) {
+    this.loopService.unlikeLoop(this.loop._id).subscribe({
+      next: (response) => {
+        this.loop.likes = response.likes;
+        this.loop.likedBy = this.loop.likedBy.filter(
+          (id: any) => id.toString() !== userId.toString()
+        );
+      },
+      error: (err) => {
+        console.error('Unlike error:', err);
+        this.errorMessage = 'Hiba történt a like visszavonásakor';
+      }
+    });
+  } else {
+    this.loopService.likeLoop(this.loop._id).subscribe({
+      next: (response) => {
+        this.loop.likes = response.likes;
+        if (!this.loop.likedBy) this.loop.likedBy = [];
+        this.loop.likedBy.push(userId);
+      },
+      error: (err) => {
+        console.error('Like error:', err);
+        this.errorMessage = 'Hiba történt a likeoláskor';
+      }
+    });
+  }
+}
 }

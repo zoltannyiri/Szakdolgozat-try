@@ -13,7 +13,9 @@
     <!-- Back button -->
     <button *ngIf="!isLoading" (click)="goBack()" class="mb-6 text-blue-600 hover:text-blue-800 flex items-center">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        <path fill-rule="evenodd"
+          d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+          clip-rule="evenodd" />
       </svg>
       Vissza a loop-okhoz
     </button>
@@ -23,156 +25,184 @@
       {{errorMessage}}
     </div>
 
-    <div *ngIf="!isLoading" class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden">
+    <div *ngIf="!isLoading"
+      class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden">
       <div class="p-6">
         <div class="flex items-start justify-between mb-4">
           <div>
             <div class="flex items-center mb-2">
               <h1 class="text-2xl font-bold text-gray-800">{{loop?.filename || 'Loop'}}</h1>
-              <span *ngIf="loop?.bpm" class="ml-3 bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full">{{loop?.bpm}} BPM</span>
+              <span *ngIf="loop?.bpm"
+                class="ml-3 bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full">{{loop?.bpm}} BPM</span>
             </div>
-            
+
             <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
               <span class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <a *ngIf="loop?.uploader?.username && loop.uploader.username !== 'Ismeretlen'" 
-                   [routerLink]="['/profile', loop.uploader.username]" 
-                   class="hover:text-blue-600 hover:underline">
+                <a *ngIf="loop?.uploader?.username && loop.uploader.username !== 'Ismeretlen'"
+                  [routerLink]="['/profile', loop.uploader.username]" class="hover:text-blue-600 hover:underline">
                   {{loop.uploader.username}}
                 </a>
-                <span *ngIf="!loop?.uploader?.username || loop.uploader.username === 'Ismeretlen'" class="text-gray-600">
+                <span *ngIf="!loop?.uploader?.username || loop.uploader.username === 'Ismeretlen'"
+                  class="text-gray-600">
                   Ismeretlen
                 </span>
               </span>
               <span class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 {{loop?.uploadDate | date:'yyyy.MM.dd. HH:mm'}}
               </span>
             </div>
           </div>
-          
+
           <!-- Action buttons -->
           <div class="flex space-x-2">
-            <button class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+
+            <!-- Like gomb -->
+            <button (click)="toggleLike()" class="p-2 hover:bg-red-50 rounded-full transition like-button"
+              [class.liked]="hasLiked()">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" [attr.fill]="hasLiked() ? 'currentColor' : 'none'"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
-            <button (click)="downloadLoop()" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
-                    title="Loop letöltése">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            <span class="text-sm text-gray-600">{{loop?.likes || 0}}</span>
+
+            
+            <button class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+            </button>
+            <button (click)="downloadLoop()"
+              class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
+              title="Loop letöltése">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </button>
           </div>
         </div>
-        
+
         <!-- Tags -->
         <div *ngIf="loop?.tags?.length" class="mb-6 flex flex-wrap gap-2">
-          <span *ngFor="let tag of loop.tags" class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          <span *ngFor="let tag of loop.tags"
+            class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
             {{ tag }}
           </span>
         </div>
-        
+
         <!-- Loop info -->
         <div class="mb-6 flex flex-wrap gap-4">
           <span *ngIf="loop?.instrument" class="text-sm text-gray-600 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
             </svg>
             {{ loop.instrument }}
           </span>
           <span *ngIf="loop?.key" class="text-sm text-gray-600 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 012.728-2.728"/>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 012.728-2.728" />
             </svg>
             {{ loop.key }} {{ loop.scale }}
           </span>
         </div>
-        
+
         <!-- Description -->
         <p *ngIf="loop?.description" class="whitespace-pre-wrap text-gray-700 mb-6">{{loop.description}}</p>
 
         <!-- Audio player -->
         <div *ngIf="loop?.path" class="bg-gray-100 rounded-xl p-4 border border-gray-200">
-          <audio #audioPlayer id="loop-audio-player" [src]="getAudioUrl(loop.path)" hidden
-                 (play)="onAudioPlay()" 
-                 (pause)="onAudioPause()" 
-                 (error)="onAudioError(audioPlayer)"
-                 (timeupdate)="updateProgress()"></audio>
-          
+          <audio #audioPlayer id="loop-audio-player" [src]="getAudioUrl(loop.path)" hidden (play)="onAudioPlay()"
+            (pause)="onAudioPause()" (error)="onAudioError(audioPlayer)" (timeupdate)="updateProgress()"></audio>
+
           <!-- Waveform visualization -->
           <div class="relative h-20 mb-4 bg-gray-200 rounded-lg overflow-hidden cursor-pointer"
-               (click)="seekAudio($event, true)">
+            (click)="seekAudio($event, true)">
             <!-- Static waveform background -->
             <div class="absolute inset-0 flex items-center">
               <div class="w-full h-8 flex items-center">
-                <div *ngFor="let value of waveform || []; let i = index" 
-                     class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-gray-400/60"
-                     [style.height.%]="value * 0.8">
+                <div *ngFor="let value of waveform || []; let i = index"
+                  class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-gray-400/60"
+                  [style.height.%]="value * 0.8">
                 </div>
               </div>
             </div>
-            
+
             <!-- Active playback waveform -->
             <div class="absolute inset-0 flex items-center overflow-hidden" [style.width.%]="progress">
               <div class="h-8 flex items-center">
-                <div *ngFor="let value of waveform || []; let i = index" 
-                     class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-blue-600/80"
-                     [style.height.%]="value * 0.8">
+                <div *ngFor="let value of waveform || []; let i = index"
+                  class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-blue-600/80"
+                  [style.height.%]="value * 0.8">
                 </div>
               </div>
             </div>
-            
+
             <!-- Playhead indicator -->
-            <div class="absolute top-0 bottom-0 w-0.5 bg-blue-600 ml-1" 
-                 [style.left.%]="progress"></div>
+            <div class="absolute top-0 bottom-0 w-0.5 bg-blue-600 ml-1" [style.left.%]="progress"></div>
           </div>
-          
+
           <!-- Controls -->
           <div class="flex items-center justify-between">
             <!-- Play/Pause -->
-            <button (click)="togglePlay()" 
-                    class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-all transform hover:scale-105">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path *ngIf="!isPlaying" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                <path *ngIf="isPlaying" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <button (click)="togglePlay()"
+              class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-all transform hover:scale-105">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path *ngIf="!isPlaying" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path *ngIf="isPlaying" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>
-            
+
             <!-- Timeline with seek -->
             <div class="flex-1 mx-4 flex items-center">
               <span class="text-xs font-mono text-gray-500 w-10">{{ formatTime(currentTime) }}</span>
-              
+
               <!-- Seekable progress bar -->
               <div class="flex-1 mx-2 relative h-2 bg-gray-300 rounded-full overflow-hidden cursor-pointer"
-                   (click)="seekAudio($event, false)">
-                <div class="absolute inset-y-0 left-0 bg-blue-600 rounded-full"
-                     [style.width.%]="progress"></div>
-                <div class="absolute top-0 bottom-0 w-0.5 bg-blue-800 rounded-full"
-                     [style.left.%]="progress"></div>
+                (click)="seekAudio($event, false)">
+                <div class="absolute inset-y-0 left-0 bg-blue-600 rounded-full" [style.width.%]="progress"></div>
+                <div class="absolute top-0 bottom-0 w-0.5 bg-blue-800 rounded-full" [style.left.%]="progress"></div>
               </div>
-              
+
               <span class="text-xs font-mono text-gray-500 w-10">{{ formatTime(duration) }}</span>
             </div>
-            
+
             <!-- Volume and other controls -->
             <div class="flex items-center space-x-3">
               <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M12 6a7.975 7.975 0 015.657 2.343m0 0a7.975 7.975 0 010 11.314m-11.314 0a7.975 7.975 0 010-11.314m0 0a7.975 7.975 0 015.657-2.343"/>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15.536 8.464a5 5 0 010 7.072M12 6a7.975 7.975 0 015.657 2.343m0 0a7.975 7.975 0 010 11.314m-11.314 0a7.975 7.975 0 010-11.314m0 0a7.975 7.975 0 015.657-2.343" />
                 </svg>
-                <input type="range" min="0" max="1" step="0.01" 
-                       [(ngModel)]="volume" 
-                       (input)="setVolume()"
-                       class="w-20 ml-2 h-1 bg-gray-300 rounded-full appearance-none cursor-pointer">
+                <input type="range" min="0" max="1" step="0.01" [(ngModel)]="volume" (input)="setVolume()"
+                  class="w-20 ml-2 h-1 bg-gray-300 rounded-full appearance-none cursor-pointer">
               </div>
             </div>
           </div>
@@ -181,16 +211,20 @@
     </div>
 
     <!-- Comments section -->
-    <div class="mt-8 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden p-6">
+    <div
+      class="mt-8 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden p-6">
       <div class="flex justify-between items-center mb-4 border-b pb-2">
         <h2 class="text-xl font-semibold">Hozzászólások</h2>
-        <span class="text-sm text-gray-500">{{comments.length}} {{comments.length === 1 ? 'hozzászólás' : 'hozzászólás'}}</span>
+        <span class="text-sm text-gray-500">{{comments.length}} {{comments.length === 1 ? 'hozzászólás' :
+          'hozzászólás'}}</span>
       </div>
 
       <!-- No comments message -->
       <div *ngIf="comments.length === 0" class="text-center py-8 bg-gray-50 rounded-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
         <p class="text-gray-500 mt-2">Még nincsenek hozzászólások.</p>
         <p *ngIf="!isLoggedIn" class="text-sm mt-1">Jelentkezz be, hogy te lehess az első!</p>
@@ -207,24 +241,22 @@
             <!-- User avatar -->
             <div class="flex-shrink-0">
               <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                <img *ngIf="comment.user?.profileImage" 
-                     [src]="comment.user.profileImage" 
-                     class="h-full w-full object-cover">
-                <span *ngIf="!comment.user?.profileImage" 
-                      class="text-gray-600 font-medium">
+                <img *ngIf="comment.user?.profileImage" [src]="comment.user.profileImage"
+                  class="h-full w-full object-cover">
+                <span *ngIf="!comment.user?.profileImage" class="text-gray-600 font-medium">
                   {{comment.user?.username?.charAt(0) || '?'}}
                 </span>
               </div>
             </div>
-            
+
             <!-- Comment content -->
             <div class="flex-1 min-w-0">
               <div class="flex items-baseline">
                 <p class="text-sm font-medium text-gray-900 mr-2">
                   {{comment.user?.username || 'Ismeretlen'}}
                 </p>
-                <span *ngIf="comment.user?.role === 'admin'" 
-                      class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
+                <span *ngIf="comment.user?.role === 'admin'"
+                  class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
                   Admin
                 </span>
                 <span class="ml-auto text-xs text-gray-500">
@@ -250,15 +282,17 @@
           <div class="text-sm text-gray-500">
             {{newComment.length}} / 500 karakter
           </div>
-          <button (click)="addComment()" 
-            [disabled]="isAddingComment || !newComment.trim() || newComment.length > 500"
+          <button (click)="addComment()" [disabled]="isAddingComment || !newComment.trim() || newComment.length > 500"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition duration-200 flex items-center">
-            
+
             <span *ngIf="!isAddingComment">Küldés</span>
             <span *ngIf="isAddingComment" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
               </svg>
               Küldés...
             </span>
@@ -269,8 +303,10 @@
       <!-- Login prompt -->
       <div *ngIf="!isLoggedIn" class="mt-8 border-t pt-6 text-center">
         <div class="bg-blue-50 p-4 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto text-blue-500" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
           <p class="text-gray-600 mt-2">A hozzászóláshoz be kell jelentkezned.</p>
           <button (click)="handleLogin()"

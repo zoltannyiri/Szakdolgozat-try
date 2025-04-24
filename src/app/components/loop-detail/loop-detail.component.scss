@@ -1,0 +1,17 @@
+.like-button {
+    transition: all 0.2s ease;
+    color: #6b7280; /* gray-500 alapértelmezett szín */
+    
+    &:hover {
+      transform: scale(1.1);
+      color: #ef4444; /* red-500 hover állapotban */
+    }
+    
+    &.liked {
+      color: #ef4444; /* red-500 ha likeolt */
+      
+      &:hover {
+        color: #dc2626; /* red-600 hover állapotban */
+      }
+    }
+  }
