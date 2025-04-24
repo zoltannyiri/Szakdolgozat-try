@@ -15,7 +15,8 @@
         <div class="relative flex-1 w-full">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </div>
           <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="searchLoops()" placeholder="Loopok keresése..."
@@ -27,7 +28,9 @@
           <button (click)="toggleUploadModal()"
             class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 whitespace-nowrap">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+              <path fill-rule="evenodd"
+                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
+                clip-rule="evenodd" />
             </svg>
             <span class="text-sm font-medium">Feltöltés</span>
           </button>
@@ -35,7 +38,9 @@
           <button (click)="toggleAdvancedSearch()"
             class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 whitespace-nowrap">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"/>
+              <path fill-rule="evenodd"
+                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                clip-rule="evenodd" />
             </svg>
             <span class="text-sm font-medium">Szűrők</span>
           </button>
@@ -44,7 +49,8 @@
     </div>
 
     <!-- Feltöltési Modal -->
-    <div *ngIf="isUploadModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" (click)="closeUploadModal($event)">
+    <div *ngIf="isUploadModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      (click)="closeUploadModal($event)">
       <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-2xl mx-4 relative animate-fade-in">
         <button (click)="toggleUploadModal()"
           class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center transition">
@@ -59,14 +65,17 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">WAV fájl kiválasztása (max 20MB)</label>
             <div class="flex items-center justify-center w-full">
-              <label class="flex flex-col w-full border-2 border-dashed rounded-xl hover:border-gray-300 transition cursor-pointer">
+              <label
+                class="flex flex-col w-full border-2 border-dashed rounded-xl hover:border-gray-300 transition cursor-pointer">
                 <div class="flex flex-col items-center justify-center py-8">
                   <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                   </svg>
                   <p class="text-sm text-gray-500 mt-2">Kattints a tallózáshoz vagy húzd ide a fájlt</p>
                 </div>
-                <input type="file" accept=".wav,.mp3,.aiff" (change)="onFileSelected($event)" class="opacity-0 absolute">
+                <input type="file" accept=".wav,.mp3,.aiff" (change)="onFileSelected($event)"
+                  class="opacity-0 absolute">
               </label>
             </div>
             <p *ngIf="selectedFile" class="text-sm text-gray-600 mt-2">{{ selectedFile.name }}</p>
@@ -125,9 +134,12 @@
               class="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
               <span *ngIf="!isUploading">Feltöltés</span>
               <span *ngIf="isUploading" class="flex items-center">
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
                 </svg>
                 Feltöltés...
               </span>
@@ -138,7 +150,8 @@
     </div>
 
     <!-- Haladó Keresés Modal -->
-    <div *ngIf="isAdvancedSearchOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" (click)="closeAdvancedSearch($event)">
+    <div *ngIf="isAdvancedSearchOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      (click)="closeAdvancedSearch($event)">
       <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-2xl mx-4 relative animate-fade-in">
         <button (click)="toggleAdvancedSearch()"
           class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center transition">
@@ -221,150 +234,179 @@
       </div>
     </div>
 
-   <!-- Loopok Listája - Egymás alatt -->
-   <div class="max-w-6xl mx-auto space-y-6">
-    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
-    </div>
+    <!-- Loopok Listája - Egymás alatt -->
+    <div class="max-w-6xl mx-auto space-y-6">
+      <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
+      </div>
 
-    <div *ngIf="!isLoading && loops.length === 0" class="text-center py-12">
-      <p class="text-gray-500">Nincs találat. Próbáld meg módosítani a keresési feltételeket.</p>
-    </div>
+      <div *ngIf="!isLoading && loops.length === 0" class="text-center py-12">
+        <p class="text-gray-500">Nincs találat. Próbáld meg módosítani a keresési feltételeket.</p>
+      </div>
 
-    <!-- Loop kártyák -->
-    <div *ngFor="let loop of loops" class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden">
-      <audio #audioPlayer [id]="'audio-' + loop._id" [src]="getSafeAudioUrl(loop.path)" hidden
-             (play)="onAudioPlay(loop._id)" 
-             (pause)="onAudioPause()" 
-             (error)="onAudioError(audioPlayer)"
-             (timeupdate)="updateProgress(loop._id)"></audio>
-      
-      <div class="p-6">
-        <!-- Header -->
-        <div class="flex items-start justify-between mb-4">
-          <div>
-            <div class="flex items-center mb-2">
-              <h3 class="text-xl font-bold text-gray-800 hover:text-gray-600 cursor-pointer transition"
-                [routerLink]="['/loop-detail', loop._id]">{{ loop.filename }}</h3>
-              <span class="ml-3 bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full">{{ loop.bpm }} BPM</span>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-              <span class="text-sm text-gray-600 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-                </svg>
-                {{ loop.instrument }}
-              </span>
-              <span class="text-sm text-gray-600 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 012.728-2.728"/>
-                </svg>
-                {{ loop.key }} {{ loop.scale }}
-              </span>
-            </div>
-          </div>
-          
-          <!-- Action buttons -->
-          <div class="flex space-x-2">
-            <button class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-              </svg>
-            </button>
-            <button (click)="downloadLoop(loop)" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
-        title="Loop letöltése">
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-  </svg>
-</button>
-          </div>
-        </div>
-        
-        <!-- Tags -->
-        <div class="mb-6 flex flex-wrap gap-2">
-          <span *ngFor="let tag of loop.tags" class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
-            {{ tag }}
-          </span>
-        </div>
-        
-        <!-- Player section -->
-        <div class="bg-gray-100 rounded-xl p-4 border border-gray-200">
-          <!-- Waveform visualization -->
-          <div class="relative h-20 mb-4 bg-gray-200 rounded-lg overflow-hidden cursor-pointer"
-               (click)="seekAudio($event, loop._id, true)">
-            <!-- Static waveform background -->
-            <div class="absolute inset-0 flex items-center">
-              <div class="w-full h-8 flex items-center">
-                <div *ngFor="let value of waveforms[loop._id] || []; let i = index" 
-                     class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-gray-400/60"
-                     [style.height.%]="value * 0.8">
-                </div>
+      <!-- Loop kártyák -->
+      <div *ngFor="let loop of loops"
+        class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden">
+        <audio #audioPlayer [id]="'audio-' + loop._id" [src]="getSafeAudioUrl(loop.path)" hidden
+          (play)="onAudioPlay(loop._id)" (pause)="onAudioPause()" (error)="onAudioError(audioPlayer)"
+          (timeupdate)="updateProgress(loop._id)"></audio>
+
+        <div class="p-6">
+          <!-- Header -->
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <div class="flex items-center mb-2">
+                <h3 class="text-xl font-bold text-gray-800 hover:text-gray-600 cursor-pointer transition"
+                  [routerLink]="['/loop-detail', loop._id]">{{ loop.filename }}</h3>
+                <span class="ml-3 bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full">{{ loop.bpm }} BPM</span>
+              </div>
+
+              <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-600 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                  </svg>
+                  {{ loop.instrument }}
+                </span>
+                <span class="text-sm text-gray-600 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 012.728-2.728" />
+                  </svg>
+                  {{ loop.key }} {{ loop.scale }}
+                </span>
               </div>
             </div>
-            
-            <!-- Active playback waveform -->
-            <div class="absolute inset-0 flex items-center overflow-hidden" [style.width.%]="getProgress(loop._id)">
-              <div class="h-8 flex items-center">
-                <div *ngFor="let value of waveforms[loop._id] || []; let i = index" 
-                     class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-blue-600/80"
-                     [style.height.%]="value * 0.8">
-                </div>
-              </div>
-            </div>
-            
-            <!-- Playhead indicator -->
-            <div class="absolute top-0 bottom-0 w-0.5 bg-blue-600 ml-1" 
-                 [style.left.%]="getProgress(loop._id)"></div>
-          </div>
-          
-          <!-- Controls -->
-          <div class="flex items-center justify-between">
-            <!-- Play/Pause -->
-            <button (click)="togglePlay(loop._id, audioPlayer)" 
-                    class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-all transform hover:scale-105">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path *ngIf="currentlyPlayingId !== loop._id" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                <path *ngIf="currentlyPlayingId === loop._id" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </button>
-            
-            <!-- Timeline with seek -->
-            <div class="flex-1 mx-4 flex items-center">
-              <span class="text-xs font-mono text-gray-500 w-10">{{ formatTime(currentPositions[loop._id]) }}</span>
-              
-              <!-- Seekable progress bar -->
-              <div class="flex-1 mx-2 relative h-2 bg-gray-300 rounded-full overflow-hidden cursor-pointer"
-                   (click)="seekAudio($event, loop._id, false)">
-                <div class="absolute inset-y-0 left-0 bg-blue-600 rounded-full"
-                     [style.width.%]="getProgress(loop._id)"></div>
-                <div class="absolute top-0 bottom-0 w-0.5 bg-blue-800 rounded-full"
-                     [style.left.%]="getProgress(loop._id)"></div>
-              </div>
-              
-              <span class="text-xs font-mono text-gray-500 w-10">{{ formatTime(durations[loop._id]) }}</span>
-            </div>
-            
-            <!-- Volume and other controls -->
-            <div class="flex items-center space-x-3">
-              <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M12 6a7.975 7.975 0 015.657 2.343m0 0a7.975 7.975 0 010 11.314m-11.314 0a7.975 7.975 0 010-11.314m0 0a7.975 7.975 0 015.657-2.343"/>
-                </svg>
-                <input type="range" min="0" max="1" step="0.01" 
-                       [value]="volumes[loop._id] || 0.7" 
-                       (input)="setVolume(loop._id, $any($event.target).value)"
-                       class="w-20 ml-2 h-1 bg-gray-300 rounded-full appearance-none cursor-pointer">
-              </div>
-              
+
+            <!-- A loop kártyán belül a like gomb -->
+<div class="flex items-center space-x-2">
+  <button (click)="toggleLike(loop)" class="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full transition"
+    [class.text-red-500]="hasLiked(loop._id)">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+    </svg>
+  </button>
+  <span class="text-sm text-gray-600">{{ loop.likes }}</span>
+</div>
+
+            <!-- Action buttons -->
+            <div class="flex space-x-2">
               <button class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                 </svg>
               </button>
+              <button (click)="downloadLoop(loop)"
+                class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
+                title="Loop letöltése">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="mb-6 flex flex-wrap gap-2">
+            <span *ngFor="let tag of loop.tags"
+              class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              {{ tag }}
+            </span>
+          </div>
+
+          <!-- Player section -->
+          <div class="bg-gray-100 rounded-xl p-4 border border-gray-200">
+            <!-- Waveform visualization -->
+            <div class="relative h-20 mb-4 bg-gray-200 rounded-lg overflow-hidden cursor-pointer"
+              (click)="seekAudio($event, loop._id, true)">
+              <!-- Static waveform background -->
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full h-8 flex items-center">
+                  <div *ngFor="let value of waveforms[loop._id] || []; let i = index"
+                    class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-gray-400/60"
+                    [style.height.%]="value * 0.8">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Active playback waveform -->
+              <div class="absolute inset-0 flex items-center overflow-hidden" [style.width.%]="getProgress(loop._id)">
+                <div class="h-8 flex items-center">
+                  <div *ngFor="let value of waveforms[loop._id] || []; let i = index"
+                    class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-blue-600/80"
+                    [style.height.%]="value * 0.8">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Playhead indicator -->
+              <div class="absolute top-0 bottom-0 w-0.5 bg-blue-600 ml-1" [style.left.%]="getProgress(loop._id)"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-between">
+              <!-- Play/Pause -->
+              <button (click)="togglePlay(loop._id, audioPlayer)"
+                class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-all transform hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path *ngIf="currentlyPlayingId !== loop._id" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path *ngIf="currentlyPlayingId === loop._id" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+
+              <!-- Timeline with seek -->
+              <div class="flex-1 mx-4 flex items-center">
+                <span class="text-xs font-mono text-gray-500 w-10">{{ formatTime(currentPositions[loop._id]) }}</span>
+
+                <!-- Seekable progress bar -->
+                <div class="flex-1 mx-2 relative h-2 bg-gray-300 rounded-full overflow-hidden cursor-pointer"
+                  (click)="seekAudio($event, loop._id, false)">
+                  <div class="absolute inset-y-0 left-0 bg-blue-600 rounded-full"
+                    [style.width.%]="getProgress(loop._id)"></div>
+                  <div class="absolute top-0 bottom-0 w-0.5 bg-blue-800 rounded-full"
+                    [style.left.%]="getProgress(loop._id)"></div>
+                </div>
+
+                <span class="text-xs font-mono text-gray-500 w-10">{{ formatTime(durations[loop._id]) }}</span>
+              </div>
+
+              <!-- Volume and other controls -->
+              <div class="flex items-center space-x-3">
+                <div class="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.536 8.464a5 5 0 010 7.072M12 6a7.975 7.975 0 015.657 2.343m0 0a7.975 7.975 0 010 11.314m-11.314 0a7.975 7.975 0 010-11.314m0 0a7.975 7.975 0 015.657-2.343" />
+                  </svg>
+                  <input type="range" min="0" max="1" step="0.01" [value]="volumes[loop._id] || 0.7"
+                    (input)="setVolume(loop._id, $any($event.target).value)"
+                    class="w-20 ml-2 h-1 bg-gray-300 rounded-full appearance-none cursor-pointer">
+                </div>
+
+                <button class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -372,39 +414,73 @@
     </div>
   </div>
 </div>
-</div>
 
 <!-- Animációk -->
 <style>
   @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-10px) rotate(1deg); }
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+      transform: translateY(-10px) rotate(1deg);
+    }
   }
+
   @keyframes float-delay {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(10px) rotate(-1deg); }
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+      transform: translateY(10px) rotate(-1deg);
+    }
   }
+
   @keyframes pulse-slow {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.3; }
+
+    0%,
+    100% {
+      opacity: 0.2;
+    }
+
+    50% {
+      opacity: 0.3;
+    }
   }
+
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  .animate-float { 
+
+  .animate-float {
     animation: float 12s ease-in-out infinite;
     will-change: transform;
   }
-  .animate-float-delay { 
+
+  .animate-float-delay {
     animation: float-delay 12s ease-in-out infinite 3s;
     will-change: transform;
   }
-  .animate-pulse-slow { 
+
+  .animate-pulse-slow {
     animation: pulse-slow 8s ease-in-out infinite;
     will-change: opacity;
   }
-  .animate-fade-in { 
+
+  .animate-fade-in {
     animation: fadeIn 0.3s ease-out forwards;
     will-change: opacity, transform;
   }
@@ -413,23 +489,34 @@
   .overflow-x-auto::-webkit-scrollbar {
     height: 6px;
   }
+
   .overflow-x-auto::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 10px;
   }
+
   .overflow-x-auto::-webkit-scrollbar-thumb {
     background: #d1d5db;
     border-radius: 10px;
   }
+
   .overflow-x-auto::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
   }
+
   /* Spektrumanalizátor animáció */
   @keyframes bandPulse {
-    0%, 100% { height: 10%; }
-    50% { height: 90%; }
+
+    0%,
+    100% {
+      height: 10%;
+    }
+
+    50% {
+      height: 90%;
+    }
   }
-  
+
   .waveform-bar {
     transition: height 0.1s ease-out;
   }

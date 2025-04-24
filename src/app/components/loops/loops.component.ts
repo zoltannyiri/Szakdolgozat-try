@@ -8,6 +8,7 @@ import { catchError, retry, throwError, timeout, timer } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { WaveformService } from '../../services/waveform.service';
+import mongoose from 'mongoose';
 
 @Component({
   selector: 'app-loops',
@@ -456,5 +457,51 @@ animateBands(loopId: string) {
       instrument: '',
       tags: ''
     };
+  }
+
+
+  //likeolás
+  // Komponens osztályhoz új metódusok
+  hasLiked(loopId: string): boolean {
+    const userId = this.authService.getUserId();
+    if (!userId) return false;
+    
+    const loop = this.loops.find(l => l._id === loopId);
+    if (!loop || !loop.likedBy) return false;
+  
+    // Konvertáljuk a userId-t string-re és hasonlítsuk össze
+    const userIdStr = userId.toString();
+    return loop.likedBy.some((id: any) => id.toString() === userIdStr);
+  }
+
+  toggleLike(loop: any): void {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      alert('Please log in to like loops');
+      return;
+    }
+  
+    const userIdStr = userId.toString();
+  
+    if (this.hasLiked(loop._id)) {
+      this.loopService.unlikeLoop(loop._id).subscribe({
+        next: (response) => {
+          loop.likes = response.likes;
+          loop.likedBy = loop.likedBy.filter(
+            (id: any) => id.toString() !== userIdStr
+          );
+        },
+        error: (err) => console.error('Unlike error:', err)
+      });
+    } else {
+      this.loopService.likeLoop(loop._id).subscribe({
+        next: (response) => {
+          loop.likes = response.likes;
+          if (!loop.likedBy) loop.likedBy = [];
+          loop.likedBy.push(userId);
+        },
+        error: (err) => console.error('Like error:', err)
+      });
+    }
   }
 }

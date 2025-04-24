@@ -8,6 +8,7 @@ import { promisify } from "util";
 import { pipeline } from "stream";
 import { getAudioDurationInSeconds } from "get-audio-duration";
 import Notification from "../models/notification.model";
+import User from "../models/user.model";
 
 const pump = promisify(pipeline);
 
@@ -168,6 +169,79 @@ export const getLoopById = async (req: Request, res: Response) => {
     res.json(loop);
   } catch (error) {
     console.error("Error fetching loop:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+//loop likeolása
+export const likeLoop = async (req: CustomRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    const loop = await Loop.findById(id);
+    if (!loop) {
+      return res.status(404).json({ message: "Loop not found" });
+    }
+
+    // Ellenőrizzük, hogy a felhasználó már likeolta-e
+    if (loop.likedBy.some(likedUserId => likedUserId.equals(userId))) {
+      return res.status(400).json({ message: "You already liked this loop" });
+    }
+
+    // Like hozzáadása
+    loop.likes += 1;
+    loop.likedBy.push(userId);
+    await loop.save();
+
+    // Értesítés küldése a feltöltőnek, ha nem ő likeolta
+    if (!loop.uploader.equals(userId)) {
+      const liker = await User.findById(userId);
+      
+      if (liker) {
+        const notification = new Notification({
+          userId: loop.uploader,
+          user: userId,
+          type: 'like',
+          message: `${liker.username} likeolta a loopodat: ${loop.filename}`,
+          relatedItemId: loop._id
+        });
+        await notification.save();
+      }
+    }
+
+    res.json({ success: true, likes: loop.likes });
+  } catch (error) {
+    console.error("Like error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const unlikeLoop = async (req: CustomRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    const loop = await Loop.findById(id);
+    if (!loop) {
+      return res.status(404).json({ message: "Loop not found" });
+    }
+
+    // Ellenőrizzük, hogy a felhasználó likeolta-e
+    const userIndex = loop.likedBy.findIndex(likedUserId => likedUserId.equals(userId));
+    if (userIndex === -1) {
+      return res.status(400).json({ message: "You haven't liked this loop yet" });
+    }
+
+    // Like eltávolítása
+    loop.likes -= 1;
+    loop.likedBy.splice(userIndex, 1);
+    await loop.save();
+
+    res.json({ success: true, likes: loop.likes });
+  } catch (error) {
+    console.error("Unlike error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

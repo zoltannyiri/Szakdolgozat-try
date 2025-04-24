@@ -155,5 +155,15 @@ getLoopById(id: string): Observable<any> {
       })
     });
   }
+
+
+  //loop likeolása
+  likeLoop(loopId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/loop-detail/${loopId}/like`, {});
+  }
+  
+  unlikeLoop(loopId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/loop-detail/${loopId}/unlike`, {});
+  }
 }
 

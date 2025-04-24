@@ -16,6 +16,7 @@ import { upload, validateLoopMetadata } from "./middlewares/upload.middleware";
 import { uploadLoop, getLoops, downloadLoop } from "./controllers/loop.controller";
 import loopRoutes from "./routes/loop.routes";
 import Notification from './models/notification.model';
+import { likeLoop, unlikeLoop } from "./controllers/loop.controller";
 
 
 dotenv.config({
@@ -373,6 +374,11 @@ app.use(cors({
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads', express.static('uploads'));
+
+
+//likeolás
+app.post('/api/loop-detail/:id/like', authenticateToken, likeLoop);
+app.post('/api/loop-detail/:id/unlike', authenticateToken, unlikeLoop);
 
 // commented at 03.11 19:00
 // import App from "./app";

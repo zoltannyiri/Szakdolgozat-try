@@ -13,6 +13,7 @@ export interface ILoop extends Document {
   duration: number;
   uploadDate: Date;
   likes: number;
+  likedBy: mongoose.Types.ObjectId[];
   downloads: number;
 }
 
@@ -28,6 +29,7 @@ const LoopSchema: Schema = new Schema<ILoop>({
   duration: { type: Number, required: true },
   uploadDate: { type: Date, default: Date.now },
   likes: { type: Number, default: 0 },
+  likedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
   downloads: { type: Number, default: 0 }
 });
 
