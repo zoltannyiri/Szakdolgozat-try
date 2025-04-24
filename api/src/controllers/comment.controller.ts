@@ -66,16 +66,21 @@ export const addComment = async (req: CustomRequest, res: Response) => {
 
     // Értesítés létrehozása a loop tulajdonosának
     const loop = await Loop.findById(loopId);
-    if (loop && loop.uploader.toString() !== userId) {
-      const notification = new Notification({
-        userId: loop.uploader,
-        user: userId,
-        type: 'comment',
-        message: `${commentingUser.username} kommentelt egy loopod alatt`,
-        relatedItemId: loopId
-      });
-      await notification.save();
-    }
+if (loop && loop.uploader.toString() !== userId) {
+  // Ellenőrizzük, hogy a commentingUser létezik és van username-e
+  if (commentingUser && commentingUser.username) {
+    const notification = new Notification({
+      userId: loop.uploader,
+      user: userId,
+      type: 'comment',
+      message: `${commentingUser.username} kommentelt egy loopod alatt`,
+      relatedItemId: loopId
+    });
+    await notification.save();
+  } else {
+    console.error("A felhasználónév nem elérhető az értesítéshez");
+  }
+}
 
     res.status(201).json({
       success: true,

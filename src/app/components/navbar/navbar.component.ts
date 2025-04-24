@@ -124,19 +124,16 @@ profileMenuOpen: any;
     this.notificationService.getNotifications().subscribe({
       next: (response) => {
         if (response && response.success && Array.isArray(response.data)) {
-          this.notifications = response.data;
-          this.unreadNotificationsCount = response.data.filter((n: { read: any; }) => !n.read).length;
-        } else {
-          console.error('Érvénytelen válasz formátum:', response);
-          this.notifications = [];
-          this.unreadNotificationsCount = 0;
+          this.notifications = response.data.map((n: any) => ({
+            ...n,
+            // Biztosítsd, hogy a user objektum létezik
+            message: n.message || (n.user?.username ? `${n.user.username} kommentelt` : 'Valaki kommentelt'),
+            createdAt: new Date(n.createdAt)
+          }));
+          this.unreadNotificationsCount = this.notifications.filter(n => !n.read).length;
         }
       },
-      error: (err) => {
-        console.error('Értesítések betöltési hiba:', err);
-        this.notifications = [];
-        this.unreadNotificationsCount = 0;
-      }
+      error: (err) => console.error('Hiba:', err)
     });
   }
 

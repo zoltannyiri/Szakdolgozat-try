@@ -194,11 +194,46 @@ app.put("/api/profile", authenticateToken, async (req: CustomRequest, res: Respo
 
 //ÉRTESÍTÉSEK
 // Értesítések lekérdezése
-// Értesítések lekérdezése
+// // Értesítések lekérdezése
+// app.get('/api/notifications', authenticateToken, async (req: CustomRequest, res: Response) => {
+//   try {
+//     const notifications = await Notification.find({ userId: req.user.userId })
+//       .populate<{ user: { username: string; profileImage?: string } }>({
+//         path: 'user',
+//         select: 'username profileImage',
+//         model: 'User'
+//       })
+//       .sort({ createdAt: -1 })
+//       .lean();
+
+//     const formattedNotifications = notifications.map(notification => {
+//       // Explicit típus definiálás
+//       const user = notification.user as { username: string; profileImage?: string } | undefined;
+      
+//       return {
+//         ...notification,
+//         message: notification.message,
+//         user: user ? {
+//           username: user.username,
+//           profileImage: user.profileImage // Opcionális mező
+//         } : undefined
+//       };
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       data: formattedNotifications
+//     });
+//   } catch (error) {
+//     console.error('Hiba:', error);
+//     res.status(500).json({ message: 'Szerver hiba' });
+//   }
+// });
+
 app.get('/api/notifications', authenticateToken, async (req: CustomRequest, res: Response) => {
   try {
     const notifications = await Notification.find({ userId: req.user.userId })
-      .populate<{ user: { username: string; profileImage?: string } }>({
+      .populate({
         path: 'user',
         select: 'username profileImage',
         model: 'User'
@@ -206,23 +241,9 @@ app.get('/api/notifications', authenticateToken, async (req: CustomRequest, res:
       .sort({ createdAt: -1 })
       .lean();
 
-    const formattedNotifications = notifications.map(notification => {
-      // Explicit típus definiálás
-      const user = notification.user as { username: string; profileImage?: string } | undefined;
-      
-      return {
-        ...notification,
-        message: notification.message,
-        user: user ? {
-          username: user.username,
-          profileImage: user.profileImage // Opcionális mező
-        } : undefined
-      };
-    });
-
     res.status(200).json({
       success: true,
-      data: formattedNotifications
+      data: notifications
     });
   } catch (error) {
     console.error('Hiba:', error);
