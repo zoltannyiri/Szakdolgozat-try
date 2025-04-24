@@ -1,9 +1,10 @@
 import { Component, HostListener, TemplateRef } from '@angular/core';
 import { CommonModule, NgIfContext } from '@angular/common';
-import { RouterLink, RouterModule } from '@angular/router';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RegisterComponent } from '../register/register.component';
 import { AuthService } from '../../services/auth.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -23,12 +24,15 @@ export class NavbarComponent {
   isSidebarOpen = false;
   userName : string = '';
   userData: any = null;
+  showNotifications = false;
+  notifications: any[] = [];
+  unreadNotificationsCount = 0;
 
   private subscription: Subscription;
 loggedInView: TemplateRef<NgIfContext<boolean>> | null | undefined;
 profileMenuOpen: any;
 
-  constructor(public authService: AuthService) {
+  constructor(public authService: AuthService, private notificationService: NotificationService, private router: Router) {
     this.subscription = this.authService.isLoggedIn$.subscribe(
       (loggedIn) => {
         this.isLoggedIn = loggedIn;
@@ -37,6 +41,15 @@ profileMenuOpen: any;
         }
       }
     );
+
+    // Értesítések frissítése bejelentkezéskor
+    this.authService.isLoggedIn$.subscribe(loggedIn => {
+      if (loggedIn) {
+        this.loadNotifications();
+        // Frissítés minden 60 másodpercben
+        setInterval(() => this.loadNotifications(), 60000);
+      }
+    });
   }
   
 
@@ -89,6 +102,70 @@ profileMenuOpen: any;
     this.showProfileMenu = false;
     this.isSidebarOpen = false;
   }
+
+
+  toggleNotifications() {
+    if (!this.authService.isLoggedIn()) {
+      console.warn('Cannot show notifications - user not logged in');
+      return;
+    }
+    
+    this.showNotifications = !this.showNotifications;
+    if (this.showNotifications) {
+      this.loadNotifications();
+    }
+  }
+
+  loadNotifications() {
+    if (!this.authService.isLoggedIn()) {
+      return;
+    }
+  
+    this.notificationService.getNotifications().subscribe({
+      next: (response) => {
+        if (response && response.success && Array.isArray(response.data)) {
+          this.notifications = response.data;
+          this.unreadNotificationsCount = response.data.filter((n: { read: any; }) => !n.read).length;
+        } else {
+          console.error('Érvénytelen válasz formátum:', response);
+          this.notifications = [];
+          this.unreadNotificationsCount = 0;
+        }
+      },
+      error: (err) => {
+        console.error('Értesítések betöltési hiba:', err);
+        this.notifications = [];
+        this.unreadNotificationsCount = 0;
+      }
+    });
+  }
+
+
+  markAllAsRead() {
+    this.notificationService.markAllAsRead().subscribe({
+      next: () => {
+        this.notifications.forEach(n => n.read = true);
+        this.unreadNotificationsCount = 0;
+      },
+      error: (err) => console.error('Error marking notifications as read:', err)
+    });
+  }
+
+  handleNotificationClick(notification: any) {
+    if (!notification.read) {
+      this.notificationService.markAsRead(notification._id).subscribe();
+    }
+  
+    // Navigálás a loop részletekhez
+    if (notification.type === 'comment' || notification.type === 'download') {
+      this.router.navigate(['/loop-detail', notification.relatedItemId]).catch(err => {
+        console.error('Navigációs hiba:', err);
+      });
+    }
+    
+    this.showNotifications = false;
+  }
+  
 
   // ngOnInit(): void {
   //   document.addEventListener('DOMContentLoaded', () => {

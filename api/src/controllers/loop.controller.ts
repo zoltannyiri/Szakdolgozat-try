@@ -7,6 +7,7 @@ import path from "path";
 import { promisify } from "util";
 import { pipeline } from "stream";
 import { getAudioDurationInSeconds } from "get-audio-duration";
+import Notification from "../models/notification.model";
 
 const pump = promisify(pipeline);
 
@@ -116,9 +117,10 @@ export const getLoops = async (req: Request, res: Response) => {
   }
 };
 
-export const downloadLoop = async (req: Request, res: Response) => {
+export const downloadLoop = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = req.user?.userId; // Felhasználó ID lekérése
     const loop = await Loop.findByIdAndUpdate(
       id,
       { $inc: { downloads: 1 } },
@@ -128,6 +130,18 @@ export const downloadLoop = async (req: Request, res: Response) => {
     if (!loop) {
       return res.status(404).json({ message: "Loop not found" });
     }
+
+  // Értesítés küldése a feltöltőnek, ha nem ő töltötte le
+  if (loop.uploader.toString() !== userId) {
+    const notification = new Notification({
+      userId: loop.uploader,
+      type: 'download',
+      message: `${req.user.username} letöltötte a loopodat: ${loop.filename}`,
+      relatedItemId: loop._id
+    });
+    await notification.save();
+  }
+    
 
     res.download(loop.path, loop.filename, (err) => {
       if (err) {

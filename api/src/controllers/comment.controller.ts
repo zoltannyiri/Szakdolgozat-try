@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import Comment from '../models/comment.model';
 import { IComment } from '../models/comment.model';
+import Notification from '../models/notification.model';
+import Loop from '../models/loop.model';
+import { CustomRequest } from '../middlewares/auth.middleware';
+import User from '../models/user.model';
 
 // Hitelesített kérés típusa
 interface AuthenticatedRequest extends Request {
@@ -35,13 +39,17 @@ export const getCommentsForLoop = async (req: Request, res: Response) => {
   }
 };
 
-export const addComment = async (req: Request, res: Response) => {
+export const addComment = async (req: CustomRequest, res: Response) => {
   try {
     const { loopId } = req.params;
     const { text } = req.body;
-    const userId = (req as any).user?.userId;
+    const userId = req.user?.userId;
 
-    // Validációk...
+    // Ellenőrizzük a felhasználó létezését
+    const commentingUser = await User.findById(userId);
+    if (!commentingUser) {
+      return res.status(404).json({ message: "Felhasználó nem található" });
+    }
 
     const newComment = new Comment({
       text: text.trim(),
@@ -51,10 +59,23 @@ export const addComment = async (req: Request, res: Response) => {
 
     const savedComment = await newComment.save();
     
-    // Populáljuk a user adatait
+    // Populáljuk a kommentet a válaszhoz
     const populatedComment = await Comment.findById(savedComment._id)
       .populate('user', 'username profileImage')
       .lean();
+
+    // Értesítés létrehozása a loop tulajdonosának
+    const loop = await Loop.findById(loopId);
+    if (loop && loop.uploader.toString() !== userId) {
+      const notification = new Notification({
+        userId: loop.uploader,
+        user: userId,
+        type: 'comment',
+        message: `${commentingUser.username} kommentelt egy loopod alatt`,
+        relatedItemId: loopId
+      });
+      await notification.save();
+    }
 
     res.status(201).json({
       success: true,
@@ -63,9 +84,6 @@ export const addComment = async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error("Hiba:", error);
-    res.status(500).json({ 
-      success: false,
-      message: "Szerver hiba" 
-    });
+    res.status(500).json({ message: "Szerver hiba" });
   }
 };

@@ -13,6 +13,7 @@ export interface IUser extends Document {
   lastName: string;
   lastLogin: Date;
   aboutMe: string;
+  profileImage?: string;
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -23,7 +24,8 @@ const UserSchema: Schema = new Schema<IUser>({
   date: { type: Date, default: Date.now },
   country: { type: String, required: true },
   lastLogin: { type: Date, default: Date.now },
-  aboutMe: { type: String, default: "" }
+  aboutMe: { type: String, default: "" },
+  profileImage: { type: String }
 });
 
 // Default exporttal, hogy `import User from "./models/user.model";` működjön

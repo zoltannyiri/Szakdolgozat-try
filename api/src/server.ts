@@ -15,6 +15,7 @@ import { validateUser } from "./middlewares/validation.middleware";
 import { upload, validateLoopMetadata } from "./middlewares/upload.middleware";
 import { uploadLoop, getLoops, downloadLoop } from "./controllers/loop.controller";
 import loopRoutes from "./routes/loop.routes";
+import Notification from './models/notification.model';
 
 
 dotenv.config({
@@ -190,8 +191,97 @@ app.put("/api/profile", authenticateToken, async (req: CustomRequest, res: Respo
 });
 
 
+
+//ÉRTESÍTÉSEK
+// Értesítések lekérdezése
+// Értesítések lekérdezése
+app.get('/api/notifications', authenticateToken, async (req: CustomRequest, res: Response) => {
+  try {
+    const notifications = await Notification.find({ userId: req.user.userId })
+      .populate<{ user: { username: string; profileImage?: string } }>({
+        path: 'user',
+        select: 'username profileImage',
+        model: 'User'
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const formattedNotifications = notifications.map(notification => {
+      // Explicit típus definiálás
+      const user = notification.user as { username: string; profileImage?: string } | undefined;
+      
+      return {
+        ...notification,
+        message: notification.message,
+        user: user ? {
+          username: user.username,
+          profileImage: user.profileImage // Opcionális mező
+        } : undefined
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: formattedNotifications
+    });
+  } catch (error) {
+    console.error('Hiba:', error);
+    res.status(500).json({ message: 'Szerver hiba' });
+  }
+});
+
+function getNotificationText(type: string): string {
+  switch(type) {
+    case 'comment': return 'kommentelt egy loopod alatt';
+    case 'download': return 'letöltötte a loopodat';
+    // ... egyéb típusok
+    default: return 'interakciót végzett a loopoddal';
+  }
+}
+
+// Értesítés olvasottá tétele
+app.put('/api/notifications/:id/read', authenticateToken, async (req: CustomRequest, res: Response) => {
+  try {
+    const notification = await Notification.findByIdAndUpdate(
+      req.params.id,
+      { read: true },
+      { new: true }
+    );
+    
+    if (!notification) {
+      return res.status(404).json({ message: 'Értesítés nem található' });
+    }
+    
+    res.json(notification);
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({ message: 'Szerver hiba' });
+  }
+});
+
+
+// Minden értesítés olvasottá tétele
+app.put('/api/notifications/read-all', authenticateToken, async (req: CustomRequest, res: Response) => {
+  try {
+    await Notification.updateMany(
+      { userId: req.user.userId, read: false },
+      { $set: { read: true } }
+    );
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    res.status(500).json({ message: 'Szerver hiba' });
+  }
+});
+
   
   
+
+
+
+
+
 
 
 // áthelyezve a middlewarebe
@@ -253,8 +343,9 @@ app.use("/api", loopRoutes);
 app.use("/api", loopRoutes);  // "/api/upload", "/api/loops" stb. lesz az útvonal
 
 app.use(cors({
-  origin: 'http://localhost:4200', // Your Angular app URL
+  origin: 'http://localhost:4200',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Content-Length', 'Content-Type'],
 }));
@@ -264,6 +355,6 @@ app.use('/uploads', express.static('uploads'));
 
 // commented at 03.11 19:00
 // import App from "./app";
-// import loginController from "./controllers/login.controller"; // FIGYELD: kisbetűs név!
+// import loginController from "./controllers/login.controller";
 
-// const app = new App([loginController]); // NE használj `new`-t
+// const app = new App([loginController]);

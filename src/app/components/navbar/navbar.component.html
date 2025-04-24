@@ -35,6 +35,42 @@
             <!-- Ha bejelentkezett -->
             <ng-template #loggedInView>
                 <div class="flex items-center space-x-4">
+
+                    <!-- Értesítés harang -->
+    <div class="relative">
+        <button (click)="toggleNotifications()" class="p-2 rounded-full hover:bg-gray-100">
+          <i class="bi bi-bell text-xl"></i>
+          <span *ngIf="unreadNotificationsCount > 0" 
+                class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {{ unreadNotificationsCount }}
+          </span>
+        </button>
+        
+        <!-- Értesítési panel -->
+        <div *ngIf="showNotifications" class="absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg z-50 max-h-96 overflow-y-auto">
+          <div class="p-3 border-b flex justify-between items-center">
+            <h3 class="font-medium">Értesítések</h3>
+            <button (click)="markAllAsRead()" class="text-sm text-blue-500">Összes olvasottá</button>
+          </div>
+          
+          <div *ngFor="let notification of notifications" 
+               class="p-3 border-b hover:bg-gray-50 cursor-pointer"
+               [class.bg-gray-50]="!notification.read"
+               (click)="handleNotificationClick(notification)">
+            <div class="flex justify-between">
+              <p class="text-sm">{{ notification.message }}</p>
+              <span *ngIf="!notification.read" class="h-2 w-2 bg-blue-500 rounded-full"></span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">{{ notification.createdAt | date:'short' }}</p>
+          </div>
+          
+          <div *ngIf="notifications.length === 0" class="p-4 text-center text-gray-500">
+            Nincsenek új értesítések
+          </div>
+        </div>
+      </div>
+
+
                     <!-- Profil avatar gomb -->
                     <div
                         class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer shadow-md"
