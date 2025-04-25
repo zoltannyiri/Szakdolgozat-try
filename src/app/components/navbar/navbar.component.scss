@@ -30,6 +30,52 @@ a{
   }
 
 
+  /* Értesítési panel testreszabása */
+.notification-panel {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Egyedi görgetősáv */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+  }
+}
+
+/* Értesítés elem hover effekt */
+.notification-item {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateX(2px);
+  }
+}
+
+/* Olvasatlan értesítés kiemelése */
+.unread-notification {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #3b82f6;
+    border-radius: 3px 0 0 3px;
+  }
+}
+
+
 // styles.scss vagy komponens.scss
 // .sidenav-overlay {
 //     background-color: rgba(0, 0, 0, 0.5);

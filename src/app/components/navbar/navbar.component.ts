@@ -5,6 +5,7 @@ import { RegisterComponent } from '../register/register.component';
 import { AuthService } from '../../services/auth.service';
 import { Observable, Subscription } from 'rxjs';
 import { NotificationService } from '../../services/notification.service';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-navbar',
@@ -12,7 +13,20 @@ import { NotificationService } from '../../services/notification.service';
   imports: [CommonModule, RouterModule, RouterLink],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
+  animations: [
+    trigger('fadeInDown', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate('150ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('100ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+      ])
+    ])
+  ]
 })
+
+
 export class NavbarComponent {
   // toggleProfileMenu() {
   //   throw new Error('Method not implemented.');
@@ -138,6 +152,27 @@ profileMenuOpen: any;
   }
 
 
+  getNotificationIconClass(type: string): string {
+    const classes: Record<string, string> = {
+      'like': 'bg-red-100 text-red-600',
+      'download': 'bg-green-100 text-green-600',
+      'comment': 'bg-blue-100 text-blue-600',
+      'follow': 'bg-purple-100 text-purple-600'
+    };
+    return classes[type] || 'bg-gray-100 text-gray-600';
+  }
+  
+  getNotificationIcon(type: string): string {
+    const icons: Record<string, string> = {
+      'like': 'bi bi-heart-fill',
+      'download': 'bi bi-download',
+      'comment': 'bi bi-chat-square-text-fill',
+      'follow': 'bi bi-person-plus-fill'
+    };
+    return icons[type] || 'bi bi-bell-fill';
+  }
+
+
   markAllAsRead() {
     this.notificationService.markAllAsRead().subscribe({
       next: () => {
@@ -162,6 +197,7 @@ profileMenuOpen: any;
     
     this.showNotifications = false;
   }
+  
   
 
   // ngOnInit(): void {
