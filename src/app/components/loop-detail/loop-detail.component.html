@@ -96,14 +96,24 @@
               <span class="text-sm font-medium text-gray-700 ml-1">{{loop?.likes || 0}}</span>
             </div>
 
+
+            <!-- Favorite gomb (új) -->
+            <button (click)="toggleFavorite(loop)" class="p-2 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 rounded-full transition"
+                [class.text-yellow-500]="isFavorite(loop._id)">
+                <span *ngIf="isCheckingFavorites && isFavorite(loop._id) === undefined">...</span>
+                <span *ngIf="!(isCheckingFavorites && isFavorite(loop._id) === undefined)">
+                  {{ isFavorite(loop._id) ? '★' : '☆' }}
+                </span>
+              </button>
+
             <!-- Bookmark gomb -->
-            <button class="p-2 text-gray-500 hover:text-purple-600 rounded-full transition-colors">
+            <!-- <button class="p-2 text-gray-500 hover:text-purple-600 rounded-full transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                   d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
-            </button>
+            </button> -->
 
             <!-- Download gomb -->
             <button (click)="downloadLoop()"

@@ -7,6 +7,8 @@ import { AuthService } from '../../services/auth.service';
 import { CommentService } from '../../services/comment.service';
 import { Location } from '@angular/common';
 import { UserService } from '../../services/user.service';
+import { FavoriteService } from '../../services/favorite.service';
+import { ILoop } from '../../../../api/src/models/loop.model';
 
 @Component({
   selector: 'app-loop-detail',
@@ -47,7 +49,8 @@ export class LoopDetailComponent implements OnInit {
     private loopService: LoopService,
     private commentService: CommentService,
     private userService: UserService,
-    public authService: AuthService
+    public authService: AuthService,
+    private favoriteService: FavoriteService 
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +59,7 @@ export class LoopDetailComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.loadLoop(id);
+        this.checkFavoriteStatus(id);
       }
     });
   }
@@ -106,12 +110,14 @@ export class LoopDetailComponent implements OnInit {
               this.loop.uploader = user || { username: 'Ismeretlen' };
               this.loadComments();
               this.generateWaveform();
+              this.checkFavoriteStatus(loop._id);
               this.isLoading = false;
             },
             error: () => {
               this.loop.uploader = { username: 'Ismeretlen' };
               this.loadComments();
               this.generateWaveform();
+              this.checkFavoriteStatus(loop._id);
               this.isLoading = false;
             }
           });
@@ -464,4 +470,117 @@ toggleLike(): void {
     });
   }
 }
+
+//favorite
+  isCheckingFavorites = false;
+  favoriteStatus: { [key: string]: boolean } = {};
+
+  // A komponens osztályhoz új metódusok
+  isFavorite(loopId: string): boolean {
+    return this.favoriteStatus[loopId] || false;
+  }
+
+
+  checkFavoriteStatus(loopId: string): void {
+    if (!this.authService.isLoggedIn()) return;
+    
+    this.isCheckingFavorites = true;
+    this.favoriteService.checkFavoriteStatus(loopId).subscribe({
+      next: (response) => {
+        this.favoriteStatus[loopId] = response.isFavorite;
+        this.isCheckingFavorites = false;
+      },
+      error: (err) => {
+        console.error('Error checking favorite status:', err);
+        this.isCheckingFavorites = false;
+      }
+    });
+  }
+
+  // favoriteStatus: { [key: string]: boolean } = {};
+  favoriteLoops: ILoop[] = []; // Opcionális, ha listát is szeretnénk kezelni
+
+  toggleFavorite(loop: ILoop): void {
+  const userId = this.authService.getUserId();
+  if (!userId) {
+    this.handleLogin();
+    return;
+  }
+
+  if (this.isFavorite(loop._id)) {
+    this.favoriteService.removeFavorite(loop._id).subscribe({
+      next: () => {
+        this.favoriteStatus[loop._id] = false;
+        // Frissítsük a lokális listát is, ha szükséges
+        if (this.favoriteLoops) {
+          this.favoriteLoops = this.favoriteLoops.filter(l => l._id !== loop._id);
+        }
+      },
+      error: (err) => console.error('Error removing favorite:', err)
+    });
+  } else {
+    this.favoriteService.addFavorite(loop._id).subscribe({
+      next: () => {
+        this.favoriteStatus[loop._id] = true;
+        // Frissítsük a lokális listát is, ha szükséges
+        if (this.favoriteLoops && this.loop) {
+          this.favoriteLoops.unshift(this.loop);
+        }
+      },
+      error: (err) => console.error('Error adding favorite:', err)
+    });
+  }
+}
+
+//   //favorite
+//   isFavorite = false;
+//   isCheckingFavorite = false;
+
+//   // A komponens osztályhoz új metódusok
+//   checkFavoriteStatus(): void {
+//     if (!this.authService.isLoggedIn() || !this.loop?._id) return;
+    
+//     this.isCheckingFavorite = true;
+//     this.favoriteService.checkFavoriteStatus(this.loop._id).subscribe({
+//       next: (response) => {
+//         this.isFavorite = response.isFavorite;
+//         this.isCheckingFavorite = false;
+//       },
+//       error: (err) => {
+//         console.error('Error checking favorite status:', err);
+//         this.isCheckingFavorite = false;
+//       }
+//     });
+//   }
+
+//   toggleFavorite(): void {
+//   if (!this.authService.isLoggedIn()) {
+//     this.handleLogin();
+//     return;
+//   }
+
+//   if (!this.loop?._id) return;
+
+//   if (this.isFavorite) {
+//     this.favoriteService.removeFavorite(this.loop._id).subscribe({
+//       next: () => {
+//         this.isFavorite = false;
+//       },
+//       error: (err) => {
+//         console.error('Error removing favorite:', err);
+//         this.errorMessage = 'Error removing from favorites';
+//       }
+//     });
+//   } else {
+//     this.favoriteService.addFavorite(this.loop._id).subscribe({
+//       next: () => {
+//         this.isFavorite = true;
+//       },
+//       error: (err) => {
+//         console.error('Error adding favorite:', err);
+//         this.errorMessage = 'Error adding to favorites';
+//       }
+//     });
+//   }
+// }
 }

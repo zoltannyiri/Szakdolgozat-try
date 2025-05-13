@@ -1,0 +1,40 @@
+<!-- favorites.component.html -->
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-6">My Favorite Loops</h1>
+
+  <div *ngIf="isLoading" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+
+  <div *ngIf="!isLoading && favoriteLoops.length === 0" class="text-center py-8">
+    <p class="text-gray-500">You don't have any favorite loops yet.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div *ngFor="let loop of favoriteLoops" class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-4">
+        <h3 class="font-semibold text-lg">{{ loop.filename }}</h3>
+        <p class="text-gray-600 text-sm">
+          BPM: {{ loop.bpm }} | Key: {{ loop.key }} {{ loop.scale }}
+        </p>
+        <p class="text-gray-600 text-sm">Instrument: {{ loop.instrument }}</p>
+      </div>
+      
+      <div class="bg-gray-100 p-4 flex justify-between items-center">
+        <button 
+          (click)="removeFavorite(loop._id)"
+          class="text-red-500 hover:text-red-700"
+        >
+          Remove from Favorites
+        </button>
+        
+        <a 
+          [routerLink]="['/loop-detail', loop._id]" 
+          class="text-blue-500 hover:text-blue-700"
+        >
+          View Details
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

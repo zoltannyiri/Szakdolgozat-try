@@ -8,6 +8,7 @@ import { catchError, retry, throwError, timeout, timer } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { WaveformService } from '../../services/waveform.service';
+import { FavoriteService } from '../../services/favorite.service';
 import mongoose from 'mongoose';
 
 @Component({
@@ -70,7 +71,8 @@ export class LoopsComponent implements OnInit {
   constructor(
     private loopService: LoopService,
     private authService: AuthService,
-    private waveformService: WaveformService
+    private waveformService: WaveformService,
+    private favoriteService: FavoriteService
   ) {}
 
   ngOnInit(): void {
@@ -85,6 +87,7 @@ export class LoopsComponent implements OnInit {
         loops.forEach(loop => {
           this.volumes[loop._id] = 0.7;
           this.generateWaveform(loop._id);
+          this.checkFavoriteStatus(loop._id);
         });
         this.isLoading = false;
       },
@@ -629,4 +632,56 @@ animateBands(loopId: string) {
       });
     }
   }
+
+
+  //favorite
+  isCheckingFavorites = false;
+  favoriteStatus: { [key: string]: boolean } = {};
+
+  // A komponens osztályhoz új metódusok
+  isFavorite(loopId: string): boolean {
+    return this.favoriteStatus[loopId] || false;
+  }
+
+
+  checkFavoriteStatus(loopId: string): void {
+    if (!this.authService.isLoggedIn()) return;
+    
+    this.isCheckingFavorites = true;
+    this.favoriteService.checkFavoriteStatus(loopId).subscribe({
+      next: (response) => {
+        this.favoriteStatus[loopId] = response.isFavorite;
+        this.isCheckingFavorites = false;
+      },
+      error: (err) => {
+        console.error('Error checking favorite status:', err);
+        this.isCheckingFavorites = false;
+      }
+    });
+  }
+
+  toggleFavorite(loop: ILoop): void {
+  const userId = this.authService.getUserId();
+  if (!userId) {
+    alert('Please log in to add loops to favorites');
+    return;
+  }
+
+  if (this.isFavorite(loop._id)) {
+    this.favoriteService.removeFavorite(loop._id).subscribe({
+      next: () => {
+        this.favoriteStatus[loop._id] = false;
+      },
+      error: (err) => console.error('Error removing favorite:', err)
+    });
+  } else {
+    this.favoriteService.addFavorite(loop._id).subscribe({
+      next: () => {
+        this.favoriteStatus[loop._id] = true;
+      },
+      error: (err) => console.error('Error adding favorite:', err)
+    });
+  }
+}
+
 }

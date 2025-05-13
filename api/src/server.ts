@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs";
 import { Request, Response, NextFunction } from "express";
 import loginRoutes from "./controllers/login.controller";
 import registerRoutes from "./controllers/register.controller";
+import favoriteRoutes from "./routes/favorite.routes";
 
 import User from "./models/user.model";
 import { authenticateToken } from "./middlewares/auth.middleware";
@@ -449,6 +450,11 @@ app.use('/uploads', express.static('uploads'));
 //likeolás
 app.post('/api/loop-detail/:id/like', authenticateToken, likeLoop);
 app.post('/api/loop-detail/:id/unlike', authenticateToken, unlikeLoop);
+
+
+
+//favorite hozzáadás
+app.use("/api", favoriteRoutes);
 
 // commented at 03.11 19:00
 // import App from "./app";
