@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service'; // Importáljuk az AuthService-t
 
 // Szűrő interfész típusdefiníció
@@ -147,13 +147,30 @@ getLoopById(id: string): Observable<any> {
 
   // Loop letöltése
   downloadLoop(loopId: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/loops/${loopId}/download`, {
+    return this.http.get(`${this.apiUrl}/api/loops/download/${loopId}`, {
       responseType: 'blob',
-      headers: new HttpHeaders({
-        'Content-Disposition': 'attachment',
-        'Accept': 'audio/wav'
+      headers: {
+        'Authorization': `Bearer ${this.authService.getToken()}`
+      },
+      observe: 'response' // A teljes választ figyeljük
+    }).pipe(
+      tap(response => {
+        console.log('Download response:', { // [12]
+          status: response.status,
+          headers: response.headers,
+          body: response.body
+        });
+      }),
+      map(response => response.body as Blob),
+      catchError(error => {
+        console.error('Download error:', { // [13]
+          status: error.status,
+          message: error.message,
+          error: error.error
+        });
+        return throwError(() => error);
       })
-    });
+    );
   }
 
 

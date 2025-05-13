@@ -272,58 +272,141 @@ export class LoopsComponent implements OnInit {
     }
   }
 
+
   uploadFile(): void {
     if (!this.selectedFile) {
-        this.fileError = "Please select a file!";
-        return;
+      this.fileError = "Please select a file!";
+      return;
     }
-
+  
+    // Double-check verification status
+  this.authService.isUserVerified().subscribe({
+    next: (isVerified) => {
+      if (!isVerified) {
+        this.fileError = "You need to verify your email before uploading";
+        return;
+      }
+      
+      // Proceed with upload if verified
+      this.performFileUpload();
+    },
+    error: (err) => {
+      this.fileError = "Error checking verification status";
+      console.error('Verification check error:', err);
+    }
+  });
+}
+  
+  private performFileUpload(): void {
     this.isUploading = true;
     const startTime = Date.now();
     
-    this.loopService.uploadLoop(this.selectedFile, this.metadata).pipe(
-        retry({
-            count: 3,
-            delay: error => {
-                console.error('Upload error:', error);
-                return timer(1000);
-            }
-        }),
-        timeout(30000),
-        catchError(error => {
-            this.isUploading = false;
-            const duration = (Date.now() - startTime) / 1000;
-            
-            if (error instanceof HttpErrorResponse) {
-                if (error.status === 500) {
-                    this.fileError = `Server error occurred during upload (after ${duration.toFixed(1)} seconds). Please try again later.`;
-                } else if (error.status === 413) {
-                    this.fileError = 'The file is too large for the server.';
-                } else {
-                    this.fileError = `Network error occurred (${error.status})`;
-                }
-            } else if (error.name === 'TimeoutError') {
-                this.fileError = 'Upload took too long. Please try again.';
-            } else {
-                this.fileError = 'Unknown error occurred during upload.';
-            }
-            
-            console.error('Upload error details:', {
-                status: error.status,
-                message: error.message,
-                duration: duration
-            });
-            
-            return throwError(() => error);
-        })
+    this.loopService.uploadLoop(this.selectedFile!, this.metadata).pipe(
+      retry({
+                  count: 3,
+                  delay: error => {
+                      console.error('Upload error:', error);
+                      return timer(1000);
+                  }
+              }),
+              timeout(30000),
+              catchError(error => {
+                  this.isUploading = false;
+                  const duration = (Date.now() - startTime) / 1000;
+                  
+                  if (error instanceof HttpErrorResponse) {
+                      if (error.status === 500) {
+                          this.fileError = `Server error occurred during upload (after ${duration.toFixed(1)} seconds). Please try again later.`;
+                      } else if (error.status === 413) {
+                          this.fileError = 'The file is too large for the server.';
+                      } else {
+                          this.fileError = `Network error occurred (${error.status})`;
+                      }
+                  } else if (error.name === 'TimeoutError') {
+                      this.fileError = 'Upload took too long. Please try again.';
+                  } else {
+                      this.fileError = 'Unknown error occurred during upload.';
+                  }
+                  
+                  console.error('Upload error details:', {
+                      status: error.status,
+                      message: error.message,
+                      duration: duration
+                  });
+                  
+                  return throwError(() => error);
+              })
     ).subscribe({
-        next: (response) => {
-            this.isUploading = false;
-            this.isUploadModalOpen = false;
-            this.loadLoops();
+      next: (response) => {
+        this.isUploading = false;
+        this.isUploadModalOpen = false;
+        this.loadLoops();
+      },
+      error: (error) => {
+        this.isUploading = false;
+        console.error('Full upload error:', error);
+        
+        if (error?.error?.message) {
+          this.fileError = error.error.message;
+        } else {
+          this.fileError = 'Upload failed. Please try again.';
         }
+      }
     });
   }
+  //commented at 04. 27
+  // uploadFile(): void {
+  //   if (!this.selectedFile) {
+  //       this.fileError = "Please select a file!";
+  //       return;
+  //   }
+
+  //   this.isUploading = true;
+  //   const startTime = Date.now();
+    
+  //   this.loopService.uploadLoop(this.selectedFile, this.metadata).pipe(
+  //       retry({
+  //           count: 3,
+  //           delay: error => {
+  //               console.error('Upload error:', error);
+  //               return timer(1000);
+  //           }
+  //       }),
+  //       timeout(30000),
+  //       catchError(error => {
+  //           this.isUploading = false;
+  //           const duration = (Date.now() - startTime) / 1000;
+            
+  //           if (error instanceof HttpErrorResponse) {
+  //               if (error.status === 500) {
+  //                   this.fileError = `Server error occurred during upload (after ${duration.toFixed(1)} seconds). Please try again later.`;
+  //               } else if (error.status === 413) {
+  //                   this.fileError = 'The file is too large for the server.';
+  //               } else {
+  //                   this.fileError = `Network error occurred (${error.status})`;
+  //               }
+  //           } else if (error.name === 'TimeoutError') {
+  //               this.fileError = 'Upload took too long. Please try again.';
+  //           } else {
+  //               this.fileError = 'Unknown error occurred during upload.';
+  //           }
+            
+  //           console.error('Upload error details:', {
+  //               status: error.status,
+  //               message: error.message,
+  //               duration: duration
+  //           });
+            
+  //           return throwError(() => error);
+  //       })
+  //   ).subscribe({
+  //       next: (response) => {
+  //           this.isUploading = false;
+  //           this.isUploadModalOpen = false;
+  //           this.loadLoops();
+  //       }
+  //   });
+  // }
 
   formatTime(seconds: number | undefined): string {
     if (seconds === undefined || isNaN(seconds)) return '0:00';
@@ -377,35 +460,77 @@ export class LoopsComponent implements OnInit {
   }
 
   
+
+  // loops.component.ts
   async downloadLoop(loop: ILoop): Promise<void> {
+    console.log('Starting download for loop:', loop._id); // [14]
+    
     try {
-      // 1. Fetch the file
-      const response = await fetch(this.getSafeAudioUrl(loop.path));
-      const blob = await response.blob();
-      
-      // 2. Create download link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = loop.filename || `loop_${loop._id}.wav`;
-      
-      // 3. Trigger download
-      document.body.appendChild(a);
-      a.click();
-      
-      // 4. Cleanup
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      // 5. Track download
-      this.trackDownload(loop._id);
+      const isVerified = await this.authService.isUserVerified().toPromise();
+      console.log('User verified status:', isVerified); // [15]
+  
+      this.loopService.downloadLoop(loop._id).subscribe({
+        next: (blob: Blob) => {
+          console.log('Received blob:', { // [16]
+            size: blob.size,
+            type: blob.type
+          });
+          
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = loop.filename || `loop_${loop._id}.wav`;
+          document.body.appendChild(a);
+          a.click();
+          
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          
+          console.log('Download completed successfully'); // [17]
+        },
+        error: (err) => {
+          console.error('Download failed:', { // [18]
+            error: err,
+            loopId: loop._id,
+            path: loop.path
+          });
+          alert('You need to authenticate your email.');
+          // window.open(this.getSafeAudioUrl(loop.path), '_blank');
+        }
+      });
     } catch (err) {
-      console.error('Letöltési hiba:', err);
-      // Fallback: új lapon megnyitás
-      window.open(this.getSafeAudioUrl(loop.path), '_blank');
+      console.error('Error in download process:', err); // [19]
     }
   }
+  // async downloadLoop(loop: ILoop): Promise<void> {
+  //   try {
+  //     // 1. Fetch the file
+  //     const response = await fetch(this.getSafeAudioUrl(loop.path));
+  //     const blob = await response.blob();
+      
+  //     // 2. Create download link
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement('a');
+  //     a.style.display = 'none';
+  //     a.href = url;
+  //     a.download = loop.filename || `loop_${loop._id}.wav`;
+      
+  //     // 3. Trigger download
+  //     document.body.appendChild(a);
+  //     a.click();
+      
+  //     // 4. Cleanup
+  //     window.URL.revokeObjectURL(url);
+  //     document.body.removeChild(a);
+      
+  //     // 5. Track download
+  //     this.trackDownload(loop._id);
+  //   } catch (err) {
+  //     console.error('Letöltési hiba:', err);
+  //     // Fallback: új lapon megnyitás
+  //     window.open(this.getSafeAudioUrl(loop.path), '_blank');
+  //   }
+  // }
 
   // Add this with your other component properties
   bandHeights: { [key: string]: number[] } = {};

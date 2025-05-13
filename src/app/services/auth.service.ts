@@ -127,6 +127,20 @@ export class AuthService {
     });
   }
 
+  //megerősített profil? frissítve: 2025. 04. 27
+  // In auth.service.ts, improve the isUserVerified method:
+isUserVerified(): Observable<boolean> {
+  const token = this.getToken();
+  if (!token) return of(false);
+  
+  return this.http.get<any>(`${environment.apiUrl}/api/profile`, {
+    headers: { Authorization: `Bearer ${token}` }
+  }).pipe(
+    map(response => response.user?.isVerified || false),
+    catchError(() => of(false))
+  );
+}
+
   getUserProfile() {
     const token = localStorage.getItem('token');
     if (!token) return throwError(() => new Error('No token available'));

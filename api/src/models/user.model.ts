@@ -14,6 +14,9 @@ export interface IUser extends Document {
   lastLogin: Date;
   aboutMe: string;
   profileImage?: string;
+  isVerified: boolean; //módosítva: 2025. 04. 27
+  verificationToken?: string; //módosítva: 2025. 04. 27
+  verificationTokenExpires?: Date; //módosítva: 2025. 04. 27
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -25,7 +28,10 @@ const UserSchema: Schema = new Schema<IUser>({
   country: { type: String, required: true },
   lastLogin: { type: Date, default: Date.now },
   aboutMe: { type: String, default: "" },
-  profileImage: { type: String }
+  profileImage: { type: String },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
+  verificationTokenExpires: { type: Date }
 });
 
 // Default exporttal, hogy `import User from "./models/user.model";` működjön

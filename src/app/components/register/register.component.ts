@@ -21,6 +21,8 @@ export class RegisterComponent {
   }
   successMessage: string = '';
   errorMessage: string = '';
+  passwordError: string = '';
+  errors: any = {};
   constructor(private authService: AuthService) { }
 
   countries: string[] = [
@@ -41,25 +43,58 @@ export class RegisterComponent {
     "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
   ];
 
+
   onRegister() {
     this.errorMessage = '';
     this.successMessage = '';
+    this.passwordError = '';
+    this.errors = {};
     const { username, email, password, confirmPassword, country } = this.registerData;
-    if (password != confirmPassword) {
+    
+    // Jelszó egyezőség ellenőrzése
+    if (password !== confirmPassword) {
       this.errorMessage = 'Passwords do not match!';
-      return
+      return;
     }
+  
     this.authService.register(username, email, password, country).subscribe({
-      next:() => {
-        this.successMessage = 'Registration successful!';
-
+      next: () => {
+        this.successMessage = 'Registration successful! Please check your email for verification.';
         this.registerData = {username: '', email: '', password: '', confirmPassword: '', country: ''};
       },
-      error:(err) => {
-        this.errorMessage = err.errors?.message || 'Register failed. Please try again.';
+      error: (err) => {
+        if (err.error && err.error.errors) {
+          // Validációs hibák kezelése
+          this.errors = err.error.errors;
+        } else if (err.error && err.error.message) {
+          // Egyéb hibák (pl. már létező felhasználó)
+          this.errorMessage = err.error.message;
+        } else {
+          this.errorMessage = 'Registration failed. Please try again.';
+        }
       },
     });
   }
+  // commented at 04. 27.
+  // onRegister() {
+  //   this.errorMessage = '';
+  //   this.successMessage = '';
+  //   const { username, email, password, confirmPassword, country } = this.registerData;
+  //   if (password != confirmPassword) {
+  //     this.errorMessage = 'Passwords do not match!';
+  //     return
+  //   }
+  //   this.authService.register(username, email, password, country).subscribe({
+  //     next:() => {
+  //       this.successMessage = 'Registration successful!';
+
+  //       this.registerData = {username: '', email: '', password: '', confirmPassword: '', country: ''};
+  //     },
+  //     error:(err) => {
+  //       this.errorMessage = err.errors?.message || 'Register failed. Please try again.';
+  //     },
+  //   });
+  // }
 }
 
 

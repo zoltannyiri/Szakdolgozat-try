@@ -1,0 +1,36 @@
+✓
+❌
+
+- adatbázis létrehozása  ✓
+- sign in, log in ✓
+- profile oldal ✓
+- profile adatok változtatása (csak leírás van meg eddig) ✓❌
+- leírások, stb. profilon belül ✓
+- avatar ✓
+- más profiljának megtekintése ✓
+- loop feltöltés ✓
+- loop kategorizálás ✓
+- kategorizálás alapján történő betöltés ✓
+- loop letöltés ✓
+- loop részletes adataival történő megnyitás új lapon ✓
+- kommentelés ✓ 
+- loop likeolása ✓
+- notification küldése (comment, like, letöltés) ✓
+- loop mentése ❌
+- loop mentéseinek összegyűjtése ❌
+- roleok létrehozása (eddig csak user van meg) ❌
+- admin felület létrehozása ❌
+- csak verifikált userek tudjanak le és feltölteni ✓
+- email küldő applikáció verifikáláshoz❌
+- kapcsolatfelvétel❌
+- designolások: 
+            profile❌
+            loopok❌
+            loop-details❌
+            admin❌
+            
+
+
+
+észrevételek: nem verifikált user ne is tudjon kommentbe írni
+

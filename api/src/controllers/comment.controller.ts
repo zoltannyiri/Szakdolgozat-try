@@ -5,6 +5,8 @@ import Notification from '../models/notification.model';
 import Loop from '../models/loop.model';
 import { CustomRequest } from '../middlewares/auth.middleware';
 import User from '../models/user.model';
+import { authenticateToken } from '../middlewares/auth.middleware';
+import { checkVerified } from '../middlewares/verify.middleware';
 
 // Hitelesített kérés típusa
 interface AuthenticatedRequest extends Request {
@@ -39,7 +41,10 @@ export const getCommentsForLoop = async (req: Request, res: Response) => {
   }
 };
 
-export const addComment = async (req: CustomRequest, res: Response) => {
+export const addComment = [
+  authenticateToken,
+  checkVerified,
+async (req: CustomRequest, res: Response) => {
   try {
     const { loopId } = req.params;
     const { text } = req.body;
@@ -91,4 +96,4 @@ if (loop && loop.uploader.toString() !== userId) {
     console.error("Hiba:", error);
     res.status(500).json({ message: "Szerver hiba" });
   }
-};
+}];

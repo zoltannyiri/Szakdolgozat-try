@@ -9,82 +9,168 @@ import { pipeline } from "stream";
 import { getAudioDurationInSeconds } from "get-audio-duration";
 import Notification from "../models/notification.model";
 import User from "../models/user.model";
+import { checkVerified } from "../middlewares/verify.middleware";
+import { authenticateToken } from "../middlewares/auth.middleware";
+import { upload } from "../middlewares/upload.middleware";
+import { validateLoopMetadata } from "../middlewares/validation.middleware";
 
 const pump = promisify(pipeline);
 
-export const uploadLoop = async (req: CustomRequest, res: Response) => {
-  try {
-    console.log('Request body:', req.body);
-    console.log('Request file:', req.file);
+export const uploadLoop = 
+  async (req: CustomRequest, res: Response) => {
+    try {
+      console.log('Request body:', req.body);
+      console.log('Request file:', req.file);
 
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    // Metaadatok kiolvasása a JSON-ból
-    const metadata = JSON.parse(req.body.metadata);
-    const { bpm, key, scale, tags, instrument } = metadata;
-
-    // Validáció
-    const requiredFields = ['bpm', 'key', 'scale', 'instrument'];
-    for (const field of requiredFields) {
-      if (!metadata[field]) {
-        return res.status(400).json({ message: `Missing required field: ${field}` });
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
       }
-    }
 
-    const uploader = req.user.userId;
-    const filePath = req.file.path;
-    const filename = req.file.filename;
+      // Metaadatok kiolvasása a JSON-ból
+      const metadata = JSON.parse(req.body.metadata);
+      const { bpm, key, scale, tags, instrument } = metadata;
 
-    // Egyéni név vagy eredeti fájlnév használata
-    const customName = req.body.customName || null;
-    const displayName = customName 
-      ? `${customName}${path.extname(filename)}`
-      : filename;
-    
-    const duration = await getAudioDurationInSeconds(filePath);
-
-    // Új loop létrehozása
-    const newLoop = new Loop({
-      filename: displayName,
-      // path: filePath,
-      path: `uploads/${filename}`,
-      uploader,
-      bpm: parseInt(bpm),
-      key,
-      scale,
-      tags: Array.isArray(tags) ? tags : [],
-      instrument,
-      duration
-    });
-
-    await newLoop.save();
-    
-    res.status(201).json({
-      message: "Loop uploaded successfully",
-      loop: {
-        id: newLoop._id,
-        filename: newLoop.filename, 
-        bpm: newLoop.bpm,
-        key: newLoop.key,
-        scale: newLoop.scale,
-        instrument: newLoop.instrument,
-        duration: newLoop.duration
+      // Validáció
+      const requiredFields = ['bpm', 'key', 'scale', 'instrument'];
+      for (const field of requiredFields) {
+        if (!metadata[field]) {
+          return res.status(400).json({ message: `Missing required field: ${field}` });
+        }
       }
-    });
 
-  } catch (error) {
-    console.error("Upload error:", error);
-    if (req.file) {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.error("Error deleting file:", err);
+      const uploader = req.user.userId;
+      const filePath = req.file.path;
+      const filename = req.file.filename;
+
+      // Egyéni név vagy eredeti fájlnév használata
+      const customName = req.body.customName || null;
+      const displayName = customName 
+        ? `${customName}${path.extname(filename)}`
+        : filename;
+      
+      const duration = await getAudioDurationInSeconds(filePath);
+
+      // Új loop létrehozása
+      const newLoop = new Loop({
+        filename: displayName,
+        // path: filePath,
+        path: `uploads/${filename}`,
+        uploader,
+        bpm: parseInt(bpm),
+        key,
+        scale,
+        tags: Array.isArray(tags) ? tags : [],
+        instrument,
+        duration
+      });
+
+      await newLoop.save();
+      
+      res.status(201).json({
+        message: "Loop uploaded successfully",
+        loop: {
+          id: newLoop._id,
+          filename: newLoop.filename, 
+          bpm: newLoop.bpm,
+          key: newLoop.key,
+          scale: newLoop.scale,
+          instrument: newLoop.instrument,
+          duration: newLoop.duration
+        }
+      });
+
+    } catch (error) {
+      console.error("Upload error:", {
+        error: error instanceof Error ? error.message : error,
+        file: req.file,
+        metadata: req.body.metadata,
+        user: req.user
+      });
+      if (req.file) {
+        fs.unlink(req.file.path, (err) => {
+          if (err) console.error("Error deleting file:", err);
+        });
+      }
+      res.status(500).json({ message: "Server error during upload", 
+        error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  }
+;
+
+// A többi függvény változatlan marad, csak a downloadLoop-hoz adjuk hozzá a checkVerified middleware-t
+//módosítva: 2025. 04. 27
+export const downloadLoop = [
+  authenticateToken,
+  checkVerified,
+  async (req: CustomRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      console.log('Download request for loop ID:', id); // [4]
+
+      const userId = req.user?.userId;
+
+      const loop = await Loop.findById(id);
+      if (!loop) {
+        console.log('Loop not found in database'); // [5]
+        return res.status(404).json({ 
+          success: false,
+          message: "Loop not found" 
+        });
+      }
+
+      // Frissítjük a letöltések számát
+      await Loop.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
+
+      // Abszolút útvonal létrehozása
+      const absolutePath = path.join(__dirname, '..', loop.path);
+      
+      
+      console.log('Attempting to send file:', { // [6]
+        dbPath: loop.path,
+        absolutePath: absolutePath,
+        exists: fs.existsSync(absolutePath)
+      });
+
+      // Ellenőrizzük, hogy a fájl létezik-e
+      if (!fs.existsSync(absolutePath)) {
+        console.error('File not found at path:', absolutePath); // [7]
+        return res.status(404).json({ 
+          success: false,
+          message: "File not found on server" 
+        });
+      }
+
+      // Beállítjuk a megfelelő header-eket
+      res.setHeader('Content-Disposition', `attachment; filename="${loop.filename}"`);
+      res.setHeader('Content-Type', 'audio/wav');
+      console.log('Headers set, sending file...'); // [8]
+      
+      // Fájl küldése
+      res.sendFile(absolutePath, (err) => {
+        if (err) {
+          console.error('File send error:', err); // [9]
+          if (!res.headersSent) {
+            res.status(500).json({ 
+              success: false,
+              message: "Error sending file" 
+            });
+          }
+        }
+        else {
+          console.log('File sent successfully'); // [10]
+        }
+      });
+    } catch (error) {
+      console.error('Download error:', error); // [11]
+      res.status(500).json({ 
+        success: false,
+        message: "Server error" 
       });
     }
-    res.status(500).json({ message: "Server error during upload" });
   }
-};
+];
 
+// Az alábbi függvények változatlanok maradnak, mivel ezekhez nem kell verifikáció
 export const getLoops = async (req: Request, res: Response) => {
   try {
     const { bpm, minBpm, maxBpm, key, scale, instrument, tags } = req.query;
@@ -118,44 +204,6 @@ export const getLoops = async (req: Request, res: Response) => {
   }
 };
 
-export const downloadLoop = async (req: CustomRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user?.userId; // Felhasználó ID lekérése
-    const loop = await Loop.findByIdAndUpdate(
-      id,
-      { $inc: { downloads: 1 } },
-      { new: true }
-    );
-
-    if (!loop) {
-      return res.status(404).json({ message: "Loop not found" });
-    }
-
-  // Értesítés küldése a feltöltőnek, ha nem ő töltötte le
-  if (loop.uploader.toString() !== userId) {
-    const notification = new Notification({
-      userId: loop.uploader,
-      type: 'download',
-      message: `${req.user.username} letöltötte a loopodat: ${loop.filename}`,
-      relatedItemId: loop._id
-    });
-    await notification.save();
-  }
-    
-
-    res.download(loop.path, loop.filename, (err) => {
-      if (err) {
-        console.error("Download error:", err);
-        res.status(500).json({ message: "Error downloading file" });
-      }
-    });
-  } catch (error) {
-    console.error("Download error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
 export const getLoopById = async (req: Request, res: Response) => {
   try {
     const loop = await Loop.findById(req.params.id)
@@ -173,75 +221,81 @@ export const getLoopById = async (req: Request, res: Response) => {
   }
 };
 
+export const likeLoop = [
+  authenticateToken,
+  checkVerified, // Csak megerősített felhasználók likeolhatnak
+  async (req: CustomRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.userId;
 
-//loop likeolása
-export const likeLoop = async (req: CustomRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.userId;
-
-    const loop = await Loop.findById(id);
-    if (!loop) {
-      return res.status(404).json({ message: "Loop not found" });
-    }
-
-    // Ellenőrizzük, hogy a felhasználó már likeolta-e
-    if (loop.likedBy.some(likedUserId => likedUserId.equals(userId))) {
-      return res.status(400).json({ message: "You already liked this loop" });
-    }
-
-    // Like hozzáadása
-    loop.likes += 1;
-    loop.likedBy.push(userId);
-    await loop.save();
-
-    // Értesítés küldése a feltöltőnek, ha nem ő likeolta
-    if (!loop.uploader.equals(userId)) {
-      const liker = await User.findById(userId);
-      
-      if (liker) {
-        const notification = new Notification({
-          userId: loop.uploader,
-          user: userId,
-          type: 'like',
-          message: `${liker.username} likeolta a loopodat: ${loop.filename}`,
-          relatedItemId: loop._id
-        });
-        await notification.save();
+      const loop = await Loop.findById(id);
+      if (!loop) {
+        return res.status(404).json({ message: "Loop not found" });
       }
-    }
 
-    res.json({ success: true, likes: loop.likes });
-  } catch (error) {
-    console.error("Like error:", error);
-    res.status(500).json({ message: "Server error" });
+      // Ellenőrizzük, hogy a felhasználó már likeolta-e
+      if (loop.likedBy.some(likedUserId => likedUserId.equals(userId))) {
+        return res.status(400).json({ message: "You already liked this loop" });
+      }
+
+      // Like hozzáadása
+      loop.likes += 1;
+      loop.likedBy.push(userId);
+      await loop.save();
+
+      // Értesítés küldése a feltöltőnek, ha nem ő likeolta
+      if (!loop.uploader.equals(userId)) {
+        const liker = await User.findById(userId);
+        
+        if (liker) {
+          const notification = new Notification({
+            userId: loop.uploader,
+            user: userId,
+            type: 'like',
+            message: `${liker.username} likeolta a loopodat: ${loop.filename}`,
+            relatedItemId: loop._id
+          });
+          await notification.save();
+        }
+      }
+
+      res.json({ success: true, likes: loop.likes });
+    } catch (error) {
+      console.error("Like error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
   }
-};
+];
 
-export const unlikeLoop = async (req: CustomRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.userId;
+export const unlikeLoop = [
+  authenticateToken,
+  checkVerified, // Csak megerősített felhasználók unlikeolhatnak
+  async (req: CustomRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.userId;
 
-    const loop = await Loop.findById(id);
-    if (!loop) {
-      return res.status(404).json({ message: "Loop not found" });
+      const loop = await Loop.findById(id);
+      if (!loop) {
+        return res.status(404).json({ message: "Loop not found" });
+      }
+
+      // Ellenőrizzük, hogy a felhasználó likeolta-e
+      const userIndex = loop.likedBy.findIndex(likedUserId => likedUserId.equals(userId));
+      if (userIndex === -1) {
+        return res.status(400).json({ message: "You haven't liked this loop yet" });
+      }
+
+      // Like eltávolítása
+      loop.likes -= 1;
+      loop.likedBy.splice(userIndex, 1);
+      await loop.save();
+
+      res.json({ success: true, likes: loop.likes });
+    } catch (error) {
+      console.error("Unlike error:", error);
+      res.status(500).json({ message: "Server error" });
     }
-
-    // Ellenőrizzük, hogy a felhasználó likeolta-e
-    const userIndex = loop.likedBy.findIndex(likedUserId => likedUserId.equals(userId));
-    if (userIndex === -1) {
-      return res.status(400).json({ message: "You haven't liked this loop yet" });
-    }
-
-    // Like eltávolítása
-    loop.likes -= 1;
-    loop.likedBy.splice(userIndex, 1);
-    await loop.save();
-
-    res.json({ success: true, likes: loop.likes });
-  } catch (error) {
-    console.error("Unlike error:", error);
-    res.status(500).json({ message: "Server error" });
   }
-};
+];

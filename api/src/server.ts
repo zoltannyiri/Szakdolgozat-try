@@ -359,6 +359,76 @@ app.get('/api/validate-token', authenticateToken, async (req: CustomRequest, res
   }
 });
 
+
+
+
+
+//email validálás
+//módosítva: 2025. 04. 27
+app.get('/api/verify-email', async (req: Request, res: Response) => {
+  try {
+    const { token } = req.query;
+
+    const user = await User.findOne({ 
+      verificationToken: token,
+      verificationTokenExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ 
+        message: "Érvénytelen vagy lejárt token" 
+      });
+    }
+
+    // Módosított rész: $unset operátor használata
+    user.isVerified = true;
+    await user.updateOne({
+      $unset: {
+        verificationToken: "",
+        verificationTokenExpires: ""
+      },
+      $set: {
+        isVerified: true
+      }
+    });
+
+    res.json({ message: "Email cím sikeresen megerősítve" });
+  } catch (error) {
+    console.error("Email megerősítési hiba:", error);
+    res.status(500).json({ message: "Szerver hiba" });
+  }
+});
+// //email validálás újraküldése
+// app.post('/api/resend-verification', authenticateToken, async (req: CustomRequest, res: Response) => {
+//   try {
+//     const user = await User.findById(req.user.userId);
+//     if (!user) return res.status(404).json({ message: "User not found" });
+    
+//     if (user.isVerified) {
+//       return res.status(400).json({ message: "User already verified" });
+//     }
+    
+//     // Token generálás és mentés
+//     const verificationToken = crypto.randomBytes(20).toString('hex');
+//     user.verificationToken = verificationToken;
+//     user.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 óra
+//     await user.save();
+    
+//     // Email küldése
+//     await sendVerificationEmail(user.email, verificationToken);
+    
+//     res.json({ message: "Verification email sent" });
+//   } catch (error) {
+//     console.error("Resend verification error:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+
+
+
+
+
 // feltöltés
 app.use("/api", loopRoutes);
 // Loop routes közvetlenül a server.ts-ben
