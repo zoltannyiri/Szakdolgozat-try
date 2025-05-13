@@ -94,8 +94,7 @@ export const uploadLoop =
       res.status(500).json({ message: "Server error during upload", 
         error: error instanceof Error ? error.message : 'Unknown error' });
     }
-  }
-;
+  };
 
 // A többi függvény változatlan marad, csak a downloadLoop-hoz adjuk hozzá a checkVerified middleware-t
 //módosítva: 2025. 04. 27
