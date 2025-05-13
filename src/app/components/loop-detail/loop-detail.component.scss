@@ -56,6 +56,7 @@
 
 /* Input range testreszabása */
 input[type="range"] {
+  appearance: none;
   -webkit-appearance: none;
   height: 4px;
   background: #E5E7EB;
@@ -75,4 +76,22 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]:hover::-webkit-slider-thumb {
   transform: scale(1.2);
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+}
+
+.favorite-button {
+  transition: all 0.3s ease;
+  color: #9CA3AF; /* gray-400 */
+  
+  &:hover {
+    transform: scale(1.1);
+    color: #FBBF24; /* yellow-400 */
+  }
+  
+  &.favorited {
+    color: #F59E0B; /* yellow-500 */
+    
+    &:hover {
+      color: #D97706; /* yellow-600 */
+    }
+  }
 }
