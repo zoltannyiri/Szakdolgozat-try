@@ -1,17 +1,78 @@
+/* loop-detail.component.scss */
+.waveform-bar {
+  width: 4px;
+  min-height: 1px;
+  transition: height 0.1s ease-out;
+}
+
 .like-button {
-    transition: all 0.2s ease;
-    color: #6b7280; /* gray-500 alapértelmezett szín */
+  transition: all 0.3s ease;
+  color: #9CA3AF; /* gray-400 */
+  stroke-width: 1.5;
+  
+  &:hover {
+    transform: scale(1.1);
+    color: #FCA5A5; /* red-300 */
+  }
+  
+  &.liked {
+    color: #EF4444; /* red-500 */
+    stroke-width: 2;
     
     &:hover {
-      transform: scale(1.1);
-      color: #ef4444; /* red-500 hover állapotban */
-    }
-    
-    &.liked {
-      color: #ef4444; /* red-500 ha likeolt */
-      
-      &:hover {
-        color: #dc2626; /* red-600 hover állapotban */
-      }
+      color: #DC2626; /* red-600 */
     }
   }
+}
+
+/* Animációk */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.comment-item {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Egyedi görgetősáv */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(229, 231, 235, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(109, 40, 217, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 70, 229, 0.7);
+}
+
+/* Input range testreszabása */
+input[type="range"] {
+  -webkit-appearance: none;
+  height: 4px;
+  background: #E5E7EB;
+  border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4F46E5;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+}

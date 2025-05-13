@@ -296,46 +296,104 @@ export class LoopDetailComponent implements OnInit {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   }
 
-  async generateWaveform(): Promise<void> {
-    if (!this.loop?.path) return;
+  // async generateWaveform(): Promise<void> {
+  //   if (!this.loop?.path) return;
     
-    let audioContext: AudioContext | null = null;
-    try {
-      const audioUrl = this.getAudioUrl(this.loop.path);
-      if (!audioUrl) return;
+  //   let audioContext: AudioContext | null = null;
+  //   try {
+  //     const audioUrl = this.getAudioUrl(this.loop.path);
+  //     if (!audioUrl) return;
 
-      audioContext = new AudioContext();
-      const response = await fetch(audioUrl);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  //     audioContext = new AudioContext();
+  //     const response = await fetch(audioUrl);
+  //     const arrayBuffer = await response.arrayBuffer();
+  //     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
       
-      const channelData = audioBuffer.getChannelData(0);
-      const samplesPerPixel = Math.floor(channelData.length / 100);
-      const waveform = [];
+  //     const channelData = audioBuffer.getChannelData(0);
+  //     const samplesPerPixel = Math.floor(channelData.length / 100);
+  //     const waveform = [];
       
-      for (let i = 0; i < 100; i++) {
-        let sum = 0;
-        const start = i * samplesPerPixel;
-        const end = Math.min(start + samplesPerPixel, channelData.length);
+  //     for (let i = 0; i < 100; i++) {
+  //       let sum = 0;
+  //       const start = i * samplesPerPixel;
+  //       const end = Math.min(start + samplesPerPixel, channelData.length);
         
-        for (let j = start; j < end; j++) {
-          sum += Math.abs(channelData[j]);
-        }
+  //       for (let j = start; j < end; j++) {
+  //         sum += Math.abs(channelData[j]);
+  //       }
         
-        const avg = sum / (end - start);
-        waveform.push(Math.min(100, Math.floor(avg * 200)));
+  //       const avg = sum / (end - start);
+  //       waveform.push(Math.min(100, Math.floor(avg * 200)));
+  //     }
+      
+  //     this.waveform = waveform;
+  //   } catch (error) {
+  //     console.error('Waveform generation error:', error);
+  //     this.waveform = new Array(100).fill(30);
+  //   } finally {
+  //     if (audioContext && audioContext.state !== 'closed') {
+  //       await audioContext.close();
+  //     }
+  //   }
+  // }
+  async generateWaveform(): Promise<void> {
+  if (!this.loop?.path) return;
+  
+  try {
+    const audioUrl = this.getAudioUrl(this.loop.path);
+    if (!audioUrl) return;
+
+    // Load audio file
+    const response = await fetch(audioUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    
+    // Create audio context
+    const audioContext = new AudioContext();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    
+    // Get channel data (first channel)
+    const channelData = audioBuffer.getChannelData(0);
+    const samples = channelData.length;
+    
+    // Create waveform data
+    const waveform = [];
+    const samplesPerPixel = Math.floor(samples / 200); // We'll use 200 bars for better detail
+    
+    // Analyze audio data
+    for (let i = 0; i < 200; i++) {
+      const start = Math.floor(i * samplesPerPixel);
+      const end = Math.min(start + samplesPerPixel, samples);
+      
+      let sum = 0;
+      let peak = 0;
+      
+      for (let j = start; j < end; j++) {
+        const value = Math.abs(channelData[j]);
+        sum += value * value; // RMS calculation
+        if (value > peak) peak = value;
       }
       
-      this.waveform = waveform;
-    } catch (error) {
-      console.error('Waveform generation error:', error);
-      this.waveform = new Array(100).fill(30);
-    } finally {
-      if (audioContext && audioContext.state !== 'closed') {
-        await audioContext.close();
-      }
+      // Calculate RMS (root mean square) for better visualization
+      const rms = Math.sqrt(sum / (end - start));
+      
+      // Combine peak and RMS for more interesting visualization
+      const combinedValue = (peak * 0.7 + rms * 0.3) * 1.5;
+      
+      // Scale to 0-100 range
+      const scaledValue = Math.min(100, Math.floor(combinedValue * 150));
+      waveform.push(scaledValue);
     }
+    
+    this.waveform = waveform;
+    
+    // Close audio context
+    await audioContext.close();
+  } catch (error) {
+    console.error('Waveform generation error:', error);
+    // Fallback to random waveform if analysis fails
+    this.waveform = Array.from({length: 200}, () => Math.floor(Math.random() * 30) + 10);
   }
+}
 
   async downloadLoop(): Promise<void> {
     if (!this.loop?.path) return;
