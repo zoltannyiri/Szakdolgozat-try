@@ -45,15 +45,15 @@
       class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
       <div class="p-6 sm:p-8">
         <!-- Fejléc rész -->
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-4">
-          <div class="flex-1">
-            <div class="flex flex-wrap items-center gap-3 mb-3">
-              <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 break-all">{{loop?.filename || 'Loop'}}</h1>
-              <span *ngIf="loop?.bpm"
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                {{loop?.bpm}} BPM
-              </span>
-            </div>
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-2 gap-4">
+      <div class="flex-1">
+        <div class="flex flex-wrap items-center gap-3 mb-3">
+          <h1 class="text-2xl sm:text-2xl font-bold text-gray-900 break-all">{{loop?.filename || 'Loop'}}</h1>
+          <span *ngIf="loop?.bpm"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-800 border border-teal-200">
+            {{loop?.bpm}} BPM
+          </span>
+        </div>
 
             <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
               <span class="flex items-center">
@@ -82,29 +82,34 @@
           </div>
 
           <!-- Akció gombok -->
-          <div class="flex items-center space-x-3 sm:space-x-4">
-            <!-- Like gomb -->
-            <div class="flex items-center">
-              <button (click)="toggleLike()" class="p-2 rounded-full transition-all duration-200 like-button"
-                [class.liked]="hasLiked()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
-                  [attr.fill]="hasLiked() ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
-              <span class="text-sm font-medium text-gray-700 ml-1">{{loop?.likes || 0}}</span>
-            </div>
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Like gomb -->
+        <div class="flex items-center">
+          <button (click)="toggleLike()" 
+            class="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+            [class.text-rose-500]="hasLiked()"
+            [class.text-gray-400]="!hasLiked()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+          <span class="text-xs font-medium text-gray-600 ml-0.5">{{loop?.likes || 0}}</span>
+        </div>
 
 
-            <!-- Favorite gomb (új) -->
-            <button (click)="toggleFavorite(loop)" class="p-2 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 rounded-full transition"
-                [class.text-yellow-500]="isFavorite(loop._id)">
-                <span *ngIf="isCheckingFavorites && isFavorite(loop._id) === undefined">...</span>
-                <span *ngIf="!(isCheckingFavorites && isFavorite(loop._id) === undefined)">
-                  {{ isFavorite(loop._id) ? '★' : '☆' }}
-                </span>
-              </button>
+            <!-- Favorite gomb -->
+        <button (click)="toggleFavorite(loop)" 
+          class="p-2 rounded-full transition-colors hover:bg-gray-100"
+          [class.text-yellow-400]="isFavorite(loop._id)"
+          [class.text-gray-400]="!isFavorite(loop._id)">
+          <span *ngIf="isCheckingFavorites && isFavorite(loop._id) === undefined">...</span>
+          <span *ngIf="!(isCheckingFavorites && isFavorite(loop._id) === undefined)">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+          </span>
+        </button>
 
             <!-- Bookmark gomb -->
             <!-- <button class="p-2 text-gray-500 hover:text-purple-600 rounded-full transition-colors">
@@ -128,17 +133,15 @@
         </div>
 
         <!-- Címkék -->
-        <div *ngIf="loop?.tags?.length" class="mb-6 flex flex-wrap gap-2">
-          <span *ngFor="let tag of loop.tags"
-            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1.5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            {{ tag }}
-          </span>
-        </div>
+    <div *ngIf="loop?.tags?.length" class="mb-5 flex flex-wrap gap-2">
+      <span *ngFor="let tag of loop.tags"
+        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 hover:bg-gray-200 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"/>
+        </svg>
+        {{ tag }}
+      </span>
+    </div>
 
         <!-- Loop információ -->
         <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -178,80 +181,78 @@
         </div>
 
         <!-- Audio lejátszó -->
-        <div *ngIf="loop?.path" class="bg-gray-50 rounded-xl p-5 border border-gray-200">
-          <audio #audioPlayer id="loop-audio-player" [src]="getAudioUrl(loop.path)" hidden (play)="onAudioPlay()"
-            (pause)="onAudioPause()" (error)="onAudioError(audioPlayer)" (timeupdate)="updateProgress()"></audio>
+<div *ngIf="loop?.path" class="bg-white rounded-2xl p-5 border border-gray-100 shadow-lg hover:shadow-xl transition-shadow">
+  <audio #audioPlayer id="loop-audio-player" [src]="getAudioUrl(loop.path)" hidden (play)="onAudioPlay()"
+    (pause)="onAudioPause()" (error)="onAudioError(audioPlayer)" (timeupdate)="updateProgress()"></audio>
 
-          <!-- Waveform visualization -->
-          <div class="relative h-24 mb-5 bg-white rounded-lg overflow-hidden cursor-pointer border border-gray-200"
-            (click)="seekAudio($event, true)">
-            <!-- Static waveform background -->
-            <div class="absolute inset-0 flex items-center">
-              <div class="w-full h-12 flex items-center px-2">
-                <div *ngFor="let value of waveform; let i = index"
-                  class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-gray-300"
-                  [style.height.%]="value * 0.8">
-                </div>
-              </div>
-            </div>
-
-            <!-- Active playback waveform -->
-            <div class="absolute inset-0 flex items-center overflow-hidden" [style.width.%]="progress">
-              <div class="h-12 flex items-center px-2">
-                <div *ngFor="let value of waveform; let i = index"
-                  class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-gradient-to-b from-purple-500 to-blue-500"
-                  [style.height.%]="value * 0.8">
-                </div>
-              </div>
-            </div>
-
-            <!-- Playhead indicator -->
-            <div class="absolute top-0 bottom-0 w-0.5 bg-purple-600 ml-1 shadow-lg shadow-purple-400/30"
-              [style.left.%]="progress"></div>
-          </div>
-
-          <!-- Vezérlők -->
-          <div class="flex items-center justify-between">
-            <!-- Play/Pause gomb -->
-            <button (click)="togglePlay()"
-              class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white transition-all transform hover:scale-105 shadow-lg hover:shadow-purple-500/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path *ngIf="!isPlaying" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path *ngIf="isPlaying" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-
-            <!-- Idővonal -->
-            <div class="flex-1 mx-5 flex items-center">
-              <span class="text-xs font-mono text-gray-500 w-12 text-right">{{ formatTime(currentTime) }}</span>
-
-              <!-- Seek sáv -->
-              <div class="flex-1 mx-3 relative h-1.5 bg-gray-300 rounded-full overflow-hidden cursor-pointer"
-                (click)="seekAudio($event, false)">
-                <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
-                  [style.width.%]="progress"></div>
-                <div class="absolute top-0 bottom-0 w-1.5 bg-white rounded-full -ml-0.75 shadow-lg shadow-purple-400/30"
-                  [style.left.%]="progress"></div>
-              </div>
-
-              <span class="text-xs font-mono text-gray-500 w-12">{{ formatTime(duration) }}</span>
-            </div>
-
-            <!-- Hangerő szabályzó -->
-            <div class="flex items-center space-x-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M15.536 8.464a5 5 0 010 7.072M12 6a7.975 7.975 0 015.657 2.343m0 0a7.975 7.975 0 010 11.314m-11.314 0a7.975 7.975 0 010-11.314m0 0a7.975 7.975 0 015.657-2.343" />
-              </svg>
-              <input type="range" min="0" max="1" step="0.01" [(ngModel)]="volume" (input)="setVolume()"
-                class="w-24 h-1 bg-gray-300 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white">
-            </div>
-          </div>
+  <!-- Waveform vizualizáció -->
+  <div class="relative h-28 mb-6 bg-gray-50 rounded-lg overflow-hidden cursor-pointer border border-gray-100"
+    (click)="seekAudio($event, true)">
+    <!-- Háttér waveform -->
+    <div class="absolute inset-0 flex items-center">
+      <div class="w-full h-14 flex items-center px-3">
+        <div *ngFor="let value of waveform; let i = index"
+          class="waveform-bar mx-0.5 rounded-md transition-all duration-100 bg-gray-200 hover:bg-gray-300"
+          [style.height.%]="value * 0.8">
         </div>
+      </div>
+    </div>
+
+    <!-- Aktív waveform -->
+    <div class="absolute inset-0 flex items-center overflow-hidden" [style.width.%]="progress">
+      <div class="h-14 flex items-center px-3">
+        <div *ngFor="let value of waveform; let i = index"
+          class="waveform-bar mx-0.5 rounded-md transition-all duration-100 bg-gradient-to-b from-emerald-400 to-teal-500"
+          [style.height.%]="value * 0.8">
+        </div>
+      </div>
+    </div>
+
+    <!-- Playhead mutató -->
+    <div class="absolute top-0 bottom-0 w-1 bg-white ml-1 shadow-md shadow-emerald-400/40"
+      [style.left.%]="progress"></div>
+  </div>
+
+  <!-- Vezérlőelemek -->
+  <div class="flex items-center justify-between">
+    <!-- Play/Pause gomb -->
+    <button (click)="togglePlay()"
+      class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-white transition-all transform hover:scale-105 active:scale-95 shadow-md hover:shadow-emerald-400/30 focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" *ngIf="!isPlaying" class="h-5 w-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z" />
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" *ngIf="isPlaying" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+      </svg>
+    </button>
+
+    <!-- Idővonal -->
+    <div class="flex-1 mx-5 flex items-center">
+      <span class="text-xs font-medium text-gray-500 w-10 text-right">{{ formatTime(currentTime) }}</span>
+
+      <!-- Seek sáv -->
+      <div class="flex-1 mx-3 relative h-1.5 bg-gray-200 rounded-full overflow-hidden cursor-pointer group"
+        (click)="seekAudio($event, false)">
+        <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full"
+          [style.width.%]="progress"></div>
+        <div
+          class="absolute top-0 bottom-0 w-2 bg-white rounded-full -ml-1 shadow-sm shadow-emerald-400/40 opacity-0 group-hover:opacity-100 transition-opacity"
+          [style.left.%]="progress"></div>
+      </div>
+
+      <span class="text-xs font-medium text-gray-500 w-10">{{ formatTime(duration) }}</span>
+    </div>
+
+    <!-- Hangerő szabályzó -->
+    <div class="flex items-center space-x-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+      </svg>
+      <input type="range" min="0" max="1" step="0.01" [(ngModel)]="volume" (input)="setVolume()"
+        class="w-24 h-1 bg-gray-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-gray-300 hover:[&::-webkit-slider-thumb]:bg-emerald-400">
+    </div>
+  </div>
+</div>
       </div>
     </div>
 
