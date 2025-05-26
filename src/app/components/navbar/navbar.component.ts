@@ -119,9 +119,9 @@ ngOnInit() {
       this.authService.getUserProfile().subscribe({
         next: (res: any) => {
           this.userName = res.user?.username || '';
-          this.currentUserId = res.user?._id; // <-- mentés
+          this.currentUserId = res.user?._id;
 
-          // Socket szoba csatlakozás
+          // Csatlakozás socket szobához
           this.socket?.emit('joinRoom', this.currentUserId);
 
           // Üzenet fogadása – növeli a számlálót
@@ -131,17 +131,21 @@ ngOnInit() {
             }
           });
 
-          // 🔄 ÚJ: összes korábbi csevegés lekérése
+          // Korábbi csevegések lekérése
           this.http.get(`${environment.apiUrl}/api/chats/summary`, {
             headers: { Authorization: `Bearer ${this.authService.getToken()}` }
           }).subscribe({
             next: (res: any) => {
-              console.log('[Chats Summary]', res.chats); // DEBUG
+              console.log('[Chats Summary]', res.chats);
               this.recentChats = res.chats.map((chat: any) => {
                 const isOwnMessage = chat.lastSenderId?.toString() === this.currentUserId;
                 return {
                   ...chat,
-                  lastMessage: isOwnMessage ? `Te: ${chat.lastMessage}` : chat.lastMessage
+                  lastMessage: isOwnMessage ? `Te: ${chat.lastMessage}` : chat.lastMessage,
+                  ui: {
+                    avatarColor: this.getAvatarColor(chat.username),
+                    initials: this.getInitials(chat.username)
+                  }
                 };
               });
             },
@@ -157,6 +161,7 @@ ngOnInit() {
     }
   });
 }
+
 
 
 
