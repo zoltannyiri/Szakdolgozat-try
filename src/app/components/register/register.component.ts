@@ -1,13 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-register',
-  imports: [RouterModule, CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -16,14 +16,16 @@ export class RegisterComponent {
     username: '',
     email: '',
     password: '',
-    country: '',
     confirmPassword: '',
-  }
-  successMessage: string = '';
-  errorMessage: string = '';
-  passwordError: string = '';
+    country: ''
+  };
+
+  successMessage = '';
+  errorMessage = '';
+  passwordError = '';
   errors: any = {};
-  constructor(private authService: AuthService) { }
+
+  constructor(private authService: AuthService) {}
 
   countries: string[] = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Argentina", "Armenia", "Australia", "Austria",
@@ -43,38 +45,120 @@ export class RegisterComponent {
     "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
   ];
 
-
   onRegister() {
     this.errorMessage = '';
     this.successMessage = '';
     this.passwordError = '';
     this.errors = {};
+
     const { username, email, password, confirmPassword, country } = this.registerData;
-    
-    // Jelszó egyezőség ellenőrzése
+
     if (password !== confirmPassword) {
-      this.errorMessage = 'Passwords do not match!';
+      this.passwordError = 'A jelszavak nem egyeznek.';
       return;
     }
-  
+
     this.authService.register(username, email, password, country).subscribe({
       next: () => {
-        this.successMessage = 'Registration successful! Please check your email for verification.';
-        this.registerData = {username: '', email: '', password: '', confirmPassword: '', country: ''};
+        this.successMessage = 'Sikeres regisztráció!';
+        this.registerData = { username: '', email: '', password: '', confirmPassword: '', country: '' };
       },
       error: (err) => {
-        if (err.error && err.error.errors) {
-          // Validációs hibák kezelése
+        if (err.error?.errors) {
           this.errors = err.error.errors;
-        } else if (err.error && err.error.message) {
-          // Egyéb hibák (pl. már létező felhasználó)
+        } else if (err.error?.message) {
           this.errorMessage = err.error.message;
         } else {
-          this.errorMessage = 'Registration failed. Please try again.';
+          this.errorMessage = 'Hiba történt. Próbáld újra.';
         }
-      },
+      }
     });
   }
+}
+
+
+
+// import { CommonModule } from '@angular/common';
+// import { HttpClient } from '@angular/common/http';
+// import { Component, OnInit } from '@angular/core';
+// import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
+// import { Router, RouterModule } from '@angular/router';
+// import { AuthService } from '../../services/auth.service';
+
+// @Component({
+//   selector: 'app-register',
+//   imports: [RouterModule, CommonModule, FormsModule],
+//   templateUrl: './register.component.html',
+//   styleUrl: './register.component.scss'
+// })
+// export class RegisterComponent {
+//   registerData = {
+//     username: '',
+//     email: '',
+//     password: '',
+//     country: '',
+//     confirmPassword: '',
+//   }
+//   successMessage: string = '';
+//   errorMessage: string = '';
+//   passwordError: string = '';
+//   errors: any = {};
+//   constructor(private authService: AuthService) { }
+
+//   countries: string[] = [
+//     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Argentina", "Armenia", "Australia", "Austria",
+//     "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia",
+//     "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon",
+//     "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+//     "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt",
+//     "El Salvador", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany",
+//     "Ghana", "Greece", "Guatemala", "Guinea", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran",
+//     "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Latvia",
+//     "Lebanon", "Libya", "Lithuania", "Luxembourg", "Malaysia", "Maldives", "Mali", "Malta", "Mexico", "Moldova",
+//     "Monaco", "Mongolia", "Morocco", "Myanmar", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger",
+//     "Nigeria", "Norway", "Oman", "Pakistan", "Palestine", "Panama", "Paraguay", "Peru", "Philippines", "Poland",
+//     "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saudi Arabia", "Senegal", "Serbia", "Singapore",
+//     "Slovakia", "Slovenia", "Somalia", "South Africa", "South Korea", "Spain", "Sri Lanka", "Sudan", "Sweden",
+//     "Switzerland", "Syria", "Taiwan", "Tanzania", "Thailand", "Tunisia", "Turkey", "Uganda", "Ukraine",
+//     "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+//   ];
+
+
+//   onRegister() {
+//     this.errorMessage = '';
+//     this.successMessage = '';
+//     this.passwordError = '';
+//     this.errors = {};
+//     const { username, email, password, confirmPassword, country } = this.registerData;
+    
+//     // Jelszó egyezőség ellenőrzése
+//     if (password !== confirmPassword) {
+//       this.errorMessage = 'Passwords do not match!';
+//       return;
+//     }
+  
+//     this.authService.register(username, email, password, country).subscribe({
+//       next: () => {
+//         this.successMessage = 'Registration successful! Please check your email for verification.';
+//         this.registerData = {username: '', email: '', password: '', confirmPassword: '', country: ''};
+//       },
+//       error: (err) => {
+//         if (err.error && err.error.errors) {
+//           // Validációs hibák kezelése
+//           this.errors = err.error.errors;
+//         } else if (err.error && err.error.message) {
+//           // Egyéb hibák (pl. már létező felhasználó)
+//           this.errorMessage = err.error.message;
+//         } else {
+//           this.errorMessage = 'Registration failed. Please try again.';
+//         }
+//       },
+//     });
+//   }
+// }
+
+
+
   // commented at 04. 27.
   // onRegister() {
   //   this.errorMessage = '';
@@ -95,7 +179,7 @@ export class RegisterComponent {
   //     },
   //   });
   // }
-}
+
 
 
 

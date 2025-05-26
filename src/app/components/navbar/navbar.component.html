@@ -110,33 +110,48 @@
                     </div>
 
 
-                    <!-- Profil avatar gomb -->
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer shadow-md"
-                        [ngClass]="getAvatarColor(userName)" (click)="toggleProfileMenu()">
+                    <!-- Profil avatar gomb + menü -->
+                    <div class="relative">
+                    <!-- Avatar gomb -->
+                    <div
+                        class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer shadow-md"
+                        [ngClass]="getAvatarColor(userName)"
+                        (click)="toggleProfileMenu()"
+                    >
                         {{ getInitials(userName) }}
                     </div>
 
                     <!-- Profil menü -->
-                    <div class="absolute top-full right-0 mt-2 z-50 bg-white rounded-md shadow-lg min-w-[200px] p-2"
-                        *ngIf="showProfileMenu" (click)="$event.stopPropagation()">
-                        <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
-                            [routerLink]="['/profile']" (click)="showProfileMenu = false">
-                            My Profile
+                    <div
+                        *ngIf="showProfileMenu"
+                        class="absolute top-14 right-0 bg-white rounded-lg shadow-lg min-w-[200px] p-2 z-50 border border-gray-200 animate-fade-in"
+                        (click)="$event.stopPropagation()"
+                    >
+                        <button
+                        class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
+                        [routerLink]="['/profile']"
+                        (click)="showProfileMenu = false"
+                        >
+                        My Profile
                         </button>
                         <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
-                            My Loops
+                        My Loops
                         </button>
                         <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
-                            My Comments
+                        My Comments
                         </button>
                         <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
-                            Settings
+                        Settings
                         </button>
-                        <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
-                            (click)="logout()">
-                            Log Out
+                        <button
+                        class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
+                        (click)="logout()"
+                        >
+                        Log Out
                         </button>
                     </div>
+                    </div>
+
                 </div>
             </ng-template>
         </div>
@@ -147,6 +162,7 @@
                 <i class="bi bi-list text-2xl"></i>
             </button>
         </div>
+        
 
         <!-- Mobil menü overlay -->
         <div *ngIf="menuOpen" class="fixed inset-0 bg-black/50 z-40 md:hidden" (click)="toggleMenu()"></div>

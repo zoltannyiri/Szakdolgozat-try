@@ -9,6 +9,19 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root',
 })
 export class AuthService {
+  getCurrentUser(): string | null {
+  const token = this.getToken();
+  if (!token) return null;
+
+  try {
+    const decoded: any = jwtDecode(token);
+    return decoded.username || null;
+  } catch (error) {
+    console.error('Token decode error:', error);
+    return null;
+  }
+}
+
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
   private tokenCheckInterval: any;

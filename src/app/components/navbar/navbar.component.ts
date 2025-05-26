@@ -46,31 +46,62 @@ export class NavbarComponent {
 loggedInView: TemplateRef<NgIfContext<boolean>> | null | undefined;
 profileMenuOpen: any;
 
-  constructor(public authService: AuthService, private notificationService: NotificationService, private router: Router) {
-    this.subscription = this.authService.isLoggedIn$.subscribe(
-      (loggedIn) => {
-        this.isLoggedIn = loggedIn;
-        if (loggedIn) {
-          this.userName = this.authService.getUsernameFromToken() || '';
-        }
-      }
-    );
+  // constructor(public authService: AuthService, private notificationService: NotificationService, private router: Router) {
+  //   this.subscription = this.authService.isLoggedIn$.subscribe(
+  //     (loggedIn) => {
+  //       this.isLoggedIn = loggedIn;
+  //       if (loggedIn) {
+  //         this.userName = this.authService.getUsernameFromToken() || '';
+  //       }
+  //     }
+  //   );
 
-    // Értesítések frissítése bejelentkezéskor
-    this.authService.isLoggedIn$.subscribe(loggedIn => {
-      if (loggedIn) {
-        this.loadNotifications();
-        // Frissítés minden 60 másodpercben
-        setInterval(() => this.loadNotifications(), 60000);
+  //   // Értesítések frissítése bejelentkezéskor
+  //   this.authService.isLoggedIn$.subscribe(loggedIn => {
+  //     if (loggedIn) {
+  //       this.loadNotifications();
+  //       // Frissítés minden 60 másodpercben
+  //       setInterval(() => this.loadNotifications(), 60000);
+  //     }
+  //   });
+  // }
+
+
+  constructor(
+  public authService: AuthService,
+  private notificationService: NotificationService,
+  private router: Router
+) {
+  this.subscription = this.authService.isLoggedIn$.subscribe((loggedIn) => {
+  this.isLoggedIn = loggedIn;
+  if (loggedIn) {
+    this.authService.getUserProfile().subscribe({
+      next: (res: any) => {
+        this.userName = res.user?.username || '';
+        console.log('[NAVBAR] username from profile API:', this.userName);
+      },
+      error: (err) => {
+        console.error('[NAVBAR] Failed to load profile:', err);
       }
     });
+
+    this.loadNotifications();
+  } else {
+    this.userName = '';
+    this.notifications = [];
   }
+});
+
+}
+
   
 
-  ngOnInit() {
-    // Kényszerítjük az állapot ellenőrzését
-    this.authService.checkToken();
-  }
+  // ngOnInit() {
+  //   // Kényszerítjük az állapot ellenőrzését
+  //   this.authService.checkToken();
+
+  //   this.userName = this.authService.getCurrentUser() || '';
+  // }
 
   ngOnDestroy() {
     if (this.subscription) {
@@ -95,13 +126,13 @@ profileMenuOpen: any;
   }
 
   // Felhasználó nevének kezdőbetűi
-  getInitials(username: string): string {
-    const names = username.split(' ');
-    if (names.length > 1) {
-      return names[0].charAt(0) + names[1].charAt(0);
-    }
-    return names[0].charAt(0);
-  }
+  getInitials(name: string): string {
+  if (!name) return '';
+  const parts = name.trim().split(' ');
+  return parts.length > 1
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : parts[0][0].toUpperCase();
+}
 
   @HostListener('document:click', ['$event'])
   closeSidebar(event: Event) {
