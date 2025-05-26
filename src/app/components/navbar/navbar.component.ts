@@ -6,11 +6,15 @@ import { AuthService } from '../../services/auth.service';
 import { Observable, Subscription } from 'rxjs';
 import { NotificationService } from '../../services/notification.service';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { io, Socket } from 'socket.io-client';
+import { environment } from '../../environments/environment';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLink],
+  imports: [CommonModule, RouterModule, RouterLink, HttpClientModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
   animations: [
@@ -41,6 +45,16 @@ export class NavbarComponent {
   showNotifications = false;
   notifications: any[] = [];
   unreadNotificationsCount = 0;
+  unreadMessagesCount: number = 0;
+
+  socket: Socket | null = null;
+  recentChats: any[] = [];
+  showDropdown = false;
+  showChatDropdown = false;
+  currentUserId: string = '';
+
+
+
 
   private subscription: Subscription;
 loggedInView: TemplateRef<NgIfContext<boolean>> | null | undefined;
@@ -70,7 +84,8 @@ profileMenuOpen: any;
   constructor(
   public authService: AuthService,
   private notificationService: NotificationService,
-  private router: Router
+  private router: Router,
+  private http: HttpClient
 ) {
   this.subscription = this.authService.isLoggedIn$.subscribe((loggedIn) => {
   this.isLoggedIn = loggedIn;
@@ -95,18 +110,68 @@ profileMenuOpen: any;
 }
 
   
+ngOnInit() {
+  this.socket = io('http://localhost:3000');
 
-  // ngOnInit() {
-  //   // Kényszerítjük az állapot ellenőrzését
-  //   this.authService.checkToken();
+  this.authService.isLoggedIn$.subscribe((loggedIn) => {
+    this.isLoggedIn = loggedIn;
+    if (loggedIn) {
+      this.authService.getUserProfile().subscribe({
+        next: (res: any) => {
+          this.userName = res.user?.username || '';
+          this.currentUserId = res.user?._id; // <-- mentés
 
-  //   this.userName = this.authService.getCurrentUser() || '';
-  // }
+          // Socket szoba csatlakozás
+          this.socket?.emit('joinRoom', this.currentUserId);
+
+          // Üzenet fogadása – növeli a számlálót
+          this.socket?.on('receiveMessage', (message: any) => {
+            if (message.senderId !== this.currentUserId) {
+              this.unreadMessagesCount++;
+            }
+          });
+
+          // 🔄 ÚJ: összes korábbi csevegés lekérése
+          this.http.get(`${environment.apiUrl}/api/chats/summary`, {
+            headers: { Authorization: `Bearer ${this.authService.getToken()}` }
+          }).subscribe({
+            next: (res: any) => {
+              console.log('[Chats Summary]', res.chats); // DEBUG
+              this.recentChats = res.chats.map((chat: any) => {
+                const isOwnMessage = chat.lastSenderId?.toString() === this.currentUserId;
+                return {
+                  ...chat,
+                  lastMessage: isOwnMessage ? `Te: ${chat.lastMessage}` : chat.lastMessage
+                };
+              });
+            },
+            error: (err) => {
+              console.error('Nem sikerült lekérni a csevegéseket:', err);
+            }
+          });
+        },
+        error: (err) => {
+          console.error('[NAVBAR] Failed to load profile:', err);
+        }
+      });
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
 
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+    this.socket?.disconnect();
   }
 
   toggleMenu() {
@@ -228,6 +293,15 @@ profileMenuOpen: any;
     
     this.showNotifications = false;
   }
+
+  //chat
+  navigateToChat(userId: string) {
+  this.router.navigate(['/chat'], { queryParams: { userId } });
+}
+
+toggleChatDropdown() {
+  this.showChatDropdown = !this.showChatDropdown;
+}
   
   
 

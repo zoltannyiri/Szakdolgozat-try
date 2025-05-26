@@ -36,6 +36,35 @@
             <ng-template #loggedInView>
                 <div class="flex items-center space-x-4">
 
+
+                    <!-- Chat ikon -->
+                    <!-- csevegés ikon a navbarban -->
+<!-- CHAT IKON és LENYÍLÓ PANEL -->
+<div class="relative">
+  <button (click)="toggleChatDropdown()" class="relative">
+    <i class="bi bi-chat-dots text-xl"></i>
+    <span *ngIf="unreadMessagesCount > 0"
+          class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1">
+      {{ unreadMessagesCount }}
+    </span>
+  </button>
+
+  <div *ngIf="showChatDropdown"
+       class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+    <div class="p-2 font-semibold border-b text-gray-700">Csevegések</div>
+    <div *ngIf="recentChats.length === 0" class="p-3 text-sm text-gray-500 text-center">
+      Nincs új üzenet.
+    </div>
+    <div *ngFor="let chat of recentChats" class="p-3 hover:bg-gray-50 cursor-pointer">
+      <div class="font-medium text-gray-800">{{ chat.username }}</div>
+      <div class="text-sm text-gray-500 truncate">{{ chat.lastMessage }}</div>
+    </div>
+  </div>
+</div>
+
+
+
+
                     <!-- Értesítés harang és panel -->
                     <div class="relative">
                         <button (click)="toggleNotifications()"
@@ -84,16 +113,16 @@
                                         <div class="flex-1">
                                             <p class="text-sm font-medium">{{notification.message}}</p>
                                             <p class="text-xs text-gray-500 mt-1">
-                                              {{notification.createdAt | date:'yyyy.MM.dd. HH:mm'}}
+                                                {{notification.createdAt | date:'yyyy.MM.dd. HH:mm'}}
                                             </p>
-                                            
-                                          </div>
-                                          
+
+                                        </div>
+
                                     </div>
                                     <!-- Olvasatlan jelző -->
                                     <span *ngIf="!notification.read" class="h-2 w-2 bg-blue-500 rounded-full"></span>
                                 </div>
-                                
+
                             </div>
 
                             <ng-template #emptyState>
@@ -102,7 +131,7 @@
                                     <div *ngIf="notifications.length === 0" class="p-6 text-center text-gray-500">
                                         <i class="bi bi-bell-slash text-3xl mb-2"></i>
                                         <p>Nincsenek új értesítések</p>
-                                      </div>
+                                    </div>
                                     <p class="text-xs text-gray-400 mt-1">Itt jelennek meg az új értesítések</p>
                                 </div>
                             </ng-template>
@@ -112,44 +141,34 @@
 
                     <!-- Profil avatar gomb + menü -->
                     <div class="relative">
-                    <!-- Avatar gomb -->
-                    <div
-                        class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer shadow-md"
-                        [ngClass]="getAvatarColor(userName)"
-                        (click)="toggleProfileMenu()"
-                    >
-                        {{ getInitials(userName) }}
-                    </div>
+                        <!-- Avatar gomb -->
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer shadow-md"
+                            [ngClass]="getAvatarColor(userName)" (click)="toggleProfileMenu()">
+                            {{ getInitials(userName) }}
+                        </div>
 
-                    <!-- Profil menü -->
-                    <div
-                        *ngIf="showProfileMenu"
-                        class="absolute top-14 right-0 bg-white rounded-lg shadow-lg min-w-[200px] p-2 z-50 border border-gray-200 animate-fade-in"
-                        (click)="$event.stopPropagation()"
-                    >
-                        <button
-                        class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
-                        [routerLink]="['/profile']"
-                        (click)="showProfileMenu = false"
-                        >
-                        My Profile
-                        </button>
-                        <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
-                        My Loops
-                        </button>
-                        <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
-                        My Comments
-                        </button>
-                        <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
-                        Settings
-                        </button>
-                        <button
-                        class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
-                        (click)="logout()"
-                        >
-                        Log Out
-                        </button>
-                    </div>
+                        <!-- Profil menü -->
+                        <div *ngIf="showProfileMenu"
+                            class="absolute top-14 right-0 bg-white rounded-lg shadow-lg min-w-[200px] p-2 z-50 border border-gray-200 animate-fade-in"
+                            (click)="$event.stopPropagation()">
+                            <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
+                                [routerLink]="['/profile']" (click)="showProfileMenu = false">
+                                My Profile
+                            </button>
+                            <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
+                                My Loops
+                            </button>
+                            <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
+                                My Comments
+                            </button>
+                            <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors">
+                                Settings
+                            </button>
+                            <button class="w-full text-left p-2 hover:bg-gray-100 rounded-md transition-colors"
+                                (click)="logout()">
+                                Log Out
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -162,7 +181,7 @@
                 <i class="bi bi-list text-2xl"></i>
             </button>
         </div>
-        
+
 
         <!-- Mobil menü overlay -->
         <div *ngIf="menuOpen" class="fixed inset-0 bg-black/50 z-40 md:hidden" (click)="toggleMenu()"></div>

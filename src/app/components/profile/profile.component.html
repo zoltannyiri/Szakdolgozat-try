@@ -36,6 +36,13 @@
               {{ userData.isActive ? 'Aktív' : 'Utoljára aktív: ' + (userData.lastSeen | date:'yyyy.MM.dd. HH:mm') }}
             </div>
           </div>
+
+           <!-- Üzenetküldő gomb -->
+          <div *ngIf="!isCurrentUser" class="flex justify-center mb-4">
+            <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" (click)="startChatWithUser()">
+              <i class="bi bi-chat-dots-fill mr-2"></i> Üzenet küldése
+            </button>
+          </div>
   
           <!-- Tab menü (mobilbarát) -->
           <div class="flex justify-center mb-6 sm:mb-8 border-b border-gray-200 pb-2 overflow-x-auto">

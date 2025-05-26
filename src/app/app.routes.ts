@@ -9,6 +9,7 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { ProfileComponent } from './components/profile/profile.component';
 import { LoopDetailComponent } from './components/loop-detail/loop-detail.component';
 import { FavoritesComponent } from './components/favorites/favorites.component';
+import { ChatComponent } from './components/chat/chat.component';
 
 export const routes: Routes = [
     {'path': '', component: HomeComponent},
@@ -22,6 +23,7 @@ export const routes: Routes = [
     {'path': 'profile', component: ProfileComponent},
     {'path': 'profile/:username', component: ProfileComponent },
     {'path': 'loop-detail/:id', component: LoopDetailComponent},
-    {'path': 'favorites', component: FavoritesComponent}
+    {'path': 'favorites', component: FavoritesComponent},
+    {'path': 'chat', component: ChatComponent}
     // {'path': 'profile/:userId', component: ProfileComponent }
 ];

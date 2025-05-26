@@ -9,7 +9,7 @@ import { Request, Response, NextFunction } from "express";
 import loginRoutes from "./controllers/login.controller";
 import registerRoutes from "./controllers/register.controller";
 import favoriteRoutes from "./routes/favorite.routes";
-
+import http from "http";
 import User from "./models/user.model";
 import { authenticateToken } from "./middlewares/auth.middleware";
 import { validateUser } from "./middlewares/validation.middleware";
@@ -18,6 +18,10 @@ import { uploadLoop, getLoops, downloadLoop } from "./controllers/loop.controlle
 import loopRoutes from "./routes/loop.routes";
 import Notification from './models/notification.model';
 import { likeLoop, unlikeLoop } from "./controllers/loop.controller";
+import { ChatModel } from './models/chat.model';
+import { Server as SocketIOServer } from 'socket.io';
+import chatRoutes from './routes/chat.routes';
+
 
 
 dotenv.config({
@@ -27,6 +31,13 @@ console.log("MONGODB_URL:", process.env.MONGODB_URL);
 
 const app: Application = express();
 const PORT: number = 3000;
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
 
 app.use(express.json());
 app.use(cors());
@@ -43,7 +54,7 @@ mongoose
     console.error("MongoDB connection error:", err);
   });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
@@ -424,6 +435,52 @@ app.get('/api/verify-email', async (req: Request, res: Response) => {
 //     res.status(500).json({ message: "Server error" });
 //   }
 // });
+
+
+
+
+//chat
+// Socket.IO logic
+io.on('connection', (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on('sendMessage', async (data) => {
+    const { senderId, receiverId, content } = data;
+
+    const message = new ChatModel({
+      senderId,
+      receiverId,
+      content,
+      timestamp: new Date(),
+    });
+
+    await message.save();
+
+    io.to(receiverId).emit('receiveMessage', message);
+  });
+
+  socket.on('joinRoom', (userId) => {
+    socket.join(userId);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+
+  socket.on('markAsRead', async ({ senderId, receiverId }) => {
+  await ChatModel.updateMany(
+    { senderId, receiverId, read: false },
+    { $set: { read: true } }
+  );
+
+  // Küldj vissza jelet a küldőnek
+  io.to(senderId).emit('messagesReadByReceiver', { by: receiverId });
+  });
+
+});
+
+app.use('/api', chatRoutes);
+
 
 
 
