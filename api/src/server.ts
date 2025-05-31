@@ -13,7 +13,7 @@ import http from "http";
 import User from "./models/user.model";
 import { authenticateToken } from "./middlewares/auth.middleware";
 import { validateUser } from "./middlewares/validation.middleware";
-import { upload, validateLoopMetadata } from "./middlewares/upload.middleware";
+import { upload as uploadMiddleware, validateLoopMetadata } from "./middlewares/upload.middleware";
 import { uploadLoop, getLoops, downloadLoop } from "./controllers/loop.controller";
 import loopRoutes from "./routes/loop.routes";
 import Notification from './models/notification.model';
@@ -21,6 +21,7 @@ import { likeLoop, unlikeLoop } from "./controllers/loop.controller";
 import { ChatModel } from './models/chat.model';
 import { Server as SocketIOServer } from 'socket.io';
 import chatRoutes from './routes/chat.routes';
+import multer from 'multer';
 
 
 
@@ -38,6 +39,17 @@ const io = new SocketIOServer(server, {
     methods: ['GET', 'POST']
   }
 });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, 'uploads/avatars/'));
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  }
+});
+const uploadAvatar = multer({ storage });
+
 
 app.use(express.json());
 app.use(cors());
@@ -202,6 +214,32 @@ app.put("/api/profile", authenticateToken, async (req: CustomRequest, res: Respo
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+//avatar feltöltés, 05.31.
+app.post('/api/profile/upload-avatar', authenticateToken, uploadAvatar.single('avatar'), async (req: CustomRequest, res: Response) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (!req.file) {
+          return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+    
+
+    user.profileImage = `/uploads/avatars/${req.file.filename}`;
+    await user.save();
+
+    res.json({ imageUrl: user.profileImage });
+  } catch (error) {
+    console.error('Error uploading avatar:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 

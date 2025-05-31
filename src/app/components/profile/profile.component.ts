@@ -129,4 +129,39 @@ export class ProfileComponent implements OnInit {
       });
     }
   }
+
+  //aktivitás
+    get isActive(): boolean {
+    if (!this.userData?.lastLogin) return false;
+
+    const lastLoginTime = new Date(this.userData.lastLogin).getTime();
+    const now = Date.now();
+    const differenceInMinutes = (now - lastLoginTime) / (1000 * 60);
+
+    // Például: ha az elmúlt 5 percben jelentkezett be, akkor aktív
+    return differenceInMinutes <= 5;
+  }
+
+
+  //avatár feltöltés
+    onAvatarSelected(event: any): void {
+  const file: File = event.target.files[0];
+  if (file) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    this.http.post<any>(`${environment.apiUrl}/api/profile/upload-avatar`, formData, {
+      headers: { Authorization: `Bearer ${this.authService.getToken()}` }
+    }).subscribe({
+      next: (response) => {
+        this.userData.profileImage = response.imageUrl;
+      },
+      error: (err) => {
+        console.error('Error uploading avatar:', err);
+      }
+    });
+  }
+}
+
+
 }

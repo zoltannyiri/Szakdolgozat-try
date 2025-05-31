@@ -175,10 +175,23 @@
                     <!-- Profil avatar gomb + menü -->
                     <div class="relative">
                         <!-- Avatar gomb -->
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer shadow-md"
-                            [ngClass]="getAvatarColor(userName)" (click)="toggleProfileMenu()">
-                            {{ getInitials(userName) }}
-                        </div>
+                        <ng-container *ngIf="userData?.profileImage; else initialsAvatar">
+    <img
+      [src]="'http://localhost:3000' + userData.profileImage"
+      alt="Profilkép"
+      class="w-10 h-10 rounded-full object-cover border-2 border-gray-300 cursor-pointer hover:border-gray-500 transition"
+      (click)="toggleProfileMenu()"
+    />
+  </ng-container>
+
+  <ng-template #initialsAvatar>
+    <div
+      class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer shadow-md"
+      [ngClass]="getAvatarColor(userName)"
+      (click)="toggleProfileMenu()">
+      {{ getInitials(userName) }}
+    </div>
+  </ng-template>
 
                         <!-- Profil menü -->
                         <div *ngIf="showProfileMenu"

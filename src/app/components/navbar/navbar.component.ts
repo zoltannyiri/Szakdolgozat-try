@@ -119,6 +119,7 @@ ngOnInit() {
       this.authService.getUserProfile().subscribe({
         next: (res: any) => {
           this.userName = res.user?.username || '';
+          this.userData = res.user || {};
           this.currentUserId = res.user?._id;
 
           // Csatlakozás socket szobához
