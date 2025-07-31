@@ -41,3 +41,37 @@ export const checkVerified = async (req: CustomRequest, res: Response, next: Nex
     });
   }
 };
+
+// export const requireAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
+//   try {
+//     if (!req.user || !req.user.userId) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Authentication required"
+//       });
+//     }
+
+//     const user = await User.findById(req.user.userId);
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found"
+//       });
+//     }
+
+//     if (user.role !== "admin") {
+//       return res.status(403).json({
+//         success: false,
+//         message: "Admin privileges required"
+//       });
+//     }
+
+//     next();
+//   } catch (error) {
+//     console.error("Admin check error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error during admin check"
+//     });
+//   }
+// };

@@ -22,6 +22,7 @@ import { ChatModel } from './models/chat.model';
 import { Server as SocketIOServer } from 'socket.io';
 import chatRoutes from './routes/chat.routes';
 import multer from 'multer';
+import adminRoutes from './routes/admin.routes';
 
 
 
@@ -50,9 +51,9 @@ const storage = multer.diskStorage({
 });
 const uploadAvatar = multer({ storage });
 
-
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+
 
 mongoose
   .connect(process.env.MONGODB_URL_LOGIN as string, {
@@ -550,6 +551,25 @@ app.post('/api/loop-detail/:id/unlike', authenticateToken, unlikeLoop);
 
 //favorite hozzáadás
 app.use("/api", favoriteRoutes);
+
+
+
+//ADMIN
+app.use('/api/admin', adminRoutes);
+// Útvonalak listázása debug célból
+console.log("Available routes:");
+app._router.stack.forEach((r: any) => {
+  if (r.route && r.route.path) {
+    console.log(`${Object.keys(r.route.methods)[0].toUpperCase()} ${r.route.path}`);
+  }
+});
+
+
+console.log("Registering admin routes...");
+app.use('/api/admin', adminRoutes);
+console.log("Admin routes registered");
+// app.use('/api', adminRoutes);
+// app.use('/api/admin/users', adminRoutes);
 
 // commented at 03.11 19:00
 // import App from "./app";

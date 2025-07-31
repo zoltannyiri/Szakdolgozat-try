@@ -1,0 +1,39 @@
+<div class="space-y-6">
+  <h1 class="text-2xl font-bold text-gray-800">Felhasználók</h1>
+
+  <div *ngIf="errorMessage" class="text-red-500">{{ errorMessage }}</div>
+
+  <table class="w-full table-auto bg-white rounded-xl shadow overflow-hidden">
+    <thead class="bg-gray-100 text-left text-sm text-gray-600">
+      <tr>
+        <th class="p-4">Név</th>
+        <th class="p-4">Email</th>
+        <th class="p-4">Ország</th>
+        <th class="p-4">Regisztráció</th>
+        <th class="p-4">Tiltva</th>
+        <th class="p-4">Művelet</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users" class="border-b hover:bg-gray-50 text-sm">
+        <td class="p-4">{{ user.username }}</td>
+        <td class="p-4">{{ user.email }}</td>
+        <td class="p-4">{{ user.country }}</td>
+        <td class="p-4">{{ user.date | date: 'yyyy.MM.dd' }}</td>
+        <td class="p-4">
+          <span [ngClass]="user.banned ? 'text-red-500' : 'text-green-500'">
+            {{ user.banned ? 'Igen' : 'Nem' }}
+          </span>
+        </td>
+        <td class="p-4">
+          <button
+            (click)="toggleBan(user._id, user.banned)"
+            [ngClass]="user.banned ? 'bg-green-500' : 'bg-red-500'"
+            class="text-white px-3 py-1 rounded hover:opacity-90">
+            {{ user.banned ? 'Engedélyezés' : 'Tiltás' }}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

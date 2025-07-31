@@ -79,7 +79,7 @@ export class ChatComponent implements OnInit {
     receiverId: this.senderId
   });
 
-  // ➕ 5 másodpercenként figyeljük, ha van olvasatlan
+  // + 5 másodpercenként figyeljük, ha van olvasatlan
   setInterval(() => {
     const hasUnread = this.messages.some(msg =>
       msg.senderId === this.receiverId && !msg.read
