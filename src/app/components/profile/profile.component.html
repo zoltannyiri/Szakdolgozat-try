@@ -62,6 +62,7 @@
         <!-- Üzenetküldő gomb -->
         <div *ngIf="!isCurrentUser" class="flex justify-center mb-6">
           <button
+            (click)="startChatWithUser()"
             class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-5 py-2 rounded-full shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
             <i class="bi bi-chat-dots-fill mr-2"></i> Üzenet küldése
           </button>

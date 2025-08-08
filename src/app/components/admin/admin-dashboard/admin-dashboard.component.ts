@@ -34,7 +34,8 @@ export class AdminDashboardComponent implements OnInit {
     loops: 0,
     comments: 0,
     downloads: 0,
-    likes: 0
+    likes: 0,
+    activeUsers: 0
   };
 
   public chartOptions: ChartOptions = {
@@ -114,6 +115,37 @@ export class AdminDashboardComponent implements OnInit {
       console.error('Heti statisztika hiba:', err);
     }
   });
+  // Heti regisztrációk
+this.http.get<any>(`${environment.apiUrl}/api/admin/stats/weekly-registrations`, {
+  headers: { Authorization: `Bearer ${token}` }
+}).subscribe({
+  next: (res) => {
+    if (res.success) {
+      const reg = res.data;
+      this.userChartOptions = {
+        series: [{
+          name: 'Új regisztrációk',
+          data: Object.values(reg).map(val => Number(val))
+        }],
+        chart: {
+          type: 'line',
+          height: 300
+        },
+        title: {
+          text: 'Heti regisztrációk',
+          align: 'left'
+        },
+        xaxis: {
+          categories: Object.keys(reg).map(d => this.formatDateLabel(d))
+        }
+      };
+    }
+  },
+  error: (err) => {
+    console.error('Heti regisztráció statisztika hiba:', err);
+  }
+});
+
 }
 
 // Pl. "2025-06-14" -> "Jún 14"
@@ -129,4 +161,24 @@ formatDateLabel(dateString: string): string {
   goTo(section: 'users' | 'loops' | 'comments') {
     this.router.navigate([`/admin/${section}`]);
   }
+
+
+  public userChartOptions: ChartOptions = {
+  series: [{
+    name: 'Új regisztrációk',
+    data: []
+  }],
+  chart: {
+    type: 'line',
+    height: 300
+  },
+  title: {
+    text: 'Heti regisztrációk',
+    align: 'left'
+  },
+  xaxis: {
+    categories: []
+  }
+};
+
 } 

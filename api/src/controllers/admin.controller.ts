@@ -126,3 +126,60 @@ export const getWeeklyUploads = async (req: Request, res: Response) => {
   }
 };
 
+// Összes loop lekérése adminnak
+export const getAllLoops = async (req: Request, res: Response) => {
+  try {
+    const loops = await Loop.find()
+      .populate("uploader", "username") // feltéve, hogy a Loop modellben van ilyen mező
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ success: true, loops });
+  } catch (error) {
+    console.error("Hiba a loopok lekérésekor:", error);
+    res.status(500).json({ success: false, message: "Szerver hiba" });
+  }
+};
+
+export const getAllLoopsForAdmin = async (req: Request, res: Response) => {
+  try {
+    const loops = await Loop.find()
+      .populate('uploader', 'username')
+      .sort({ uploadDate: -1 })
+      .lean(); // konvertál sima objektumra
+
+    const formatted = loops.map((loop: any) => ({
+      _id: loop._id,
+      title: loop.filename ?? 'Ismeretlen',
+      username: loop.uploader?.username || 'Ismeretlen',
+      createdAt: loop.uploadDate ?? new Date(),
+      likes: loop.likes ?? 0,
+      downloads: loop.downloads ?? 0
+    }));
+
+    res.status(200).json({ success: true, loops: formatted });
+  } catch (error) {
+    console.error('Loop lekérés hiba:', error);
+    res.status(500).json({ success: false, message: 'Loopok betöltése sikertelen.' });
+  }
+};
+
+
+
+
+export const deleteLoopById = async (req: Request, res: Response) => {
+  try {
+    const loopId = req.params.id;
+    const deletedLoop = await Loop.findByIdAndDelete(loopId);
+
+    if (!deletedLoop) {
+      return res.status(404).json({ success: false, message: 'Loop nem található.' });
+    }
+
+    res.json({ success: true, message: 'Loop sikeresen törölve.' });
+  } catch (error) {
+    console.error('[deleteLoopById] Hiba a törlés során:', error);
+    res.status(500).json({ success: false, message: 'Szerverhiba a loop törlésekor.' });
+  }
+};
+
+

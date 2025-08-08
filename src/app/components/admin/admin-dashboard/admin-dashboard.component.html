@@ -1,40 +1,57 @@
+<!-- JAVÍTOTT admin-dashboard.component.html -->
 <h1 class="text-2xl font-bold mb-6 text-gray-800">Admin Dashboard</h1>
 
-    <!-- STAT BOXOK -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('users')">
-        <h2 class="text-sm text-gray-500">Felhasználók</h2>
-        <p class="text-3xl font-bold text-indigo-600 mt-2">{{ stats.users }}</p>
-      </div>
+<!-- STAT BOXOK -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('users')">
+    <h2 class="text-sm text-gray-500">Felhasználók</h2>
+    <p class="text-3xl font-bold text-indigo-600 mt-2">{{ stats.users }}</p>
+  </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('loops')">
-        <h2 class="text-sm text-gray-500">Feltöltött loopok</h2>
-        <p class="text-3xl font-bold text-blue-600 mt-2">{{ stats.loops }}</p>
-      </div>
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('loops')">
+    <h2 class="text-sm text-gray-500">Feltöltött loopok</h2>
+    <p class="text-3xl font-bold text-blue-600 mt-2">{{ stats.loops }}</p>
+  </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('comments')">
-        <h2 class="text-sm text-gray-500">Kommentek</h2>
-        <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.comments }}</p>
-      </div>
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('comments')">
+    <h2 class="text-sm text-gray-500">Kommentek</h2>
+    <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.comments }}</p>
+  </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105">
-        <h2 class="text-sm text-gray-500">Letöltések</h2>
-        <p class="text-3xl font-bold text-yellow-500 mt-2">{{ stats.downloads }}</p>
-      </div>
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
+    <h2 class="text-sm text-gray-500">Letöltések</h2>
+    <p class="text-3xl font-bold text-yellow-500 mt-2">{{ stats.downloads }}</p>
+  </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105">
-        <h2 class="text-sm text-gray-500">Like-ok</h2>
-        <p class="text-3xl font-bold text-pink-500 mt-2">{{ stats.likes }}</p>
-      </div>
-    </div>
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
+    <h2 class="text-sm text-gray-500">Like-ok</h2>
+    <p class="text-3xl font-bold text-pink-500 mt-2">{{ stats.likes }}</p>
+  </div>
 
-    <!-- GRAFIKON -->
-    <div class="bg-white rounded-2xl shadow-lg p-6">
-      <h2 class="text-lg font-semibold text-gray-700 mb-4">Aktivitási statisztika</h2>
-      <apx-chart
-        [series]="chartOptions.series"
-        [chart]="chartOptions.chart"
-        [title]="chartOptions.title"
-        [xaxis]="chartOptions.xaxis">
-      </apx-chart>
-    </div>
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
+    <h2 class="text-sm text-gray-500">Aktív felhasználók (live)</h2>
+    <p class="text-3xl font-bold text-lime-600 mt-2">{{ stats.activeUsers || 0 }}</p>
+  </div>
+</div>
+
+<!-- GRAFIKON: Heti loop feltöltés -->
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+  <h2 class="text-lg font-semibold text-gray-700 mb-4">Heti loop feltöltések</h2>
+  <apx-chart
+    [series]="chartOptions.series"
+    [chart]="chartOptions.chart"
+    [title]="chartOptions.title"
+    [xaxis]="chartOptions.xaxis">
+  </apx-chart>
+</div>
+
+<!-- GRAFIKON: Heti regisztrációk -->
+<div class="bg-white rounded-2xl shadow-lg p-6">
+  <h2 class="text-lg font-semibold text-gray-700 mb-4">Heti regisztrációk</h2>
+  <apx-chart
+    [series]="userChartOptions.series"
+    [chart]="userChartOptions.chart"
+    [title]="userChartOptions.title"
+    [xaxis]="userChartOptions.xaxis">
+  </apx-chart>
+</div>
