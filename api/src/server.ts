@@ -23,6 +23,8 @@ import { Server as SocketIOServer } from 'socket.io';
 import chatRoutes from './routes/chat.routes';
 import multer from 'multer';
 import adminRoutes from './routes/admin.routes';
+import profileRoutes from "./routes/profile.routes";
+
 
 
 
@@ -158,63 +160,63 @@ interface DecodedToken {
     user: any;
 }
 
-app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
-    try {
-      const userId = req.user.userId;
-      const user = await User.findById(userId).select("-password");
+// app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
+//     try {
+//       const userId = req.user.userId;
+//       const user = await User.findById(userId).select("-password");
   
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+//       if (!user) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
   
-      return res.json({ user });
-    } catch (error) {
-      console.log("Error fetching profile:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  });
+//       return res.json({ user });
+//     } catch (error) {
+//       console.log("Error fetching profile:", error);
+//       res.status(500).json({ message: "Server error" });
+//     }
+//   });
 
 
-  //létrehozva: 03. 24. 
-  app.get("/api/profile/:username", async (req: CustomRequest, res: Response) => {
-    try {
-      const { username } = req.params;  // Az URL-ben szereplő felhasználónév
-      const user = await User.findOne({ username }).select("-password");  // Megkeressük a felhasználót
+  // //létrehozva: 03. 24. 
+  // app.get("/api/profile/:username", async (req: CustomRequest, res: Response) => {
+  //   try {
+  //     const { username } = req.params;  // Az URL-ben szereplő felhasználónév
+  //     const user = await User.findOne({ username }).select("-password");  // Megkeressük a felhasználót
   
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+  //     if (!user) {
+  //       return res.status(404).json({ message: "User not found" });
+  //     }
   
-      return res.json({ user });
-    } catch (error) {
-      console.log("Error fetching profile:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  });
+  //     return res.json({ user });
+  //   } catch (error) {
+  //     console.log("Error fetching profile:", error);
+  //     res.status(500).json({ message: "Server error" });
+  //   }
+  // });
 
-  // A PUT végpont hozzáadása (aboutme miatt)
-app.put("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
-  try {
-    const { aboutMe } = req.body;  // A frissített adat
-    const userId = req.user.userId;  // A bejelentkezett felhasználó ID-ja
+//   // A PUT végpont hozzáadása (aboutme miatt)
+// app.put("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
+//   try {
+//     const { aboutMe } = req.body;  // A frissített adat
+//     const userId = req.user.userId;  // A bejelentkezett felhasználó ID-ja
 
-    // A felhasználó keresése ID alapján
-    const user = await User.findById(userId);
+//     // A felhasználó keresése ID alapján
+//     const user = await User.findById(userId);
     
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    // A felhasználó adatainak frissítése
-    user.aboutMe = aboutMe;
-    await user.save();  // Az adatok mentése
+//     // A felhasználó adatainak frissítése
+//     user.aboutMe = aboutMe;
+//     await user.save();  // Az adatok mentése
 
-    return res.json({ message: "Profile updated successfully", user });
-  } catch (error) {
-    console.log("Error updating profile:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+//     return res.json({ message: "Profile updated successfully", user });
+//   } catch (error) {
+//     console.log("Error updating profile:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
 
 
 //avatar feltöltés, 05.31.
@@ -381,21 +383,21 @@ app.put('/api/notifications/read-all', authenticateToken, async (req: CustomRequ
 //     // });
 // }
 
-app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
-    try{
-        const userId = req.user.userId;
-        const user = await User.findById(userId).select("-password");
+// app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
+//     try{
+//         const userId = req.user.userId;
+//         const user = await User.findById(userId).select("-password");
 
-        if (!user){
-            return res.status(404).json({ message: "User not found" });
-        }
-        console.log(user.username)
-        return res.json({ user });
-    } catch (error){
-        console.log("Error fetching profile:", error);
-        res.status(500).json({ message: "Server error" });
-    }
-});
+//         if (!user){
+//             return res.status(404).json({ message: "User not found" });
+//         }
+//         console.log(user.username)
+//         return res.json({ user });
+//     } catch (error){
+//         console.log("Error fetching profile:", error);
+//         res.status(500).json({ message: "Server error" });
+//     }
+// });
 
 
 app.get('/api/validate-token', authenticateToken, async (req: CustomRequest, res: Response) => {
@@ -520,6 +522,7 @@ io.on('connection', (socket) => {
 
 app.use('/api', chatRoutes);
 
+app.use("/api/profile", profileRoutes);
 
 
 
@@ -527,7 +530,7 @@ app.use('/api', chatRoutes);
 
 
 // feltöltés
-app.use("/api", loopRoutes);
+// app.use("/api", loopRoutes);
 // Loop routes közvetlenül a server.ts-ben
 app.use("/api", loopRoutes);  // "/api/upload", "/api/loops" stb. lesz az útvonal
 
@@ -566,7 +569,6 @@ app._router.stack.forEach((r: any) => {
 
 
 console.log("Registering admin routes...");
-app.use('/api/admin', adminRoutes);
 console.log("Admin routes registered");
 // app.use('/api', adminRoutes);
 // app.use('/api/admin/users', adminRoutes);

@@ -80,6 +80,65 @@ export const validateUser = (req: Request, res: Response, next: NextFunction) =>
     });
 };
 
+
+// Általános profil adatok (nem módosít e-mailt/jelszót!)
+const generalProfileSchema = yup.object({
+  firstName: yup.string().max(50),
+  lastName: yup.string().max(50),
+  country: yup.string().max(50),
+  city: yup.string().max(50),
+  aboutMe: yup.string().max(1000)
+});
+
+export const validateGeneralProfile = (req: Request, res: Response, next: NextFunction) => {
+  generalProfileSchema
+    .validate(req.body, { abortEarly: false })
+    .then(() => next())
+    .catch((err: yup.ValidationError) => {
+      const errors = err.inner.reduce((acc: Record<string, string>, error) => {
+        if (error.path) acc[error.path] = error.message;
+        return acc;
+      }, {});
+      res.status(400).json({ success: false, message: "Validation failed", errors });
+    });
+};
+
+const emailChangeSchema = yup.object({
+  newEmail: yup.string().email("Invalid email format").required("New email is required"),
+  password: yup.string().required("Password is required")
+});
+
+export const validateEmailChange = (req: Request, res: Response, next: NextFunction) => {
+  emailChangeSchema
+    .validate(req.body, { abortEarly: false })
+    .then(() => next())
+    .catch((err: yup.ValidationError) => {
+      const errors = err.inner.reduce((acc: Record<string, string>, error) => {
+        if (error.path) acc[error.path] = error.message;
+        return acc;
+      }, {});
+      res.status(400).json({ success: false, message: "Validation failed", errors });
+    });
+};
+
+const passwordChangeSchema = yup.object({
+  currentPassword: yup.string().required("Current password is required"),
+  newPassword: yup.string().min(6).max(50).required("New password is required")
+});
+
+export const validatePasswordChange = (req: Request, res: Response, next: NextFunction) => {
+  passwordChangeSchema
+    .validate(req.body, { abortEarly: false })
+    .then(() => next())
+    .catch((err: yup.ValidationError) => {
+      const errors = err.inner.reduce((acc: Record<string, string>, error) => {
+        if (error.path) acc[error.path] = error.message;
+        return acc;
+      }, {});
+      res.status(400).json({ success: false, message: "Validation failed", errors });
+    });
+};
+
 // Loop metaadatok validációja
 export const validateLoopMetadata = (req: Request, res: Response, next: NextFunction) => {
   try {
