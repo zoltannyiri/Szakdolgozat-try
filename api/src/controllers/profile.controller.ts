@@ -1,4 +1,3 @@
-// profile.controller.ts
 import { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";

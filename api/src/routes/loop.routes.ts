@@ -1,4 +1,3 @@
-// loop.routes.ts
 import { Router } from "express";
 import { uploadLoop, getLoops, downloadLoop, getLoopById } from "../controllers/loop.controller";
 import { addComment, getCommentsForLoop } from "../controllers/comment.controller";

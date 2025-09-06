@@ -1,4 +1,3 @@
-// src/app/components/admin/admin-reports/admin-reports.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';

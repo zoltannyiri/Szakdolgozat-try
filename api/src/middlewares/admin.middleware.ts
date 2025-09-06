@@ -1,4 +1,3 @@
-// middlewares/admin.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/user.model';
 import { CustomRequest } from './auth.middleware';

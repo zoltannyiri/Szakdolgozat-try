@@ -1,4 +1,3 @@
-// chat.routes.ts
 import express, { Request } from 'express';
 import { authenticateToken, CustomRequest } from '../middlewares/auth.middleware';
 import { ChatModel } from '../models/chat.model';

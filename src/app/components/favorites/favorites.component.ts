@@ -1,4 +1,3 @@
-// components/favorites/favorites.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FavoriteService } from '../../services/favorite.service';
 import { LoopService } from '../../services/loop.service';

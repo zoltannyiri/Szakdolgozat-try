@@ -1,4 +1,3 @@
-// api/src/routes/report.routes.ts
 import { Router } from 'express';
 import { authenticateToken } from '../middlewares/auth.middleware';
 import { requireAdmin } from '../middlewares/admin.middleware';
