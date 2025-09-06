@@ -12,7 +12,7 @@ import { checkVerified } from '../middlewares/verify.middleware';
 interface AuthenticatedRequest extends Request {
   user?: {
     userId: string;
-    [key: string]: any; // További opcionális mezők
+    [key: string]: any;
   };
 }
 
@@ -23,7 +23,7 @@ export const getCommentsForLoop = async (req: Request, res: Response) => {
     const comments = await Comment.find({ loop: loopId })
       .populate({
         path: 'user',
-        select: 'username profileImage role' // Expliciten kérjük le a szükséges mezőket
+        select: 'username profileImage role'
       })
       .sort({ createdAt: -1 })
       .lean();
@@ -50,7 +50,7 @@ async (req: CustomRequest, res: Response) => {
     const { text } = req.body;
     const userId = req.user?.userId;
 
-    // Ellenőrizzük a felhasználó létezését
+   
     const commentingUser = await User.findById(userId);
     if (!commentingUser) {
       return res.status(404).json({ message: "Felhasználó nem található" });
@@ -64,15 +64,15 @@ async (req: CustomRequest, res: Response) => {
 
     const savedComment = await newComment.save();
     
-    // Populáljuk a kommentet a válaszhoz
+    
     const populatedComment = await Comment.findById(savedComment._id)
       .populate('user', 'username profileImage')
       .lean();
 
-    // Értesítés létrehozása a loop tulajdonosának
+    
     const loop = await Loop.findById(loopId);
 if (loop && loop.uploader.toString() !== userId) {
-  // Ellenőrizzük, hogy a commentingUser létezik és van username-e
+  // van-e username?
   if (commentingUser && commentingUser.username) {
     const notification = new Notification({
       userId: loop.uploader,
@@ -97,3 +97,19 @@ if (loop && loop.uploader.toString() !== userId) {
     res.status(500).json({ message: "Szerver hiba" });
   }
 }];
+
+
+// ADMIN törlés
+export const deleteCommentAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Comment.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ success:false, message: 'Komment nem található' });
+    }
+    res.json({ success:true, message: 'Komment törölve' });
+  } catch (e) {
+    console.error('[deleteCommentAdmin]', e);
+    res.status(500).json({ success:false, message: 'Szerver hiba' });
+  }
+};

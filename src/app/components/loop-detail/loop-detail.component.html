@@ -180,12 +180,12 @@
           <p class="whitespace-pre-wrap text-gray-700 bg-gray-50 p-4 rounded-lg">{{loop.description}}</p>
         </div>
 
-        <!-- Audio lejátszó -->
+        <!-- Lejátszó -->
 <div *ngIf="loop?.path" class="bg-white rounded-2xl p-5 border border-gray-100 shadow-lg hover:shadow-xl transition-shadow">
   <audio #audioPlayer id="loop-audio-player" [src]="getAudioUrl(loop.path)" hidden (play)="onAudioPlay()"
     (pause)="onAudioPause()" (error)="onAudioError(audioPlayer)" (timeupdate)="updateProgress()"></audio>
 
-  <!-- Waveform vizualizáció -->
+  <!-- Waveform -->
   <div class="relative h-28 mb-6 bg-gray-50 rounded-lg overflow-hidden cursor-pointer border border-gray-100"
     (click)="seekAudio($event, true)">
     <!-- Háttér waveform -->
@@ -215,7 +215,6 @@
 
   <!-- Vezérlőelemek -->
   <div class="flex items-center justify-between">
-    <!-- Play/Pause gomb -->
     <button (click)="togglePlay()"
       class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-white transition-all transform hover:scale-105 active:scale-95 shadow-md hover:shadow-emerald-400/30 focus:outline-none">
       <svg xmlns="http://www.w3.org/2000/svg" *ngIf="!isPlaying" class="h-5 w-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
@@ -266,7 +265,7 @@
           </span>
         </div>
 
-        <!-- Nincs komment üzenet -->
+    
         <div *ngIf="comments.length === 0"
           class="text-center py-10 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none"
@@ -299,7 +298,7 @@
                 </div>
               </div>
 
-              <!-- Komment tartalom -->
+              <!-- Komment -->
               <div class="flex-1 min-w-0">
                 <div class="flex items-baseline flex-wrap gap-2">
                   <p class="text-sm font-medium text-gray-900">
@@ -312,6 +311,11 @@
                   <span class="ml-auto text-xs text-gray-500">
                     {{comment.createdAt | date:'yyyy.MM.dd. HH:mm'}}
                   </span>
+                  <button *ngIf="isLoggedIn"
+                          (click)="openReportModal(comment._id)"
+                          class="ml-2 text-xs px-2 py-1 rounded bg-red-50 text-red-700 hover:bg-red-100 transition">
+                    Jelentem
+                  </button>
                 </div>
                 <p class="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
                   {{comment.text}}
@@ -350,7 +354,37 @@
           </div>
         </div>
 
-        <!-- Bejelentkezés prompt -->
+                <!-- Rreport -->
+        <div *ngIf="isReportModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            (click)="closeReportModal($event)">
+          <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6" (click)="$event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">Komment jelentése</h3>
+              <button (click)="isReportModalOpen=false" class="p-2 rounded hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 5.71 12 12.01l-6.29-6.3-1.42 1.42 6.3 6.29-6.3 6.29 1.42 1.42 6.29-6.3 6.29 6.3 1.42-1.42-6.3-6.29 6.3-6.29z"/></svg>
+              </button>
+            </div>
+
+            <p class="text-sm text-gray-600 mb-3">Kérlek írd le röviden, mi a probléma ezzel a kommenttel.</p>
+            <textarea [(ngModel)]="reportReason" rows="5" maxlength="1000"
+                      class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-400"
+                      placeholder="Részletek..."></textarea>
+
+            <div *ngIf="reportError" class="mt-2 text-sm text-red-600">{{reportError}}</div>
+            <div *ngIf="reportSuccess" class="mt-2 text-sm text-green-600">{{reportSuccess}}</div>
+
+            <div class="mt-4 flex justify-end gap-2">
+              <button (click)="isReportModalOpen=false" class="px-4 py-2 rounded border hover:bg-gray-50">Mégse</button>
+              <button (click)="submitReport()" [disabled]="isReporting || !reportReason.trim()"
+                      class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
+                {{ isReporting ? 'Küldés...' : 'Jelentés elküldése' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Bejelentkezés -->
         <div *ngIf="!isLoggedIn" class="mt-8 pt-6 border-t border-gray-200">
           <div class="bg-purple-50 p-5 rounded-lg text-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-purple-600" fill="none"

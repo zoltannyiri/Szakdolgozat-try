@@ -43,10 +43,19 @@
         </svg>
         Comments
       </a>
+      <a routerLink="/admin/reports"
+        class="flex items-center gap-3 px-4 py-2 rounded hover:bg-indigo-500 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 7h18M3 12h18M3 17h18"></path>
+        </svg>
+        Reports
+      </a>
     </nav>
   </aside>
 
-  <!-- Main Content -->
+ 
   <main class="flex-1 p-6 bg-gray-100">
     <router-outlet></router-outlet>
   </main>

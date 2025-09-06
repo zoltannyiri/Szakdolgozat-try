@@ -34,7 +34,15 @@ export class LoopDetailComponent implements OnInit {
   isAddingComment: boolean = false;
   errorMessage: string = '';
 
-  // Audio player state
+
+  isReportModalOpen = false;
+  reportTargetCommentId: string | null = null;
+  reportReason = '';
+  isReporting = false;
+  reportError = '';
+  reportSuccess = '';
+
+
   isPlaying = false;
   progress = 0;
   currentTime = 0;
@@ -95,7 +103,7 @@ export class LoopDetailComponent implements OnInit {
     this.location.back();
   }
 
-  // A loadLoop metódus módosítása
+
   loadLoop(id: string): void {
     this.isLoading = true;
     this.loopService.getLoopById(id).subscribe({
@@ -171,7 +179,7 @@ export class LoopDetailComponent implements OnInit {
     });
   }
 
-  // ... rest of the methods remain the same ...
+
   loadComments(): void {
     if (!this.loop?._id) return;
     
@@ -231,7 +239,7 @@ export class LoopDetailComponent implements OnInit {
     return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
   }
 
-  // Audio player methods
+
   togglePlay(): void {
     const audio = this.audioPlayer.nativeElement;
     
@@ -349,23 +357,22 @@ export class LoopDetailComponent implements OnInit {
     const audioUrl = this.getAudioUrl(this.loop.path);
     if (!audioUrl) return;
 
-    // Load audio file
+
     const response = await fetch(audioUrl);
     const arrayBuffer = await response.arrayBuffer();
     
-    // Create audio context
+ 
     const audioContext = new AudioContext();
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    
-    // Get channel data (first channel)
+ 
     const channelData = audioBuffer.getChannelData(0);
     const samples = channelData.length;
     
-    // Create waveform data
+
     const waveform = [];
-    const samplesPerPixel = Math.floor(samples / 200); // We'll use 200 bars for better detail
+    const samplesPerPixel = Math.floor(samples / 200);
     
-    // Analyze audio data
+
     for (let i = 0; i < 200; i++) {
       const start = Math.floor(i * samplesPerPixel);
       const end = Math.min(start + samplesPerPixel, samples);
@@ -379,24 +386,24 @@ export class LoopDetailComponent implements OnInit {
         if (value > peak) peak = value;
       }
       
-      // Calculate RMS (root mean square) for better visualization
+    
       const rms = Math.sqrt(sum / (end - start));
       
-      // Combine peak and RMS for more interesting visualization
+      
       const combinedValue = (peak * 0.7 + rms * 0.3) * 1.5;
       
-      // Scale to 0-100 range
+
       const scaledValue = Math.min(100, Math.floor(combinedValue * 150));
       waveform.push(scaledValue);
     }
     
     this.waveform = waveform;
     
-    // Close audio context
+    
     await audioContext.close();
   } catch (error) {
     console.error('Waveform generation error:', error);
-    // Fallback to random waveform if analysis fails
+    
     this.waveform = Array.from({length: 200}, () => Math.floor(Math.random() * 30) + 10);
   }
 }
@@ -498,7 +505,7 @@ toggleLike(): void {
   }
 
   // favoriteStatus: { [key: string]: boolean } = {};
-  favoriteLoops: ILoop[] = []; // Opcionális, ha listát is szeretnénk kezelni
+  favoriteLoops: ILoop[] = [];
 
   toggleFavorite(loop: ILoop): void {
   const userId = this.authService.getUserId();
@@ -511,7 +518,7 @@ toggleLike(): void {
     this.favoriteService.removeFavorite(loop._id).subscribe({
       next: () => {
         this.favoriteStatus[loop._id] = false;
-        // Frissítsük a lokális listát is, ha szükséges
+       
         if (this.favoriteLoops) {
           this.favoriteLoops = this.favoriteLoops.filter(l => l._id !== loop._id);
         }
@@ -522,7 +529,7 @@ toggleLike(): void {
     this.favoriteService.addFavorite(loop._id).subscribe({
       next: () => {
         this.favoriteStatus[loop._id] = true;
-        // Frissítsük a lokális listát is, ha szükséges
+       
         if (this.favoriteLoops && this.loop) {
           this.favoriteLoops.unshift(this.loop);
         }
@@ -530,6 +537,42 @@ toggleLike(): void {
       error: (err) => console.error('Error adding favorite:', err)
     });
   }
+}
+
+//report 
+openReportModal(commentId: string) {
+  if (!this.isLoggedIn) { this.handleLogin(); return; }
+  this.reportTargetCommentId = commentId;
+  this.reportReason = '';
+  this.reportError = '';
+  this.reportSuccess = '';
+  this.isReportModalOpen = true;
+}
+
+closeReportModal(event?: Event) {
+  if (event && (event.target as HTMLElement).classList.contains('bg-black/50')) {
+    this.isReportModalOpen = false;
+  }
+}
+
+submitReport() {
+  if (!this.reportTargetCommentId || !this.reportReason.trim()) return;
+  this.isReporting = true;
+  this.reportError = '';
+  this.reportSuccess = '';
+
+  this.commentService.reportComment(this.reportTargetCommentId, this.reportReason.trim()).subscribe({
+    next: () => {
+      this.isReporting = false;
+      this.reportSuccess = 'Köszönjük! A jelentést megkaptuk.';
+      setTimeout(() => { this.isReportModalOpen = false; }, 900);
+    },
+    error: (err) => {
+      console.error('[report] error:', err);
+      this.isReporting = false;
+      this.reportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
+    }
+  });
 }
 
 //   //favorite

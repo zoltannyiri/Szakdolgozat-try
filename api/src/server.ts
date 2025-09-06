@@ -24,6 +24,7 @@ import chatRoutes from './routes/chat.routes';
 import multer from 'multer';
 import adminRoutes from './routes/admin.routes';
 import profileRoutes from "./routes/profile.routes";
+import reportRoutes from './routes/report.routes';
 
 
 
@@ -97,60 +98,11 @@ server.listen(PORT, () => {
 //     }
 // });
 
-app.use("/api", registerRoutes); //ird át authra
+app.use("/api", registerRoutes); 
 
 app.use("/api", loginRoutes);
 
-// törölve mert átraktam a login.controllerbe
-// app.post("/api/login", async (req, res) => {
-//     try{
-//         const { username, password } = req.body;
-//         const user = await User.findOne({ username });
 
-//         if (!user){
-//             return res.status(400).json({ message: "Invalid login credentials" });
-//         }
-
-//         const isMatch = await bcrypt.compare(password, user.password);
-//         if (!isMatch){
-//             return res.status(400).json({ message: "Invalid login credentials" });
-//         }
-
-//         const token = jwt.sign({
-//             userId: user._id,
-//             email: user.email,
-//         }, process.env.JWT_SECRET as string, {
-//             expiresIn: "1h",
-//         });
-        
-//         res.json({ token, user: {email: user.email} });
-//     }
-//     catch (error) {
-//         console.error("Registration error:", error);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// });
-
-
-// function authenticateToken(req, res, next){
-//     const authHeader = req.headers["authorization"];
-//     const token = authHeader && authHeader.split(" ")[1];
-//     if (!token) return res.sendStatus(401).json({ message: "No token provided, authorization denied"});
-
-//     try{
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-//         req.user = decoded;
-//         next();
-
-//     }catch (error){
-//         return res.status(403).json({ message: "Invalid or expired token"});
-
-//     jwt.verify(token, process.env.JWT_SECRET as string, (err, user) => {
-//         if (err) return res.sendStatus(403);
-//         req.user = user;
-//         next();
-//     });
-// } ezalatti ugyanez .ts-ben átírva és kikegészítve?
 
 interface CustomRequest extends Request {
     user?: any;
@@ -433,7 +385,7 @@ app.get('/api/verify-email', async (req: Request, res: Response) => {
       });
     }
 
-    // Módosított rész: $unset operátor használata
+
     user.isVerified = true;
     await user.updateOne({
       $unset: {
@@ -514,7 +466,6 @@ io.on('connection', (socket) => {
     { $set: { read: true } }
   );
 
-  // Küldj vissza jelet a küldőnek
   io.to(senderId).emit('messagesReadByReceiver', { by: receiverId });
   });
 
@@ -559,13 +510,18 @@ app.use("/api", favoriteRoutes);
 
 //ADMIN
 app.use('/api/admin', adminRoutes);
-// Útvonalak listázása debug célból
+
 console.log("Available routes:");
 app._router.stack.forEach((r: any) => {
   if (r.route && r.route.path) {
     console.log(`${Object.keys(r.route.methods)[0].toUpperCase()} ${r.route.path}`);
   }
 });
+
+
+//REPORT
+app.use('/api/reports', reportRoutes);
+app.use('/api', reportRoutes);
 
 
 console.log("Registering admin routes...");

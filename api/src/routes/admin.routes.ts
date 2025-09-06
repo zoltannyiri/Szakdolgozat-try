@@ -2,12 +2,17 @@ import express from 'express';
 import { authenticateToken } from '../middlewares/auth.middleware';
 import { requireAdmin } from '../middlewares/admin.middleware';
 import User from '../models/user.model';
-import { getAdminStats } from '../controllers/admin.controller';
+import { getAdminStats, getWeeklyRegistrations, getWeeklyUploads } from '../controllers/admin.controller';
 import Loop from '../models/loop.model';
 
 import { getAllUsers, deleteUserById } from '../controllers/admin.controller';
 import { getAllLoops } from '../controllers/admin.controller';
 import { getAllLoopsForAdmin, deleteLoopById } from '../controllers/admin.controller';
+// import { getAllReports, updateReportStatus } from '../controllers/report.controller';
+import { deleteCommentAdmin } from '../controllers/comment.controller';
+import { listReports, setReportStatus } from '../controllers/report.controller';
+
+
 
 const router = express.Router();
 
@@ -33,8 +38,17 @@ const router = express.Router();
 router.get("/", authenticateToken, requireAdmin, getAllUsers);
 // router.delete('/users/:id', authenticateToken, requireAdmin, deleteUserById);
 router.get("/stats", authenticateToken, requireAdmin, getAdminStats);
+router.get('/stats/weekly-uploads', authenticateToken, requireAdmin, getWeeklyUploads);
+router.get('/stats/weekly-registrations', authenticateToken, requireAdmin, getWeeklyRegistrations);
 router.get('/loops', authenticateToken, requireAdmin, getAllLoopsForAdmin);
 router.delete('/loops/:id', authenticateToken, requireAdmin, deleteLoopById);
+router.delete('/comments/:id', authenticateToken, requireAdmin, deleteCommentAdmin);
+
+router.get('/admin/stats', authenticateToken, requireAdmin, getAdminStats);
+router.get('/admin/stats/weekly-uploads', authenticateToken, requireAdmin, getWeeklyUploads);
+
+router.get('/admin/reports', authenticateToken, requireAdmin, listReports);
+router.patch('/admin/reports/:id/status', authenticateToken, requireAdmin, setReportStatus);
 
 // Egy loop részleteinek lekérése
 router.get('/loops/:id', authenticateToken,requireAdmin, async (req, res) => {

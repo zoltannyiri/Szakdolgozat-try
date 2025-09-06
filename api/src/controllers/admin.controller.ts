@@ -106,7 +106,7 @@ export const getWeeklyUploads = async (req: Request, res: Response) => {
       }
     ]);
 
-    // Megtöltjük nullákkal a napokat, ha nincs feltöltés
+    // hiányzó napokon 0
     const result: Record<string, number> = {};
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
@@ -126,11 +126,48 @@ export const getWeeklyUploads = async (req: Request, res: Response) => {
   }
 };
 
+export const getWeeklyRegistrations = async (req: Request, res: Response) => {
+  try {
+    // utolsó 7 nap
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 6);
+    oneWeekAgo.setHours(0, 0, 0, 0);
+
+    const data = await User.aggregate([
+      { $match: { createdAt: { $gte: oneWeekAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // hiányzó napokon 0
+    const result: Record<string, number> = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().split("T")[0];
+      result[key] = 0;
+    }
+    for (const item of data) {
+      result[item._id] = item.count;
+    }
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("getWeeklyRegistrations error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 // Összes loop lekérése adminnak
 export const getAllLoops = async (req: Request, res: Response) => {
   try {
     const loops = await Loop.find()
-      .populate("uploader", "username") // feltéve, hogy a Loop modellben van ilyen mező
+      .populate("uploader", "username")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, loops });
@@ -145,7 +182,7 @@ export const getAllLoopsForAdmin = async (req: Request, res: Response) => {
     const loops = await Loop.find()
       .populate('uploader', 'username')
       .sort({ uploadDate: -1 })
-      .lean(); // konvertál sima objektumra
+      .lean(); 
 
     const formatted = loops.map((loop: any) => ({
       _id: loop._id,

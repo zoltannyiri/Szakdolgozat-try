@@ -1,131 +1,231 @@
-// .no-underline{
-//     text-decoration: none;
-// }
-a{
-    text-decoration: none;
-    cursor: pointer;
-    transition: .3s ease-out;
-
-    &:hover{
-        letter-spacing: .04rem;
-        transition: .3s ease;
-        color: oklch(0.511 0.262 276.966) !important;
-    }
+a {
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.25s ease;
 }
 
-.notification-panel {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    
-    .notification-item {
-      transition: background-color 0.2s ease;
-      
-      &:hover {
-        background-color: #f9fafb;
-      }
-      
-      &.unread {
-        background-color: #f3f4f6;
-      }
-    }
-  }
+
+.nav-pill {
+  padding: 0.5rem 0.75rem;               
+  border-radius: 9999px;                 
+  color: #334155;                        
+  font-weight: 500;                      
+  transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+.nav-pill:hover {
+  color: #4338ca;                        
+  background-color: rgba(238, 242, 255, .8); 
+}
+.nav-pill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, .4);  
+}
+.is-active {
+  background-color: #4f46e5;             
+  color: #ffffff;                         
+}
+.is-active:hover {
+  background-color: rgba(79, 70, 229, .9);
+  color: #ffffff;
+}
+
+/* Gombok */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;                
+  border-radius: 9999px;
+  color: #ffffff;
+  background-color: #4f46e5;            
+  transition: background-color .2s ease, box-shadow .2s ease;
+}
+.btn-primary:hover { background-color: #4338ca; }  
+.btn-primary:active { background-color: #3730a3; } 
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, .4);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;                  
+  border-radius: 9999px;
+  background-color: #f8fafc;            
+  color: #0f172a;                       
+  transition: background-color .2s ease, box-shadow .2s ease;
+}
+.btn-ghost:hover { background-color: #f1f5f9; }   
+.btn-ghost:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, .4); 
+}
 
 
-  /* Értesítési panel testreszabása */
+.icon-btn {
+  position: relative;
+  padding: 0.5rem;                       
+  border-radius: 9999px;
+  transition: background-color .2s ease, box-shadow .2s ease;
+}
+.icon-btn:hover { background-color: #f1f5f9; }      
+.icon-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, .4);
+}
+.badge {
+  position: absolute;
+  top: -4px;                              
+  right: -4px;                             
+  background-color: #dc2626;               
+  color: #ffffff;
+  font-size: 10px;                         
+  line-height: 1;
+  border-radius: 9999px;
+  height: 20px;                         
+  min-width: 20px;                        
+  padding: 0 6px;                          
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,.12);
+}
+
+
+.dropdown-panel {
+  position: absolute;
+  margin-top: 0.5rem;                     
+  background-color: #ffffff;
+  border-radius: 1rem;                     
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+  border: 1px solid #e2e8f0;              
+  overflow: hidden;
+  animation: fade-in-down .25s ease-out both;
+  z-index: 50;
+}
+.panel-header {
+  padding: 1rem;                         
+  border-bottom: 1px solid #e2e8f0;       
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.icon-x {
+  color: #64748b;                         
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  transition: background-color .2s ease, color .2s ease;
+}
+.icon-x:hover {
+  background-color: #f1f5f9;               
+  color: #334155;                       
+}
+
+/* Chat lista elem */
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;                           
+  padding: 0.75rem 1rem;                 
+  transition: background-color .2s ease, transform .2s ease;
+  cursor: pointer;
+}
+.chat-item:hover { background-color: #f8fafc; }    
+
+
 .notification-panel {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  
-  /* Egyedi görgetősáv */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 10px;
-  }
 }
+.notification-panel::-webkit-scrollbar { width: 6px; }
+.notification-panel::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.notification-panel::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
 
-/* Értesítés elem hover effekt */
 .notification-item {
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translateX(2px);
-  }
+  transition: transform .2s ease, background-color .2s ease;
 }
+.notification-item:hover { transform: translateX(2px); }
 
-/* Olvasatlan értesítés kiemelése */
-.unread-notification {
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: #3b82f6;
-    border-radius: 3px 0 0 3px;
-  }
+
+.unread-notification { position: relative; }
+.unread-notification::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: #3b82f6;                   
+  border-radius: 3px 0 0 3px;
 }
 
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.menu-item {
+  display: flex;                 
+  align-items: center;
+  gap: 8px;                     
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #0f172a;             
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+.menu-item:hover { background: #f1f5f9; }      
+.menu-item:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(148,163,184,.4);  
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
+
+.menu-item i {
+
+  font-family: "bootstrap-icons" !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+
+  margin-right: 8px;
+
+  font-size: 1rem;
 }
 
 
+.menu-item.text-red-600 { color: #dc2626; }
+.menu-item.text-red-600:hover { color: #b91c1c; }
+
+
+.dropdown-panel.right-0.w-56.mt-2.p-2 { padding: 8px; }
+
+.nav-pill i,
+.mobile-item i,
+.icon-btn i {
+  font-family: "bootstrap-icons" !important;
+  font-style: normal;
+  margin-right: 6px;  
+}
+
+
+
+.mobile-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;               
+  border-radius: 0.5rem;                   
+  color: #0f172a;                         
+  transition: background-color .2s ease, color .2s ease;
+}
+.mobile-item:hover { background-color: #f1f5f9; }    
+.mobile-item:active { background-color: #e5e7eb; }   
+
+/* Belépő animációk */
 @keyframes fade-in-down {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-.animate-fade-in-down {
-  animation: fade-in-down 0.25s ease-out;
-}
-
-
-// styles.scss vagy komponens.scss
-// .sidenav-overlay {
-//     background-color: rgba(0, 0, 0, 0.5);
-//     backdrop-filter: blur(4px); // Opcionális, de javítja a megjelenést
-//   }
-  
-//   .sidenav-container {
-//     position: fixed;
-//     right: 0;
-//     top: 0;
-//     height: 100vh;
-//     width: 300px;
-//     background-color: white;
-//     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-//     transform: translateX(100%);
-//     transition: transform 0.3s ease-in-out;
-//   }
-  
-//   .sidenav-container.active {
-//     transform: translateX(0);
-//   }
+.animate-fade-in-down { animation: fade-in-down .25s ease-out both; } 

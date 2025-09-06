@@ -15,6 +15,7 @@ import { AdminDashboardComponent } from './components/admin/admin-dashboard/admi
 import { AdminUsersComponent } from './components/admin/admin-users/admin-users.component';
 import { AdminLoopsComponent } from './components/admin/admin-loops/admin-loops.component';
 import { AdminCommentsComponent } from './components/admin/admin-comments/admin-comments.component';
+import { AdminReportsComponent } from './components/admin/admin-reports/admin-reports.component';
 
 export const routes: Routes = [
     {'path': '', component: HomeComponent},
@@ -34,7 +35,8 @@ export const routes: Routes = [
                                                                     { path: 'dashboard', component: AdminDashboardComponent },
                                                                     { path: 'users', component: AdminUsersComponent },
                                                                     { path: 'loops', component: AdminLoopsComponent },
-                                                                    { path: 'comments', component: AdminCommentsComponent }
+                                                                    { path: 'comments', component: AdminCommentsComponent },
+                                                                    { path: 'reports', component: AdminReportsComponent }
                                                                 ]
 }
 

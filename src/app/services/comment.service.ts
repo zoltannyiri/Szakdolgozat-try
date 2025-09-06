@@ -22,10 +22,6 @@ export class CommentService {
       );
   }
 
-  private handleError(error: HttpErrorResponse) {
-    console.error('Hiba történt:', error);
-    return throwError(() => new Error('Hiba a komment küldésekor'));
-  }
 
   getCommentsForLoop(loopId: string) {
     return this.http.get<any>(`${this.apiUrl}/api/loops/${loopId}/comments`).pipe(
@@ -35,4 +31,30 @@ export class CommentService {
       })
     );
   }
+
+  //  reportComment(commentId: string, message: string) {
+  //   return this.http.post(`${this.apiUrl}/api/reports/comments/${commentId}`, { message })
+  //     .pipe(
+  //       catchError((error: HttpErrorResponse) => {
+  //         console.error('Hiba a jelentés küldésekor:', error);
+  //         return throwError(() => error);
+  //       })
+  //     );
+  // }
+  reportComment(commentId: string, message: string) {
+  return this.http.post(`${this.apiUrl}/api/reports/comments/${commentId}`, { message });
 }
+
+ 
+  deleteCommentAdmin(commentId: string) {
+    return this.http.delete(`${this.apiUrl}/api/admin/comments/${commentId}`)
+      .pipe(catchError(this.handleError));
+    }
+
+  private handleError(error: HttpErrorResponse) {
+    console.error('Hiba történt:', error);
+    return throwError(() => new Error('Hiba a komment küldésekor'));
+  }
+}
+
+

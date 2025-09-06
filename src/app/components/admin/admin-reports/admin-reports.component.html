@@ -1,0 +1,169 @@
+<div class="space-y-6">
+  <h1 class="text-2xl font-bold text-gray-800">Reports</h1>
+
+  <!-- Tabok -->
+  <div class="flex flex-wrap items-center gap-3">
+    <div class="flex gap-2 bg-white p-1 rounded-xl shadow">
+      <button
+        *ngFor="let t of tabs"
+        (click)="setTab(t)"
+        class="px-3 py-1.5 rounded-lg text-sm font-medium transition"
+        [class.bg-indigo-600]="activeTab.key === t.key"
+        [class.text-white]="activeTab.key === t.key"
+        [class.text-gray-700]="activeTab.key !== t.key"
+      >
+        <span>{{ t.label }}</span>
+        <span *ngIf="t.count !== undefined"
+              class="ml-2 inline-flex items-center justify-center min-w-5 px-1.5 text-xs rounded-full"
+              [class.bg-white]="activeTab.key === t.key"
+              [class.text-indigo-700]="activeTab.key === t.key"
+              [class.bg-indigo-100]="activeTab.key !== t.key"
+              [class.text-indigo-700]="activeTab.key !== t.key"
+        >{{ t.count }}</span>
+      </button>
+    </div>
+
+    <div class="ml-auto flex items-center gap-2">
+      <label class="text-sm text-gray-600">Státusz:</label>
+      <select class="px-3 py-1.5 rounded-lg bg-white shadow text-sm"
+              [(ngModel)]="status"
+              (ngModelChange)="setStatus($event)">
+        <option value="open">Nyitott</option>
+        <option value="resolved">Megoldott</option>
+        <option value="rejected">Elutasított</option>
+      </select>
+      <button class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm shadow"
+              (click)="refresh()">Frissítés</button>
+    </div>
+  </div>
+
+  <!-- Lista -->
+  <div class="bg-white rounded-2xl shadow divide-y">
+    <!-- üres állapot -->
+    <div *ngIf="!loading && reports.length === 0" class="p-10 text-center text-gray-500">
+      Nincs megjeleníthető report.
+    </div>
+
+    <!-- skeleton -->
+    <div *ngIf="loading" class="p-6 animate-pulse space-y-4">
+      <div class="h-5 bg-gray-200 rounded"></div>
+      <div class="h-5 bg-gray-200 rounded"></div>
+      <div class="h-5 bg-gray-200 rounded"></div>
+    </div>
+
+    <!-- elemek -->
+    <div *ngFor="let r of reports" class="p-6">
+      <div class="flex flex-wrap gap-3 items-start">
+        <div class="text-xs px-2 py-1 rounded-full"
+             [class.bg-rose-100]="r.type==='comment'"
+             [class.text-rose-700]="r.type==='comment'"
+             [class.bg-blue-100]="r.type==='loop'"
+             [class.text-blue-700]="r.type==='loop'"
+             [class.bg-amber-100]="r.type==='profile'"
+             [class.text-amber-700]="r.type==='profile'">
+          {{ r.type | titlecase }}
+        </div>
+        <div class="text-xs px-2 py-1 rounded-full"
+             [class.bg-green-100]="r.status==='resolved'"
+             [class.text-green-700]="r.status==='resolved'"
+             [class.bg-gray-100]="r.status==='open'"
+             [class.text-gray-700]="r.status==='open'"
+             [class.bg-red-100]="r.status==='rejected'"
+             [class.text-red-700]="r.status==='rejected'">
+          {{ r.status | titlecase }}
+        </div>
+        <div class="ml-auto text-xs text-gray-500">{{ r.createdAt | date:'yyyy.MM.dd. HH:mm' }}</div>
+      </div>
+
+      <!-- reported dolgok -->
+      <div class="mt-3 grid md:grid-cols-2 gap-3">
+        <div class="text-sm">
+          <div class="text-gray-500">Report üzenet</div>
+          <div class="font-medium text-gray-800 break-words">{{ r.message || '—' }}</div>
+        </div>
+
+        <div class="text-sm">
+          <div class="text-gray-500">Reportoló</div>
+          <div class="font-medium text-gray-800">
+            {{ r.reporter?.username || 'Ismeretlen' }}
+          </div>
+        </div>
+
+        <div *ngIf="r.type==='comment'" class="text-sm">
+          <div class="text-gray-500">Eredeti komment tulaj</div>
+          <div class="font-medium text-gray-800">
+            {{ r.target?.user?.username || r.meta?.targetOwnerName || '—' }}
+          </div>
+        </div>
+
+        <div *ngIf="r.type==='comment'" class="text-sm">
+          <div class="text-gray-500">Loop</div>
+          <div class="font-medium text-gray-800">
+            {{ r.target?.loop?.filename || r.meta?.loopTitle || '—' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- részletek -->
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button class="px-3 py-1.5 text-sm rounded-lg border hover:bg-gray-50"
+                (click)="toggleExpand(r._id)">
+          {{ expanded[r._id] ? 'Részletek elrejtése' : 'Részletek megtekintése' }}
+        </button>
+
+        <button class="px-3 py-1.5 text-sm rounded-lg bg-gray-900 text-white"
+                (click)="handleSetStatus(r._id,'resolved')">
+          Megoldottnak jelölés
+        </button>
+        <button class="px-3 py-1.5 text-sm rounded-lg bg-red-50 text-red-700 border border-red-200"
+                (click)="handleSetStatus(r._id,'rejected')">
+          Elutasítás
+        </button>
+
+        <button *ngIf="r.type==='comment' && status!=='resolved'"
+                class="ml-auto px-3 py-1.5 text-sm rounded-lg bg-rose-600 text-white"
+                (click)="deleteCommentInline(r)">
+          Komment törlése
+        </button>
+      </div>
+
+      <!-- expanded rész -->
+      <div *ngIf="expanded[r._id]" class="mt-4 rounded-lg border bg-gray-50 p-4">
+        <div *ngIf="r.type==='comment'">
+          <div class="text-xs text-gray-500 mb-1">Eredeti komment</div>
+          <div class="p-3 bg-white rounded border text-sm whitespace-pre-wrap">
+            {{ r.target?.text || '—' }}
+          </div>
+
+          <div class="mt-3 grid md:grid-cols-3 gap-3 text-sm">
+            <div>
+              <div class="text-gray-500">Kommentelő</div>
+              <div class="font-medium">{{ r.target?.user?.username || '—' }}</div>
+            </div>
+            <div>
+              <div class="text-gray-500">Loop</div>
+              <div class="font-medium">{{ r.target?.loop?.filename || '—' }}</div>
+            </div>
+            <div>
+              <div class="text-gray-500">Beküldve</div>
+              <div class="font-medium">{{ r.target?.createdAt | date:'yyyy.MM.dd. HH:mm' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="r.type!=='comment'" class="text-sm text-gray-600">
+          Részletnézet ehhez a típushoz még készül.
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="flex items-center justify-between text-sm">
+    <div class="text-gray-500">Összesen: {{ total }} | Oldal: {{ page }}/{{ pages }}</div>
+    <div class="flex gap-2">
+      <button class="px-3 py-1.5 rounded-lg border" (click)="pagePrev()" [disabled]="page<=1">Előző</button>
+      <button class="px-3 py-1.5 rounded-lg border" (click)="pageNext()" [disabled]="page>=pages">Következő</button>
+    </div>
+  </div>
+</div>
