@@ -18,19 +18,28 @@
 - notification küldése (comment, like, letöltés) ✓
 - loop mentése ❌
 - loop mentéseinek összegyűjtése ❌
-- roleok létrehozása (eddig csak user van meg) ❌
-- admin felület létrehozása ❌
+- roleok létrehozása (eddig csak user van meg) ✓
+- admin felület létrehozása ✓
 - csak verifikált userek tudjanak le és feltölteni ✓
 - email küldő applikáció verifikáláshoz❌
 - kapcsolatfelvétel❌
 - designolások: 
-            profile❌
-            loopok❌
-            loop-details❌
-            admin❌
+            profile✓
+            loopok✓
+            loop-details✓
+            admin✓
             
 
 
 
 észrevételek: nem verifikált user ne is tudjon kommentbe írni
 
+
+bug: verified de banned usernél tud letölteni loop-detailsben, és errornak azt kapja a többineél h nincs verifyolva az email
+
+
+FEJLESZTÉS SORÁN HASZNÁLT LOGINEK:
+valaki - admin
+valaki02 - verfiied, nem banned
+valakik - nem verified
+banban - verified, banned

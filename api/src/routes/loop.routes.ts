@@ -6,6 +6,8 @@ import { upload, validateLoopMetadata } from "../middlewares/upload.middleware";
 import { checkVerified } from "../middlewares/verify.middleware";
 import path from "path";
 import fs from "fs";
+import { blockIfBanned } from "../middlewares/ban.middleware";
+import { checkVerifiedOrBanned } from '../middlewares/userAccess.guard';
 
 const router = Router();
 
@@ -13,44 +15,49 @@ const router = Router();
 router.post("/upload", 
   authenticateToken, 
   checkVerified, 
+  // checkVerifiedOrBanned,
   upload.single("loop"), 
   validateLoopMetadata, 
   uploadLoop);
   
 router.get("/loops", getLoops);
 router.get('/loops/:id', getLoopById);
-router.get("/loops/download/:id", authenticateToken, checkVerified ,downloadLoop);
-router.get("/loops/:id/download", authenticateToken, checkVerified ,downloadLoop);
+router.get("/loops/download/:id", authenticateToken, checkVerifiedOrBanned, downloadLoop);
+router.get("/loops/:id/download", authenticateToken, checkVerifiedOrBanned, downloadLoop);
 // Loop letöltése
 router.get("/loop-detail/download/:id",
     authenticateToken,
-    checkVerified,
+    // checkVerified,
+    checkVerifiedOrBanned,
+    // blockIfBanned,
     downloadLoop
   );
   
   router.get("/loop-detail/:loopId/download",
     authenticateToken,
-    checkVerified,
+    checkVerifiedOrBanned,
+    // blockIfBanned,
     downloadLoop
   );
 
   router.get("/loops/:loopId/download",
     authenticateToken,
-    checkVerified,
+    checkVerifiedOrBanned,
+    // blockIfBanned,
     downloadLoop
   );
 
-  // Debug route a fájl eléréséhez (ideiglenes)
+
 router.get("/debug-file/:filename", (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(__dirname, '../uploads', filename);
     
-    console.log('Debug file path:', filePath); // [1] Logoljuk az elérési utat
-    console.log('File exists:', fs.existsSync(filePath)); // [2] Létezik-e a fájl?
+    console.log('Debug file path:', filePath); 
+    console.log('File exists:', fs.existsSync(filePath)); 
   
     res.sendFile(filePath, (err) => {
       if (err) {
-        console.error('Debug file send error:', err); // [3] Ha hiba van
+        console.error('Debug file send error:', err);
         res.status(500).send('File send error');
       }
     });
@@ -59,7 +66,7 @@ router.get("/debug-file/:filename", (req, res) => {
   
 
 // Új komment útvonalak
-router.post('/loops/:loopId/comments', authenticateToken, addComment);
+router.post('/loops/:loopId/comments', authenticateToken, checkVerifiedOrBanned, addComment);
 router.get('/loops/:loopId/comments', getCommentsForLoop);
 
 export default router;

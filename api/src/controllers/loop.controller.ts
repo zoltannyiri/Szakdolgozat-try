@@ -96,7 +96,7 @@ export const uploadLoop =
     }
   };
 
-// A többi függvény változatlan marad, csak a downloadLoop-hoz adjuk hozzá a checkVerified middleware-t
+
 //módosítva: 2025. 04. 27
 export const downloadLoop = [
   authenticateToken,
@@ -169,7 +169,7 @@ export const downloadLoop = [
   }
 ];
 
-// Az alábbi függvények változatlanok maradnak, mivel ezekhez nem kell verifikáció
+// Loop lista
 export const getLoops = async (req: Request, res: Response) => {
   try {
     const { bpm, minBpm, maxBpm, key, scale, instrument, tags } = req.query;
@@ -298,3 +298,43 @@ export const unlikeLoop = [
     }
   }
 ];
+
+//LOOP MÓDOSÍTÁS
+export const updateLoopAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    
+    const allowed: Array<'filename'|'bpm'|'key'|'scale'|'instrument'|'tags'> =
+      ['filename','bpm','key','scale','instrument','tags'];
+
+    const update: any = {};
+    for (const k of allowed) {
+      if (req.body[k] !== undefined) update[k] = req.body[k];
+    }
+
+    // bpm
+    if (update.bpm !== undefined) {
+      const n = Number(update.bpm);
+      update.bpm = Number.isFinite(n) ? n : undefined;
+    }
+
+    // tags
+    if (typeof update.tags === 'string') {
+      update.tags = update.tags
+        .split(',')
+        .map((t: string) => t.trim())
+        .filter((t: string) => t.length);
+    }
+
+    const loop = await Loop.findByIdAndUpdate(id, update, { new: true });
+    if (!loop) {
+      return res.status(404).json({ success: false, message: 'Loop nem található' });
+    }
+
+    return res.json({ success: true, data: loop });
+  } catch (err) {
+    console.error('updateLoopAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Szerver hiba' });
+  }
+};

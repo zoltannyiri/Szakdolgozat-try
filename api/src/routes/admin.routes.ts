@@ -11,6 +11,8 @@ import { getAllLoopsForAdmin, deleteLoopById } from '../controllers/admin.contro
 // import { getAllReports, updateReportStatus } from '../controllers/report.controller';
 import { deleteCommentAdmin } from '../controllers/comment.controller';
 import { listReports, setReportStatus } from '../controllers/report.controller';
+import { updateLoopAdmin } from '../controllers/loop.controller';
+import { banUser, unbanUser } from '../controllers/ban.controller';
 
 
 
@@ -49,6 +51,11 @@ router.get('/admin/stats/weekly-uploads', authenticateToken, requireAdmin, getWe
 
 router.get('/admin/reports', authenticateToken, requireAdmin, listReports);
 router.patch('/admin/reports/:id/status', authenticateToken, requireAdmin, setReportStatus);
+
+router.patch('/loops/:id', authenticateToken, requireAdmin, updateLoopAdmin);
+
+router.post('/users/:id/ban', authenticateToken, requireAdmin, banUser);
+router.post('/users/:id/unban', authenticateToken, requireAdmin, unbanUser);
 
 // Egy loop részleteinek lekérése
 router.get('/loops/:id', authenticateToken,requireAdmin, async (req, res) => {

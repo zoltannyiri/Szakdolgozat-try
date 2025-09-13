@@ -1,169 +1,422 @@
-<div class="space-y-6">
-  <h1 class="text-2xl font-bold text-gray-800">Reports</h1>
+<div class="space-y-8">
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight text-gray-900">Bejelentések</h1>
+      <p class="mt-1 text-sm text-gray-500">Felhasználói jelentések kezelése és moderálása.</p>
+    </div>
 
-  <!-- Tabok -->
+    <!-- Status segmented control -->
+    <div class="inline-flex rounded-xl bg-gray-100 p-1 shadow-inner">
+      <button
+        class="px-4 py-2 text-sm font-medium rounded-lg transition"
+        [class.bg-white]="status === 'pending'"
+        [class.shadow]="status === 'pending'"
+        [class.text-gray-900]="status === 'pending'"
+        [class.text-gray-600]="status !== 'pending'"
+        (click)="setStatus('pending')"
+        type="button"
+      >
+        Függőben
+      </button>
+      <button
+        class="px-4 py-2 text-sm font-medium rounded-lg transition"
+        [class.bg-white]="status === 'resolved'"
+        [class.shadow]="status === 'resolved'"
+        [class.text-gray-900]="status === 'resolved'"
+        [class.text-gray-600]="status !== 'resolved'"
+        (click)="setStatus('resolved')"
+        type="button"
+      >
+        Megoldott
+      </button>
+      <button
+        class="px-4 py-2 text-sm font-medium rounded-lg transition"
+        [class.bg-white]="status === 'rejected'"
+        [class.shadow]="status === 'rejected'"
+        [class.text-gray-900]="status === 'rejected'"
+        [class.text-gray-600]="status !== 'rejected'"
+        (click)="setStatus('rejected')"
+        type="button"
+      >
+        Elutasított
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick stats -->
+  <div class="grid gap-4 sm:grid-cols-3">
+    <div class="rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        <!-- comment icon -->
+        <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2"/></svg>
+        Kommentek
+      </div>
+      <div class="mt-2 text-3xl font-semibold text-gray-900">{{ counts.comment }}</div>
+      <div class="mt-1 text-xs text-gray-500">Függőben</div>
+    </div>
+    <div class="rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        <!-- waveform icon -->
+        <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="M3 12h2v6H3zm4-8h2v14H7zm4 4h2v10h-2zm4-3h2v13h-2zm4 7h2v6h-2z"/></svg>
+        Loopok
+      </div>
+      <div class="mt-2 text-3xl font-semibold text-gray-900">{{ counts.loop }}</div>
+      <div class="mt-1 text-xs text-gray-500">Függőben</div>
+    </div>
+    <div class="rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        <!-- user icon -->
+        <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5m0 2C9.33 14 4 15.34 4 18v2h16v-2c0-2.66-5.33-4-8-4"/></svg>
+        Profilok
+      </div>
+      <div class="mt-2 text-3xl font-semibold text-gray-900">{{ counts.profile }}</div>
+      <div class="mt-1 text-xs text-gray-500">Függőben</div>
+    </div>
+  </div>
+
+  <!-- Tabs + actions -->
   <div class="flex flex-wrap items-center gap-3">
-    <div class="flex gap-2 bg-white p-1 rounded-xl shadow">
+    <div class="flex gap-1.5 rounded-2xl border bg-white p-1 shadow-sm">
       <button
         *ngFor="let t of tabs"
         (click)="setTab(t)"
-        class="px-3 py-1.5 rounded-lg text-sm font-medium transition"
-        [class.bg-indigo-600]="activeTab.key === t.key"
+        type="button"
+        class="group inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium transition"
+        [class.bg-gray-900]="activeTab.key === t.key"
         [class.text-white]="activeTab.key === t.key"
         [class.text-gray-700]="activeTab.key !== t.key"
+        [class.hover:bg-gray-50]="activeTab.key !== t.key"
       >
         <span>{{ t.label }}</span>
-        <span *ngIf="t.count !== undefined"
-              class="ml-2 inline-flex items-center justify-center min-w-5 px-1.5 text-xs rounded-full"
-              [class.bg-white]="activeTab.key === t.key"
-              [class.text-indigo-700]="activeTab.key === t.key"
-              [class.bg-indigo-100]="activeTab.key !== t.key"
-              [class.text-indigo-700]="activeTab.key !== t.key"
-        >{{ t.count }}</span>
+        <span
+          *ngIf="t.count !== undefined"
+          class="inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-xs"
+          [class.bg-white]="activeTab.key === t.key"
+          [class.text-gray-900]="activeTab.key === t.key"
+          [class.bg-gray-100]="activeTab.key !== t.key"
+          [class.text-gray-700]="activeTab.key !== t.key"
+        >
+          {{ t.count }}
+        </span>
       </button>
     </div>
 
     <div class="ml-auto flex items-center gap-2">
-      <label class="text-sm text-gray-600">Státusz:</label>
-      <select class="px-3 py-1.5 rounded-lg bg-white shadow text-sm"
-              [(ngModel)]="status"
-              (ngModelChange)="setStatus($event)">
-        <option value="open">Nyitott</option>
-        <option value="resolved">Megoldott</option>
-        <option value="rejected">Elutasított</option>
-      </select>
-      <button class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm shadow"
-              (click)="refresh()">Frissítés</button>
+      <button
+        type="button"
+        (click)="refresh()"
+        class="inline-flex items-center gap-2 rounded-xl bg-gray-900 px-3 py-2 text-sm font-medium text-white shadow-sm hover:opacity-95 active:opacity-100"
+        title="Lista frissítése"
+      >
+        <!-- refresh icon -->
+        <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-8.66 3.54l-1.42 1.42A7 7 0 0 0 19 13c0-3.87-3.13-7-7-7"/></svg>
+        Frissítés
+      </button>
     </div>
   </div>
 
-  <!-- Lista -->
-  <div class="bg-white rounded-2xl shadow divide-y">
-    <!-- üres állapot -->
-    <div *ngIf="!loading && reports.length === 0" class="p-10 text-center text-gray-500">
-      Nincs megjeleníthető report.
+  <!-- List container -->
+  <div class="overflow-hidden rounded-2xl border bg-white shadow-sm">
+    <!-- loading -->
+    <div *ngIf="loading" class="space-y-4 p-6 animate-pulse">
+      <div class="h-5 rounded bg-gray-200"></div>
+      <div class="h-5 rounded bg-gray-200"></div>
+      <div class="h-5 rounded bg-gray-200"></div>
     </div>
 
-    <!-- skeleton -->
-    <div *ngIf="loading" class="p-6 animate-pulse space-y-4">
-      <div class="h-5 bg-gray-200 rounded"></div>
-      <div class="h-5 bg-gray-200 rounded"></div>
-      <div class="h-5 bg-gray-200 rounded"></div>
+    <!-- empty -->
+    <div *ngIf="!loading && reports.length === 0" class="p-12 text-center">
+      <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+        <svg viewBox="0 0 24 24" class="h-5 w-5 text-gray-500">
+          <path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2m1 15h-2v-2h2Zm0-4h-2V7h2Z"/>
+        </svg>
+      </div>
+      <p class="text-sm text-gray-600">Nincs megjeleníthető bejelentés.</p>
     </div>
 
-    <!-- elemek -->
-    <div *ngFor="let r of reports" class="p-6">
-      <div class="flex flex-wrap gap-3 items-start">
-        <div class="text-xs px-2 py-1 rounded-full"
-             [class.bg-rose-100]="r.type==='comment'"
-             [class.text-rose-700]="r.type==='comment'"
-             [class.bg-blue-100]="r.type==='loop'"
-             [class.text-blue-700]="r.type==='loop'"
-             [class.bg-amber-100]="r.type==='profile'"
-             [class.text-amber-700]="r.type==='profile'">
-          {{ r.type | titlecase }}
+    <!-- items -->
+    <div *ngFor="let r of reports" class="border-t p-6 first:border-t-0">
+      <div
+        class="relative rounded-xl border p-5 lg:p-6"
+        [ngClass]="{
+          'border-rose-200/60': r.type === 'comment',
+          'border-blue-200/60': r.type === 'loop',
+          'border-amber-200/60': r.type === 'profile'
+        }"
+      >
+        <!-- left color bar -->
+        <div
+          class="absolute left-0 top-0 h-full w-1 rounded-l-xl"
+          [ngClass]="{
+            'bg-rose-400': r.type === 'comment',
+            'bg-blue-400': r.type === 'loop',
+            'bg-amber-400': r.type === 'profile'
+          }"
+        ></div>
+
+        <!-- header row -->
+        <div class="flex flex-wrap items-start gap-3 pl-2">
+          <span
+            class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+            [ngClass]="{
+              'bg-rose-50 text-rose-700 ring-1 ring-rose-200': r.type === 'comment',
+              'bg-blue-50 text-blue-700 ring-1 ring-blue-200': r.type === 'loop',
+              'bg-amber-50 text-amber-700 ring-1 ring-amber-200': r.type === 'profile'
+            }"
+          >
+            {{ r.type | titlecase }}
+          </span>
+
+          <span
+            class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+            [ngClass]="{
+              'bg-gray-100 text-gray-700 ring-1 ring-gray-200': r.status === 'pending',
+              'bg-green-50 text-green-700 ring-1 ring-green-200': r.status === 'resolved',
+              'bg-red-50 text-red-700 ring-1 ring-red-200': r.status === 'rejected'
+            }"
+          >
+            {{ r.status === 'pending' ? 'Függőben' : (r.status === 'resolved' ? 'Megoldott' : 'Elutasított') }}
+          </span>
+
+          <span class="ml-auto text-xs text-gray-500">
+            {{ r.createdAt | date:'yyyy.MM.dd. HH:mm' }}
+          </span>
         </div>
-        <div class="text-xs px-2 py-1 rounded-full"
-             [class.bg-green-100]="r.status==='resolved'"
-             [class.text-green-700]="r.status==='resolved'"
-             [class.bg-gray-100]="r.status==='open'"
-             [class.text-gray-700]="r.status==='open'"
-             [class.bg-red-100]="r.status==='rejected'"
-             [class.text-red-700]="r.status==='rejected'">
-          {{ r.status | titlecase }}
-        </div>
-        <div class="ml-auto text-xs text-gray-500">{{ r.createdAt | date:'yyyy.MM.dd. HH:mm' }}</div>
-      </div>
 
-      <!-- reported dolgok -->
-      <div class="mt-3 grid md:grid-cols-2 gap-3">
-        <div class="text-sm">
-          <div class="text-gray-500">Report üzenet</div>
-          <div class="font-medium text-gray-800 break-words">{{ r.message || '—' }}</div>
-        </div>
-
-        <div class="text-sm">
-          <div class="text-gray-500">Reportoló</div>
-          <div class="font-medium text-gray-800">
-            {{ r.reporter?.username || 'Ismeretlen' }}
-          </div>
-        </div>
-
-        <div *ngIf="r.type==='comment'" class="text-sm">
-          <div class="text-gray-500">Eredeti komment tulaj</div>
-          <div class="font-medium text-gray-800">
-            {{ r.target?.user?.username || r.meta?.targetOwnerName || '—' }}
-          </div>
-        </div>
-
-        <div *ngIf="r.type==='comment'" class="text-sm">
-          <div class="text-gray-500">Loop</div>
-          <div class="font-medium text-gray-800">
-            {{ r.target?.loop?.filename || r.meta?.loopTitle || '—' }}
-          </div>
-        </div>
-      </div>
-
-      <!-- részletek -->
-      <div class="mt-4 flex flex-wrap gap-2">
-        <button class="px-3 py-1.5 text-sm rounded-lg border hover:bg-gray-50"
-                (click)="toggleExpand(r._id)">
-          {{ expanded[r._id] ? 'Részletek elrejtése' : 'Részletek megtekintése' }}
-        </button>
-
-        <button class="px-3 py-1.5 text-sm rounded-lg bg-gray-900 text-white"
-                (click)="handleSetStatus(r._id,'resolved')">
-          Megoldottnak jelölés
-        </button>
-        <button class="px-3 py-1.5 text-sm rounded-lg bg-red-50 text-red-700 border border-red-200"
-                (click)="handleSetStatus(r._id,'rejected')">
-          Elutasítás
-        </button>
-
-        <button *ngIf="r.type==='comment' && status!=='resolved'"
-                class="ml-auto px-3 py-1.5 text-sm rounded-lg bg-rose-600 text-white"
-                (click)="deleteCommentInline(r)">
-          Komment törlése
-        </button>
-      </div>
-
-      <!-- expanded rész -->
-      <div *ngIf="expanded[r._id]" class="mt-4 rounded-lg border bg-gray-50 p-4">
-        <div *ngIf="r.type==='comment'">
-          <div class="text-xs text-gray-500 mb-1">Eredeti komment</div>
-          <div class="p-3 bg-white rounded border text-sm whitespace-pre-wrap">
-            {{ r.target?.text || '—' }}
-          </div>
-
-          <div class="mt-3 grid md:grid-cols-3 gap-3 text-sm">
-            <div>
-              <div class="text-gray-500">Kommentelő</div>
-              <div class="font-medium">{{ r.target?.user?.username || '—' }}</div>
+        <!-- content grid -->
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="sm:col-span-2">
+            <div class="text-xs text-gray-500">Bejelentés üzenete</div>
+            <div class="mt-1 break-words text-sm font-medium text-gray-900">
+              {{ r.message || '—' }}
             </div>
-            <div>
-              <div class="text-gray-500">Loop</div>
-              <div class="font-medium">{{ r.target?.loop?.filename || '—' }}</div>
+          </div>
+
+          <div>
+            <div class="text-xs text-gray-500">Bejelentő</div>
+            <div class="mt-1 text-sm font-medium text-gray-900">
+              {{ r.reporter?.username || 'Ismeretlen' }}
             </div>
-            <div>
-              <div class="text-gray-500">Beküldve</div>
-              <div class="font-medium">{{ r.target?.createdAt | date:'yyyy.MM.dd. HH:mm' }}</div>
+          </div>
+
+          <div *ngIf="r.type==='comment'">
+            <div class="text-xs text-gray-500">Érintett loop</div>
+            <div class="mt-1 text-sm font-medium text-gray-900">
+              {{ r.target?.loop?.filename || r.meta?.loopTitle || '—' }}
             </div>
           </div>
         </div>
 
-        <div *ngIf="r.type!=='comment'" class="text-sm text-gray-600">
-          Részletnézet ehhez a típushoz még készül.
+        <!-- actions -->
+        <div class="mt-5 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            (click)="toggleExpand(r._id)"
+          >
+            <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="M12 8l6 6H6z"/></svg>
+            {{ expanded[r._id] ? 'Részletek elrejtése' : 'Részletek megtekintése' }}
+          </button>
+
+          <div class="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:opacity-95"
+              (click)="handleSetStatus(r._id, 'resolved')"
+            >
+              <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="m9 16.17l-3.88-3.88L4 12.41L9 17.41L20 6.41L18.59 5L9 14.59z"/></svg>
+              Megoldottnak jelölés
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+              (click)="handleSetStatus(r._id, 'rejected')"
+            >
+              <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
+              Elutasítás
+            </button>
+
+            <button
+              *ngIf="r.type==='comment' && status!=='resolved'"
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-700"
+              (click)="deleteCommentInline(r)"
+            >
+              <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="M9 3v1H4v2h16V4h-5V3zM6 7v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7z"/></svg>
+              Komment törlése
+            </button>
+          </div>
         </div>
+
+                <!-- expanded -->
+        <div *ngIf="expanded[r._id]" class="mt-4 rounded-xl border bg-gray-50 p-4">
+          <ng-container [ngSwitch]="r.type">
+            <!-- COMMENT részletes -->
+            <ng-container *ngSwitchCase="'comment'">
+              <div class="mb-2 text-xs text-gray-500">Eredeti komment</div>
+              <div class="whitespace-pre-wrap rounded-lg border bg-white p-3 text-sm text-gray-900">
+                {{ r.target?.text || r.meta?.commentText || '—' }}
+              </div>
+
+              <div class="mt-4 grid gap-4 sm:grid-cols-3 text-sm">
+                <div>
+                  <div class="text-xs text-gray-500">Kommentelő</div>
+                  <div class="mt-1 font-medium text-gray-900">{{ r.target?.user?.username || '—' }}</div>
+                </div>
+                <div>
+                  <div class="text-xs text-gray-500">Loop</div>
+                  <div class="mt-1 font-medium text-gray-900">
+                    {{ r.target?.loop?.filename || r.meta?.loopTitle || '—' }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs text-gray-500">Beküldve</div>
+                  <div class="mt-1 font-medium text-gray-900">
+                    {{ (r.target?.createdAt || r.createdAt) | date:'yyyy.MM.dd. HH:mm' }}
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 flex justify-end">
+                <a
+                  *ngIf="(r.target?.loop?._id || r.meta?.loopId) && (r.target?._id || r.meta?.commentId)"
+                  [routerLink]="['/loop-detail', (r.target?.loop?._id || r.meta?.loopId)]"
+                  [fragment]="'comment-' + (r.target?._id || r.meta?.commentId)"
+                  [queryParams]="{ comment: (r.target?._id || r.meta?.commentId) }"
+                  class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  title="Ugrás a kommenthez"
+                >
+                  Megnyitás a kommenthez
+                  <svg viewBox="0 0 24 24" class="h-4 w-4">
+                    <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14zM5 5h5V3H3v7h2z"/>
+                  </svg>
+                </a>
+              </div>
+
+            </ng-container>
+
+            <!-- LOOP részletes -->
+            <ng-container *ngSwitchCase="'loop'">
+              <div class="mb-2 text-xs text-gray-500">Jelentett loop</div>
+              <div class="rounded-lg border bg-white p-3 text-sm text-gray-900">
+                <div class="font-medium">
+                  {{ r.target?.filename || r.meta?.loopTitle || '—' }}
+                </div>
+                <div class="mt-2 text-xs text-gray-600">
+                  ID: {{ r.target?._id || r.meta?.loopId || r.targetId }}
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 sm:grid-cols-3 text-sm">
+                <div>
+                  <div class="text-xs text-gray-500">Feltöltő</div>
+                  <div class="mt-1 font-medium text-gray-900">
+                    {{ r.target?.user?.username || r.targetOwnerId || '—' }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs text-gray-500">Beküldve</div>
+                  <div class="mt-1 font-medium text-gray-900">
+                    {{ (r.target?.createdAt || r.createdAt) | date:'yyyy.MM.dd. HH:mm' }}
+                  </div>
+                </div>
+                <div class="flex items-end">
+                  <a
+                    [routerLink]="['/loop-detail', (r.target?._id || r.meta?.loopId || r.targetId)]"
+                    class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 hover:bg-gray-50"
+                  >
+                    Megnyitás
+                    <svg viewBox="0 0 24 24" class="h-4 w-4">
+                      <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14zM5 5h5V3H3v7h2z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- PROFILE részletes -->
+            <ng-container *ngSwitchCase="'profile'">
+              <div class="mb-2 text-xs text-gray-500">Jelentett profil</div>
+
+              <div class="rounded-lg border bg-white p-3 text-sm text-gray-900">
+                <div class="font-medium">
+                  <!-- username -->
+                  {{ r.target?.username || r.meta?.username || '—' }}
+                </div>
+
+                <!-- Névbetöltési hiba esetén -->
+                <div class="mt-2 text-xs text-gray-600"
+                    *ngIf="!(r.target?.username || r.meta?.username)">
+                  Felhasználó ID: {{ r.targetOwnerId || r.targetId || '—' }}
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-4 sm:grid-cols-3 text-sm">
+                <div>
+                  <div class="text-xs text-gray-500">Beküldve</div>
+                  <div class="mt-1 font-medium text-gray-900">
+                    {{ r.createdAt | date:'yyyy.MM.dd. HH:mm' }}
+                  </div>
+                </div>
+
+                <!-- Megnyitás gomb -->
+                <div class="flex items-end">
+                  <a
+                    [routerLink]="['/profile', (r.target?.username || r.meta?.username || r.targetOwnerId || r.targetId)]"
+                    class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    title="Ugrás a jelentett profilhoz"
+                  >
+                    Megnyitás
+                    <svg viewBox="0 0 24 24" class="h-4 w-4">
+                      <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14zM5 5h5V3H3v7h2z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </ng-container>
+
+
+
+            <!-- fallback -->
+            <ng-container *ngSwitchDefault>
+              <div class="text-sm text-gray-600">Ehhez a típushoz részletnézet később kerül hozzáadásra.</div>
+            </ng-container>
+          </ng-container>
+        </div>
+
       </div>
     </div>
+
+    
   </div>
 
+  <!-- Pagination -->
+  <div class="flex items-center justify-between">
+    <div class="text-sm text-gray-500">
+      Összesen: <span class="font-medium text-gray-700">{{ total }}</span>
+      <span class="mx-2 text-gray-300">•</span>
+      Oldal: <span class="font-medium text-gray-700">{{ page }}</span>/<span class="font-medium text-gray-700">{{ pages }}</span>
+    </div>
 
-  <div class="flex items-center justify-between text-sm">
-    <div class="text-gray-500">Összesen: {{ total }} | Oldal: {{ page }}/{{ pages }}</div>
-    <div class="flex gap-2">
-      <button class="px-3 py-1.5 rounded-lg border" (click)="pagePrev()" [disabled]="page<=1">Előző</button>
-      <button class="px-3 py-1.5 rounded-lg border" (click)="pageNext()" [disabled]="page>=pages">Következő</button>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="pagePrev()"
+        [disabled]="page<=1"
+        class="inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="m14 7l-5 5l5 5V7z"/></svg>
+        Előző
+      </button>
+      <button
+        type="button"
+        (click)="pageNext()"
+        [disabled]="page>=pages"
+        class="inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Következő
+        <svg viewBox="0 0 24 24" class="h-4 w-4"><path fill="currentColor" d="m10 17l5-5l-5-5v10z"/></svg>
+      </button>
     </div>
   </div>
 </div>

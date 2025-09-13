@@ -1,6 +1,6 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
-// Felhasználó interfész a típusbiztonság miatt
+
 export interface IUser extends Document {
   email: string;
   username: string;
@@ -17,6 +17,10 @@ export interface IUser extends Document {
   isVerified: boolean; //módosítva: 2025. 04. 27
   verificationToken?: string; //módosítva: 2025. 04. 27
   verificationTokenExpires?: Date; //módosítva: 2025. 04. 27
+
+  bannedUntil?: Date | null;
+  banReason?: string | null;
+  bannedBy?: Types.ObjectId | null;
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -31,10 +35,13 @@ const UserSchema: Schema = new Schema<IUser>({
   profileImage: { type: String },
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String },
-  verificationTokenExpires: { type: Date }
+  verificationTokenExpires: { type: Date },
+
+  bannedUntil: { type: Date, default: null },
+  banReason:   { type: String, default: "" },
+  bannedBy:    { type: Schema.Types.ObjectId, ref: "User", default: null },
 });
 
-// Default exporttal, hogy `import User from "./models/user.model";` működjön
 export default mongoose.model<IUser>("User", UserSchema);
 
 

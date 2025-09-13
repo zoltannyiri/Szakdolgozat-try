@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import Comment from '../models/comment.model';
 import Report from '../models/report.model';
 import { CustomRequest } from '../middlewares/auth.middleware';
+import Loop from '../models/loop.model';
+import User from '../models/user.model';
 
 
 type PopulatedComment = {
@@ -55,6 +57,80 @@ export const createCommentReport = async (req: CustomRequest, res: Response) => 
     return res.status(201).json({ success: true, data: saved });
   } catch (err) {
     console.error('[createCommentReport] error:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+export async function createLoopReport(req: Request, res: Response) {
+  try {
+    const { loopId } = req.params;
+    const { message } = req.body;
+
+    if (!message || typeof message !== 'string' || message.trim().length < 3) {
+      return res.status(400).json({ success: false, message: 'A jelentés indoklása túl rövid.' });
+    }
+
+    const loop = await Loop.findById(loopId).populate('uploader', '_id username');
+    if (!loop) {
+      return res.status(404).json({ success: false, message: 'A loop nem található.' });
+    }
+
+    const reporterId = (req as any).user?.id || (req as any).user?._id;
+    const doc = await Report.create({
+      type: 'loop',
+      targetId: loop._id,
+      reporter: reporterId,
+      reporterId,
+      targetOwnerId: loop.uploader?._id || loop.uploader,
+      message: message.trim(),
+      status: 'pending',
+      meta: {
+        loopId: loop._id,
+        loopTitle: loop.filename
+      }
+    });
+
+    return res.json({ success: true, data: doc });
+  } catch (err) {
+    console.error('[createLoopReport] error:', err);
+    return res.status(500).json({ success: false, message: 'Szerverhiba a jelentés mentésekor.' });
+  }
+}
+
+
+export const createProfileReport = async (req: CustomRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { message } = req.body;
+    const reporterId = req.user?.userId;
+
+    if (!reporterId) {
+      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+    if (!message || !message.trim()) {
+      return res.status(400).json({ success: false, message: 'Report message is required' });
+    }
+
+    const user = await User.findById(userId).select('_id username');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const report = await Report.create({
+      type: 'profile',
+      targetId: user._id,
+      targetOwnerId: user._id,  
+      reporterId,               
+      reporter: reporterId,     
+      message: message.trim(),
+      status: 'pending',
+      meta: { username: user.username }
+    });
+
+    return res.status(201).json({ success: true, data: report });
+  } catch (err) {
+    console.error('[createProfileReport] error:', err);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
@@ -127,7 +203,7 @@ export const listReports = async (req: Request, res: Response) => {
       Report.countDocuments(filter),
     ]);
 
-    // Komment típus esetén húzzuk be az eredeti kommentet + user + loop
+    // betöltések
     const enriched = await Promise.all(
       items.map(async (r: any) => {
         if (r.type === 'comment') {
@@ -150,6 +226,25 @@ export const listReports = async (req: Request, res: Response) => {
             target: c || null,
             meta,
            
+            reporter: r.reporter || r.reporterId || null,
+          };
+        }
+
+         if (r.type === 'profile') {
+          const userId = r.targetOwnerId || r.targetId;
+          const u = userId
+            ? await User.findById(userId).select('_id username').lean()
+            : null;
+
+          const meta = {
+            ...(r.meta || {}),
+            username: u?.username ?? r.meta?.username, // meta.username kitöltése, ha hiányzott
+          };
+
+          return {
+            ...r,
+            target: u || null,
+            meta,
             reporter: r.reporter || r.reporterId || null,
           };
         }

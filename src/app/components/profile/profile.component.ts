@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ReportsService } from '../../services/reports.service';
 
 type ToastVariant = 'default' | 'success' | 'error';
 
@@ -36,12 +37,27 @@ export class ProfileComponent implements OnInit {
 
   toast = { text: '', variant: 'default' as ToastVariant, timer: 0 };
 
+  // report
+  isProfileReportOpen = false;
+  profileReportReason = '';
+  isReportingProfile = false;
+  profileReportError = '';
+  profileReportSuccess = '';
+
+  // ha admin nézi
+  isBanModalOpen = false;
+  banPreset: '1d' | '1m' | 'permanent' = '1d';
+  banReason = '';
+  banning = false;
+  unbanning = false;
+
   constructor(
     private authService: AuthService,
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router
-  ) {}
+    private router: Router,
+    private reportsSvc: ReportsService,
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -98,9 +114,9 @@ export class ProfileComponent implements OnInit {
   /** --- forms --- */
   private fillGeneralForm() {
     this.editForm.firstName = this.userData?.firstName || '';
-    this.editForm.lastName  = this.userData?.lastName  || '';
-    this.editForm.country   = this.userData?.country   || '';
-    this.editForm.city      = this.userData?.city      || '';
+    this.editForm.lastName = this.userData?.lastName || '';
+    this.editForm.country = this.userData?.country || '';
+    this.editForm.city = this.userData?.city || '';
   }
 
   resetGeneral() {
@@ -238,4 +254,156 @@ export class ProfileComponent implements OnInit {
     // @ts-ignore
     this.toast.timer = setTimeout(() => (this.toast.text = ''), ms);
   }
+
+
+  // report
+  openProfileReportModal(): void {
+  if (!this.authService.getToken()) {
+    this.showToast('Kérlek jelentkezz be a jelentéshez', 'error');
+    this.router.navigate(['/login'], { queryParams: { redirect: this.router.url } });
+    return;
+  }
+  if (this.isCurrentUser || !this.userData?._id) return;
+
+  this.profileReportReason = '';
+  this.profileReportError = '';
+  this.profileReportSuccess = '';
+  this.isProfileReportOpen = true;
+}
+
+
+  closeProfileReportModal(evt?: Event): void {
+    if (!evt) { this.isProfileReportOpen = false; return; }
+    const el = evt.target as HTMLElement;
+    if (el.classList.contains('bg-black') || el.classList.contains('bg-black/50')) {
+      this.isProfileReportOpen = false;
+    }
+  }
+
+
+  submitProfileReport(): void {
+  if (!this.userData?._id || !this.profileReportReason.trim()) return;
+
+  this.isReportingProfile = true;
+  this.profileReportError = '';
+  this.profileReportSuccess = '';
+
+  this.reportsSvc.reportProfile(this.userData._id, this.profileReportReason.trim())
+    .subscribe({
+      next: () => {
+        this.isReportingProfile = false;
+        this.profileReportSuccess = 'Köszönjük! A jelentést megkaptuk.';
+        this.showToast('Jelentés elküldve', 'success');
+        setTimeout(() => (this.isProfileReportOpen = false), 900);
+      },
+      error: (err) => {
+        this.isReportingProfile = false;
+        this.profileReportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
+        this.showToast(this.profileReportError, 'error');
+      }
+    });
+  }
+
+
+  //admin
+  get isAdmin(): boolean {
+  try {
+    const token = this.authService.getToken();
+    if (!token) return false;
+    const payload = JSON.parse(atob(token.split('.')[1] || ''));
+    return payload?.role === 'admin' || payload?.isAdmin === true;
+  } catch { return false; }
+}
+
+  isStillBanned(until: string | Date | null | undefined) {
+    if (!until) return false;
+    return new Date(until).getTime() > Date.now();
+  }
+  isPermanent(until: string | Date | null | undefined) {
+    if (!until) return false;
+    return new Date(until).getUTCFullYear() >= 9999;
+  }
+
+  ban(duration: '1d'|'1m'|'permanent') {
+  if (!this.userData?._id) return;
+  const reason = prompt('Indoklás (opcionális):') || '';
+  this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/ban`, { duration, reason })
+    .subscribe({
+      next: (res: any) => {
+        this.userData.bannedUntil = res?.data?.bannedUntil;
+        this.userData.banReason = reason;
+        this.showToast('Felhasználó tiltva', 'success');
+      },
+      error: (e: any) => this.showToast(e?.error?.message || 'Tiltás sikertelen', 'error')
+    });
+}
+
+// unban() {
+//   if (!this.userData?._id) return;
+//   this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/unban`, {})
+//     .subscribe({
+//       next: (res: any) => {
+//         this.userData.bannedUntil = null;
+//         this.userData.banReason = '';
+//         this.showToast('Tiltás feloldva', 'success');
+//       },
+//       error: (e: any) => this.showToast(e?.error?.message || 'Feloldás sikertelen', 'error')
+//     });
+// }
+
+unban() {
+  if (!this.userData?._id) return;
+  this.unbanning = true;
+
+  this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/unban`, {})
+    .subscribe({
+      next: () => {
+        this.userData.bannedUntil = null;
+        this.userData.banReason = '';
+        this.showToast('Tiltás feloldva', 'success');
+      },
+      error: (e: any) => this.showToast(e?.error?.message || 'Feloldás sikertelen', 'error'),
+      complete: () => { this.unbanning = false; this.isBanModalOpen = false; }
+    });
+}
+
+
+openBanModal() {
+  if (!this.userData?._id) return;
+  this.banPreset = '1d';
+  this.banReason = this.userData?.banReason || '';
+  this.isBanModalOpen = true;
+}
+
+closeBanModal(evt?: Event) {
+  if (!evt) { this.isBanModalOpen = false; return; }
+  const target = evt.target as HTMLElement;
+  if (target.classList.contains('bg-black') || target.classList.contains('bg-black/50')) {
+    this.isBanModalOpen = false;
+  }
+}
+
+submitBan() {
+  if (!this.userData?._id) return;
+  this.banning = true;
+
+  this.securePost(
+    `${environment.apiUrl}/api/admin/users/${this.userData._id}/ban`,
+    { duration: this.banPreset, reason: this.banReason?.trim() || '' }
+  ).subscribe({
+    next: (res: any) => {
+      this.userData.bannedUntil = res?.data?.bannedUntil;
+      this.userData.banReason = this.banReason?.trim() || '';
+      this.showToast('Tiltás alkalmazva', 'success');
+      this.isBanModalOpen = false;
+    },
+    error: (e: any) => {
+      this.showToast(e?.error?.message || 'Tiltás sikertelen', 'error');
+    },
+    complete: () => (this.banning = false)
+  });
+}
+
+
+
 }

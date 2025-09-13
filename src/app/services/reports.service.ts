@@ -64,4 +64,20 @@ export class ReportsService {
   deleteCommentAdmin(commentId: string) {
     return this.http.delete<{ success: boolean; message?: string }>(`${this.api}/admin/comments/${commentId}`);
   }
+
+  // Loop jelentése (user)
+  reportLoop(loopId: string, message: string) {
+    return this.http.post<{ success: boolean; data: any }>(
+      `${this.api}/reports/loops/${loopId}`,
+      { message }
+    );
+  }
+
+  // Profil jelentése (user)
+  reportProfile(userId: string, message: string) {
+    return this.http.post<{ success: boolean; data: any }>(
+      `${this.api}/reports/profiles/${userId}`,
+      { message }
+    );
+  }
 }

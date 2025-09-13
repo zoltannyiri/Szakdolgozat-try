@@ -25,6 +25,8 @@ import multer from 'multer';
 import adminRoutes from './routes/admin.routes';
 import profileRoutes from "./routes/profile.routes";
 import reportRoutes from './routes/report.routes';
+import { blockIfBanned } from './middlewares/ban.middleware';
+import { checkVerifiedOrBanned } from "./middlewares/userAccess.guard";
 
 
 
@@ -40,7 +42,7 @@ const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
     origin: '*',
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
   }
 });
 const storage = multer.diskStorage({
@@ -498,8 +500,8 @@ app.use('/uploads', express.static('uploads'));
 
 
 //likeolás
-app.post('/api/loop-detail/:id/like', authenticateToken, likeLoop);
-app.post('/api/loop-detail/:id/unlike', authenticateToken, unlikeLoop);
+app.post('/api/loop-detail/:id/like', authenticateToken, checkVerifiedOrBanned, likeLoop);
+app.post('/api/loop-detail/:id/unlike', authenticateToken, checkVerifiedOrBanned, unlikeLoop);
 
 
 
@@ -519,8 +521,13 @@ app._router.stack.forEach((r: any) => {
 });
 
 
+//BAN TILTÁS
+app.post('/api/loop-detail/:id/like', authenticateToken, blockIfBanned, likeLoop);
+app.post('/api/loop-detail/:id/unlike', authenticateToken, blockIfBanned, unlikeLoop);
+
+
 //REPORT
-app.use('/api/reports', reportRoutes);
+// app.use('/api/reports', reportRoutes);
 app.use('/api', reportRoutes);
 
 

@@ -7,13 +7,30 @@ import {
   ReportStatus,
   ReportListWire
 } from '../../../services/reports.service';
+import { RouterModule } from '@angular/router';
 
 type Tab = { key: ReportType | 'all'; label: string; count?: number };
+
+// type ReportItem = {
+//   _id: string;
+//   type: ReportType;
+//   status: ReportStatus;
+//   message: string;
+//   createdAt: string;
+//   reporter?: { _id: string; username?: string } | string;
+//   targetId: string;
+//   targetOwnerId?: string;
+//   meta?: {
+//     commentText?: string;
+//     loopId?: string;
+//     loopTitle?: string;
+//   };
+// };
 
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './admin-reports.component.html',
   styleUrls: ['./admin-reports.component.scss']
 })

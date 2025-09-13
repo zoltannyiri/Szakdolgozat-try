@@ -129,6 +129,40 @@
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </button>
+
+            <!-- REPORT vagy ADMIN -->
+            
+            <ng-container *ngIf="!isAdmin; else adminActionBar">
+              <button (click)="openLoopReportModal()"
+                      class="p-2 text-gray-500 hover:text-red-600 rounded-full transition-colors"
+                      title="Loop jelentése">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M4 4v16m0-12h12l-3-4 3-4H4z" />
+                </svg>
+              </button>
+            </ng-container>
+
+            <ng-template #adminActionBar>
+              <button (click)="adminDeleteLoop()"
+                      class="p-2 text-gray-500 hover:text-red-600 rounded-full transition-colors"
+                      title="Loop törlése">
+                <!-- trash -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 3v1H4v2h16V4h-5V3zM6 7v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7z"/>
+                </svg>
+              </button>
+
+              <button (click)="openEditModal()"
+                      class="p-2 text-gray-500 hover:text-gray-700 rounded-full transition-colors"
+                      title="Loop módosítása">
+                <!-- pencil -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM21 6.34l-3.69-3.69l-1.41 1.41l3.69 3.69L21 6.34z"/>
+                </svg>
+              </button>
+            </ng-template>
+
           </div>
         </div>
 
@@ -311,11 +345,29 @@
                   <span class="ml-auto text-xs text-gray-500">
                     {{comment.createdAt | date:'yyyy.MM.dd. HH:mm'}}
                   </span>
-                  <button *ngIf="isLoggedIn"
+                  <!-- <button *ngIf="isLoggedIn"
                           (click)="openReportModal(comment._id)"
                           class="ml-2 text-xs px-2 py-1 rounded bg-red-50 text-red-700 hover:bg-red-100 transition">
                     Jelentem
-                  </button>
+                  </button> -->
+
+                  <!-- USER: Report | ADMIN: Törlés -->
+                  <ng-container *ngIf="!isAdmin; else adminCommentActions">
+                    <button *ngIf="isLoggedIn"
+                            (click)="openReportModal(comment._id)"
+                            class="ml-2 text-xs px-2 py-1 rounded bg-red-50 text-red-700 hover:bg-red-100 transition">
+                      Jelentem
+                    </button>
+                  </ng-container>
+
+                  <ng-template #adminCommentActions>
+                    <button (click)="adminDeleteComment(comment._id)"
+                            [disabled]="isDeletingCommentId === comment._id"
+                            class="ml-2 text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 transition">
+                      {{ isDeletingCommentId === comment._id ? 'Törlés...' : 'Törlés' }}
+                    </button>
+                  </ng-template>
+
                 </div>
                 <p class="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
                   {{comment.text}}
@@ -355,33 +407,38 @@
         </div>
 
                 <!-- Rreport -->
-        <div *ngIf="isReportModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-            (click)="closeReportModal($event)">
-          <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6" (click)="$event.stopPropagation()">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-800">Komment jelentése</h3>
-              <button (click)="isReportModalOpen=false" class="p-2 rounded hover:bg-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 5.71 12 12.01l-6.29-6.3-1.42 1.42 6.3 6.29-6.3 6.29 1.42 1.42 6.29-6.3 6.29 6.3 1.42-1.42-6.3-6.29 6.3-6.29z"/></svg>
-              </button>
-            </div>
+       <!-- USER: Report -->
+<!-- <ng-container *ngIf="!isAdmin; else adminActions">
+  <button (click)="openLoopReportModal()"
+          class="p-2 text-gray-500 hover:text-red-600 rounded-full transition-colors"
+          title="Loop jelentése">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 4v16m0-12h12l-3-4 3-4H4z" />
+    </svg>
+  </button>
+</ng-container>
 
-            <p class="text-sm text-gray-600 mb-3">Kérlek írd le röviden, mi a probléma ezzel a kommenttel.</p>
-            <textarea [(ngModel)]="reportReason" rows="5" maxlength="1000"
-                      class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-400"
-                      placeholder="Részletek..."></textarea>
+<!-- ADMIN: Törlés + Módosítás -->
+<ng-template #adminActions>
+  <button (click)="adminDeleteLoop()"
+          class="p-2 text-gray-500 hover:text-red-600 rounded-full transition-colors"
+          title="Loop törlése">
+    <!-- trash -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M9 3v1H4v2h16V4h-5V3zM6 7v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7z"/>
+    </svg>
+  </button>
 
-            <div *ngIf="reportError" class="mt-2 text-sm text-red-600">{{reportError}}</div>
-            <div *ngIf="reportSuccess" class="mt-2 text-sm text-green-600">{{reportSuccess}}</div>
-
-            <div class="mt-4 flex justify-end gap-2">
-              <button (click)="isReportModalOpen=false" class="px-4 py-2 rounded border hover:bg-gray-50">Mégse</button>
-              <button (click)="submitReport()" [disabled]="isReporting || !reportReason.trim()"
-                      class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
-                {{ isReporting ? 'Küldés...' : 'Jelentés elküldése' }}
-              </button>
-            </div>
-          </div>
-        </div>
+  <button (click)="openEditModal()"
+          class="p-2 text-gray-500 hover:text-gray-700 rounded-full transition-colors"
+          title="Loop módosítása">
+    <!-- pencil -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM21 6.34l-3.69-3.69l-1.41 1.41l3.69 3.69L21 6.34z"/>
+    </svg>
+  </button>
+</ng-template>  
 
 
         <!-- Bejelentkezés -->
@@ -400,7 +457,176 @@
             </button>
           </div>
         </div>
+        
       </div>
+      <!-- ADMIN: Loop szerkesztő modal -->
+<div *ngIf="isEditModalOpen"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+     (click)="closeEditModal($event)">
+  <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg"
+       (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-800">Loop módosítása</h3>
+      <button (click)="isEditModalOpen=false" class="p-2 rounded hover:bg-gray-100" title="Bezárás">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.3 5.71 12 12.01l-6.29-6.3-1.42 1.42 6.3 6.29-6.3 6.29 1.42 1.42 6.29-6.3 6.29 6.3 1.42-1.42-6.3-6.29 6.3-6.29z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Név</label>
+        <input type="text" [(ngModel)]="editForm.name"
+               class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">BPM</label>
+          <input type="number" [(ngModel)]="editForm.bpm" min="40" max="300"
+                 class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Hangnem</label>
+          <select [(ngModel)]="editForm.key"
+                  class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
+            <option value="">—</option>
+            <option *ngFor="let k of keys" [value]="k">{{ k }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Skála</label>
+          <select [(ngModel)]="editForm.scale"
+                  class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
+            <option value="">—</option>
+            <option *ngFor="let s of scales" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Hangszer</label>
+          <select [(ngModel)]="editForm.instrument"
+                  class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
+            <option value="">—</option>
+            <option *ngFor="let i of instruments" [value]="i">{{ i }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Címkék (vesszővel)</label>
+        <input type="text" [(ngModel)]="editForm.tags"
+               placeholder="hiphop, trap, dark"
+               class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
+      </div>
+
+      <div *ngIf="editError" class="text-sm text-red-600">{{ editError }}</div>
+    </div>
+
+    <div class="mt-6 flex justify-end gap-2">
+      <button (click)="isEditModalOpen=false" class="px-4 py-2 rounded border hover:bg-gray-50">Mégse</button>
+      <button (click)="saveLoopEdit()"
+              [disabled]="isSavingEdit"
+              class="px-4 py-2 rounded bg-gray-900 text-white hover:opacity-95 disabled:opacity-50">
+        {{ isSavingEdit ? 'Mentés...' : 'Mentés' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- LOOP REPORT MODAL -->
+<div *ngIf="isLoopReportOpen"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+     (click)="closeLoopReportModal($event)">
+  <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4"
+       (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-800">Loop jelentése</h3>
+      <button (click)="isLoopReportOpen=false"
+              class="p-2 rounded hover:bg-gray-100" title="Bezárás">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+             viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M18.3 5.71 12 12.01l-6.29-6.3-1.42 1.42 6.3 6.29-6.3 6.29 1.42 1.42 6.29-6.3 6.29 6.3 1.42-1.42-6.3-6.29 6.3-6.29z"/>
+        </svg>
+      </button>
+    </div>
+
+    <p class="text-sm text-gray-600 mb-3">
+      Kérlek írd le röviden, mi a probléma ezzel a looppal.
+    </p>
+    <textarea [(ngModel)]="loopReportReason" rows="5" maxlength="1000"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-400"
+              placeholder="Részletek..."></textarea>
+
+    <div *ngIf="loopReportError" class="mt-2 text-sm text-red-600">
+      {{ loopReportError }}
+    </div>
+    <div *ngIf="loopReportSuccess" class="mt-2 text-sm text-green-600">
+      {{ loopReportSuccess }}
+    </div>
+
+    <div class="mt-4 flex justify-end gap-2">
+      <button (click)="isLoopReportOpen=false"
+              class="px-4 py-2 rounded border hover:bg-gray-50">Mégse</button>
+      <button (click)="submitLoopReport()"
+              [disabled]="isReportingLoop || !loopReportReason.trim()"
+              class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
+        {{ isReportingLoop ? 'Küldés...' : 'Jelentés elküldése' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- COMMENT REPORT MODAL -->
+<div *ngIf="isReportModalOpen"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+     (click)="closeReportModal($event)">
+  <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4"
+       (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-800">Hozzászólás jelentése</h3>
+      <button (click)="isReportModalOpen=false"
+              class="p-2 rounded hover:bg-gray-100" title="Bezárás">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+             viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M18.3 5.71 12 12.01l-6.29-6.3-1.42 1.42 6.3 6.29-6.3 6.29 1.42 1.42 6.29-6.3 6.29 6.3 1.42-1.42-6.3-6.29 6.3-6.29z"/>
+        </svg>
+      </button>
+    </div>
+
+    <p class="text-sm text-gray-600 mb-3">
+      Kérlek írd le röviden, mi a probléma ezzel a kommenttel.
+    </p>
+    <textarea [(ngModel)]="reportReason" rows="5" maxlength="1000"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-400"
+              placeholder="Részletek..."></textarea>
+
+    <div *ngIf="reportError" class="mt-2 text-sm text-red-600">
+      {{ reportError }}
+    </div>
+    <div *ngIf="reportSuccess" class="mt-2 text-sm text-green-600">
+      {{ reportSuccess }}
+    </div>
+
+    <div class="mt-4 flex justify-end gap-2">
+      <button (click)="isReportModalOpen=false"
+              class="px-4 py-2 rounded border hover:bg-gray-50">Mégse</button>
+      <button (click)="submitReport()"
+              [disabled]="isReporting || !reportReason.trim()"
+              class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
+        {{ isReporting ? 'Küldés...' : 'Jelentés elküldése' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
     </div>
   </div>
 </div>

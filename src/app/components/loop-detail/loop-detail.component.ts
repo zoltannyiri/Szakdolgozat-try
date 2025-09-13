@@ -9,6 +9,8 @@ import { Location } from '@angular/common';
 import { UserService } from '../../services/user.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { ILoop } from '../../../../api/src/models/loop.model';
+import { ReportsService } from '../../services/reports.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-loop-detail',
@@ -50,6 +52,42 @@ export class LoopDetailComponent implements OnInit {
   volume = 0.7;
   waveform: number[] = [];
 
+
+  isLoopReportOpen = false;
+  loopReportReason = '';
+  isReportingLoop = false;
+  loopReportError = '';
+  loopReportSuccess = '';
+
+
+  isAdmin = false;
+  isEditModalOpen = false;
+  isSavingEdit = false;
+  editError: string | null = null;
+  isDeletingCommentId: string | null = null;
+
+
+  editForm: {
+  name: string;
+  bpm: number | null;
+  key: string;
+  scale: string;
+  instrument: string;
+  tags: string; // vesszővel elválasztva
+} = {
+  name: '',
+  bpm: null,
+  key: '',
+  scale: '',
+  instrument: '',
+  tags: ''
+};
+
+  // Constants
+  keys = ["A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
+  scales = ["major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
+  instruments = ["Kick", "Snare", "Hihat", "Clap", "Cymbal", "Percussion", "Bass", "Synth", "Guitar", "Vocal", "FX"];
+
   constructor(
     private location: Location,
     private route: ActivatedRoute,
@@ -58,11 +96,14 @@ export class LoopDetailComponent implements OnInit {
     private commentService: CommentService,
     private userService: UserService,
     public authService: AuthService,
-    private favoriteService: FavoriteService 
+    private favoriteService: FavoriteService,
+    private reportsSvc: ReportsService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.checkAuthStatus();
+    this.isAdmin = this.checkIsAdmin();
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -408,33 +449,96 @@ export class LoopDetailComponent implements OnInit {
   }
 }
 
-  async downloadLoop(): Promise<void> {
-    if (!this.loop?.path) return;
+
+// hibakezelés
+  private readErrorPayload(err: any): Promise<any> {
+      if (err?.error instanceof Blob) {
+        return err.error.text().then((t: string) => {
+          try { return JSON.parse(t || '{}'); } catch { return {}; }
+        });
+      }
+      return Promise.resolve(err?.error || {});
+    }
+
+  // async downloadLoop(): Promise<void> {
+  //   if (!this.loop?.path) return;
     
+  //   try {
+  //     const response = await fetch(this.getAudioUrl(this.loop.path));
+  //     const blob = await response.blob();
+      
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement('a');
+  //     a.style.display = 'none';
+  //     a.href = url;
+  //     a.download = this.loop.filename || `loop_${this.loop._id}.wav`;
+      
+  //     document.body.appendChild(a);
+  //     a.click();
+      
+  //     window.URL.revokeObjectURL(url);
+  //     document.body.removeChild(a);
+  //   } catch (err) {
+  //     console.error('Letöltési hiba:', err);
+  //     window.open(this.getAudioUrl(this.loop.path), '_blank');
+  //   }
+  // }
+
+  async downloadLoop(): Promise<void> {
+    if (!this.loop?._id) return;
+
+    console.log('Starting download for loop:', this.loop._id);
+
     try {
-      const response = await fetch(this.getAudioUrl(this.loop.path));
-      const blob = await response.blob();
-      
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = this.loop.filename || `loop_${this.loop._id}.wav`;
-      
-      document.body.appendChild(a);
-      a.click();
-      
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      console.error('Letöltési hiba:', err);
-      window.open(this.getAudioUrl(this.loop.path), '_blank');
+      const isVerified = await this.authService.isUserVerified().toPromise();
+      console.log('User verified status:', isVerified);
+
+      this.loopService.downloadLoop(this.loop._id).subscribe({
+        next: (blob: Blob) => {
+          console.log('Received blob:', { size: blob.size, type: blob.type });
+
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = this.loop.filename || `loop_${this.loop._id}.wav`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+
+          console.log('Download completed successfully');
+        },
+        error: async (err) => {
+          console.error('Download failed:', {
+            error: err,
+            loopId: this.loop?._id,
+            path: this.loop?.path
+          });
+
+          // 401: login szükséges
+          if (err?.status === 401) { this.handleLogin(); return; }
+
+          const payload = await this.readErrorPayload(err);
+
+          if (payload?.code === 'BANNED') {
+            alert(payload?.message || 'A fiókod tiltva van, a letöltés nem engedélyezett.');
+            return;
+          }
+          if (payload?.code === 'EMAIL_NOT_VERIFIED') {
+            alert('You need to authenticate your email.');
+            return;
+          }
+
+          alert(payload?.message || 'A letöltés nem sikerült.');
+        }
+      });
+    } catch (e) {
+      console.error('Error in download process:', e);
     }
   }
 
 
   //likeolás
-  // A komponens osztályhoz új metódusok
 hasLiked(): boolean {
   const userId = this.authService.getUserId();
   if (!userId || !this.loop?.likedBy) return false;
@@ -540,6 +644,23 @@ toggleLike(): void {
 }
 
 //report 
+
+openLoopReportModal() {
+    if (!this.isLoggedIn) { this.handleLogin(); return; }
+    this.loopReportReason = '';
+    this.loopReportError = '';
+    this.loopReportSuccess = '';
+    this.isLoopReportOpen = true;
+  }
+
+  closeLoopReportModal(evt?: Event) {
+    if (!evt) { this.isLoopReportOpen = false; return; }
+    const el = evt.target as HTMLElement;
+    if (el.classList.contains('bg-black') || el.classList.contains('bg-black/50')) {
+      this.isLoopReportOpen = false;
+    }
+  }
+
 openReportModal(commentId: string) {
   if (!this.isLoggedIn) { this.handleLogin(); return; }
   this.reportTargetCommentId = commentId;
@@ -571,6 +692,154 @@ submitReport() {
       console.error('[report] error:', err);
       this.isReporting = false;
       this.reportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
+    }
+  });
+  
+}
+
+ submitLoopReport() {
+    if (!this.loop?._id || !this.loopReportReason.trim()) return;
+    this.isReportingLoop = true;
+    this.loopReportError = '';
+    this.loopReportSuccess = '';
+
+    this.reportsSvc.reportLoop(this.loop._id, this.loopReportReason.trim()).subscribe({
+      next: () => {
+        this.isReportingLoop = false;
+        this.loopReportSuccess = 'Köszönjük! A jelentést megkaptuk.';
+        // setTimeout(() => { this.isLoopReportOpen = false; }, 900);
+      },
+      error: (err) => {
+        console.error('[loop-detail loop report] error:', err);
+        this.isReportingLoop = false;
+        this.loopReportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
+      }
+    });
+  }
+
+
+  // ADMIN
+  private checkIsAdmin(): boolean {
+  try {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) return false;
+    const payload = JSON.parse(atob(token.split('.')[1] || ''));
+    return payload?.role === 'admin' || payload?.isAdmin === true;
+  } catch {
+    return false;
+  }
+}
+
+adminDeleteLoop(): void {
+  if (!this.isAdmin || !this.loop?._id) return;
+  if (!confirm('Biztosan törlöd ezt a loopot?')) return;
+
+  this.http.delete(`${this.loopService.apiUrl}/api/admin/loops/${this.loop._id}`).subscribe({
+    next: () => {
+      // menjünk vissza az előző oldalra
+      this.location.back();
+    },
+    error: (err) => {
+      console.error('Loop törlés hiba:', err);
+      alert('A törlés nem sikerült.');
+    }
+  });
+}
+
+
+
+adminDeleteComment(commentId: string): void {
+  if (!this.isAdmin || !commentId) return;
+  if (!confirm('Biztosan törlöd ezt a kommentet?')) return;
+
+  this.isDeletingCommentId = commentId;
+
+  this.http
+    .delete(`${this.loopService.apiUrl}/api/admin/comments/${commentId}`)
+    .subscribe({
+      next: () => {
+        this.comments = this.comments.filter(c => c._id !== commentId);
+        this.isDeletingCommentId = null;
+      },
+      error: (err) => {
+        console.error('Komment törlés hiba:', err);
+        this.isDeletingCommentId = null;
+        alert(err?.error?.message || 'A komment törlése nem sikerült.');
+      }
+    });
+}
+
+
+openEditModal(): void {
+  if (!this.isAdmin || !this.loop) return;
+  this.editError = null;
+  this.isEditModalOpen = true;
+
+  this.editForm = {
+    name: (this.loop.title ?? this.loop.customName ?? this.loop.filename ?? ''),
+    bpm: typeof this.loop.bpm === 'number' ? this.loop.bpm : null,
+    key: this.loop.key ?? '',
+    scale: this.loop.scale ?? '',
+    instrument: this.loop.instrument ?? '',
+    tags: Array.isArray(this.loop.tags) ? this.loop.tags.join(', ') : (this.loop.tags || '')
+  };
+}
+
+closeEditModal(evt?: Event) {
+  if (!evt || evt.target === evt.currentTarget) {
+    this.isEditModalOpen = false;
+  }
+}
+
+
+saveLoopEdit(): void {
+  if (!this.isAdmin || !this.loop?._id) return;
+
+  // minimális validáció
+  if (this.editForm.bpm !== null) {
+    const bpm = Number(this.editForm.bpm);
+    if (isNaN(bpm) || bpm < 40 || bpm > 300) {
+      this.editError = 'A BPM értéke 40 és 300 között legyen.';
+      return;
+    }
+  }
+
+  const payload: any = {};
+
+  // név frissitése
+  if ('title' in this.loop) payload.title = (this.editForm.name || '').trim();
+  else payload.filename = (this.editForm.name || '').trim();
+
+  if (this.editForm.bpm !== null) payload.bpm = Number(this.editForm.bpm);
+  if (this.editForm.key) payload.key = this.editForm.key;
+  if (this.editForm.scale) payload.scale = this.editForm.scale;
+  if (this.editForm.instrument) payload.instrument = this.editForm.instrument;
+
+  payload.tags = this.editForm.tags
+    ? this.editForm.tags.split(',').map(t => t.trim()).filter(Boolean)
+    : [];
+
+  this.isSavingEdit = true;
+  this.editError = null;
+
+  this.http.patch<{ success: boolean; data?: any }>(
+    `${this.loopService.apiUrl}/api/admin/loops/${this.loop._id}`,
+    payload
+  ).subscribe({
+    next: (res) => {
+      // ha a backend visszaadja az updated loopot, azt vegyük át,
+      // különben csak a módosított mezőket
+     
+      this.loop = res?.data ? res.data : { ...this.loop, ...payload };
+      if (!res?.data && payload.tags) this.loop.tags = payload.tags;
+
+      this.isSavingEdit = false;
+      this.isEditModalOpen = false;
+    },
+    error: (err) => {
+      console.error('Loop mentés hiba:', err);
+      this.isSavingEdit = false;
+      this.editError = err?.error?.message || 'A mentés nem sikerült.';
     }
   });
 }

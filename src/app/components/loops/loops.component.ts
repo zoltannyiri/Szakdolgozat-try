@@ -10,6 +10,8 @@ import { RouterModule } from '@angular/router';
 import { WaveformService } from '../../services/waveform.service';
 import { FavoriteService } from '../../services/favorite.service';
 import mongoose from 'mongoose';
+import { ReportsService } from '../../services/reports.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-loops',
@@ -62,7 +64,38 @@ export class LoopsComponent implements OnInit {
     tags: '',
     sortBy: 'recent' as 'recent' | 'downloads' | 'likes'
   };
+
+  // Report modal state
+  isLoopReportModalOpen = false;
+  reportTargetLoopId: string | null = null;
+  loopReportReason = '';
+  isReportingLoop = false;
+  loopReportError = '';
+  loopReportSuccess = '';
+
+  // ADMIN
+  isAdmin = false;
+  isEditModalOpen = false;
+  editingLoopId: string | null = null;
+  isSavingEdit = false;
+  editError: string | null = null;
   
+  editForm: {
+  name: string;
+  bpm: number | null;
+  key: string;
+  scale: string;
+  instrument: string;
+  tags: string; // vesszővel elválasztva
+} = {
+  name: '',
+  bpm: null,
+  key: '',
+  scale: '',
+  instrument: '',
+  tags: ''
+};
+
   // Constants
   keys = ["A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
   scales = ["major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
@@ -72,10 +105,13 @@ export class LoopsComponent implements OnInit {
     private loopService: LoopService,
     private authService: AuthService,
     private waveformService: WaveformService,
-    private favoriteService: FavoriteService
+    private favoriteService: FavoriteService,
+    private reportsSvc: ReportsService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.checkIsAdmin();
     this.loadLoops();
   }
 
@@ -173,11 +209,11 @@ export class LoopsComponent implements OnInit {
     const clickPosition = event.clientX - rect.left;
     const percentClicked = (clickPosition / rect.width) * 100;
     
-    // Calculate new time
+   
     const newTime = (percentClicked / 100) * audioElement.duration;
     audioElement.currentTime = newTime;
     
-    // Update progress immediately
+    
     if (this.currentlyPlayingId === loopId) {
       this.currentPositions[loopId] = newTime;
     }
@@ -282,7 +318,7 @@ export class LoopsComponent implements OnInit {
       return;
     }
   
-    // Double-check verification status
+    // Double-check 
   this.authService.isUserVerified().subscribe({
     next: (isVerified) => {
       if (!isVerified) {
@@ -290,7 +326,7 @@ export class LoopsComponent implements OnInit {
         return;
       }
       
-      // Proceed with upload if verified
+      // ha oké
       this.performFileUpload();
     },
     error: (err) => {
@@ -464,7 +500,7 @@ export class LoopsComponent implements OnInit {
 
   
 
-  // loops.component.ts
+ 
   async downloadLoop(loop: ILoop): Promise<void> {
     console.log('Starting download for loop:', loop._id); // [14]
     
@@ -491,15 +527,56 @@ export class LoopsComponent implements OnInit {
           
           console.log('Download completed successfully'); // [17]
         },
+        // error: (err) => {
+        //   console.error('Download failed:', { // [18]
+        //     error: err,
+        //     loopId: loop._id,
+        //     path: loop.path
+        //   });
+        //   alert('You need to authenticate your email.');
+        //   // window.open(this.getSafeAudioUrl(loop.path), '_blank');
+        // }
         error: (err) => {
-          console.error('Download failed:', { // [18]
-            error: err,
-            loopId: loop._id,
-            path: loop.path
-          });
-          alert('You need to authenticate your email.');
-          // window.open(this.getSafeAudioUrl(loop.path), '_blank');
-        }
+  // Helper
+  const handle = (data: any) => {
+    const code = data?.code;
+    if (err.status === 403 && code === 'BANNED') {
+      const untilIso = data?.until;
+      const reason = (data?.reason || '').trim();
+      let msg = 'A fiókod tiltva.';
+      if (untilIso) {
+        const until = new Date(untilIso);
+        const forever = until.getUTCFullYear() >= 9999;
+        msg = forever
+          ? 'A fiókod véglegesen tiltva.'
+          : `A fiókod ideiglenesen tiltva eddig: ${until.toLocaleString()}.`;
+      }
+      if (reason) msg += `\nOk: ${reason}`;
+      alert(msg);
+      return;
+    }
+    if (err.status === 403 && code === 'EMAIL_NOT_VERIFIED') {
+      alert('Előbb igazold az e-mail címedet.');
+      return;
+    }
+    alert('A letöltés nem engedélyezett vagy hiba történt.');
+  };
+
+  // Ha Blob az error body, akkor parse
+  if (err?.error instanceof Blob) {
+    err.error.text().then((t: string) => {
+      try {
+        const data = JSON.parse(t);
+        handle(data);
+      } catch {
+        handle({});
+      }
+    });
+  } else {
+    handle(err?.error);
+  }
+}
+
       });
     } catch (err) {
       console.error('Error in download process:', err); // [19]
@@ -535,17 +612,17 @@ export class LoopsComponent implements OnInit {
   //   }
   // }
 
-  // Add this with your other component properties
+
   bandHeights: { [key: string]: number[] } = {};
-  // Add this method to your component class
+ 
 getBandHeight(loopId: string, bandIndex: number): number {
   if (!this.bandHeights[loopId]) {
-    // Initialize random heights for each band (16 bands)
+    
     this.bandHeights[loopId] = Array(16).fill(0).map(() => 
-      Math.floor(Math.random() * 30) + 10 // Random between 10-40%
+      Math.floor(Math.random() * 30) + 10 // Random  10-40%
     );
     
-    // If audio is playing this loop, animate the bands
+    
     if (this.currentlyPlayingId === loopId) {
       this.animateBands(loopId);
     }
@@ -568,7 +645,7 @@ animateBands(loopId: string) {
       return Math.min(100, Math.max(5, height + change));
     });
     
-    // Continue animation if still playing
+    
     setTimeout(() => this.animateBands(loopId), 100);
   }
 }
@@ -683,5 +760,157 @@ animateBands(loopId: string) {
     });
   }
 }
+
+// Report loop
+openLoopReportModal(loopId: string) {
+    if (!this.authService.isLoggedIn()) {
+      alert('Please log in to report loops');
+      return;
+    }
+    this.reportTargetLoopId = loopId;
+    this.loopReportReason = '';
+    this.loopReportError = '';
+    this.loopReportSuccess = '';
+    this.isLoopReportModalOpen = true;
+  }
+
+  closeLoopReportModal(evt?: Event) {
+    if (!evt) { this.isLoopReportModalOpen = false; return; }
+    const el = evt.target as HTMLElement;
+    if (el.classList.contains('bg-black') || el.classList.contains('bg-black/50')) {
+      this.isLoopReportModalOpen = false;
+    }
+  }
+
+  submitLoopReport() {
+    if (!this.reportTargetLoopId || !this.loopReportReason.trim()) return;
+    this.isReportingLoop = true;
+    this.loopReportError = '';
+    this.loopReportSuccess = '';
+
+    this.reportsSvc.reportLoop(this.reportTargetLoopId, this.loopReportReason.trim()).subscribe({
+      next: () => {
+        this.isReportingLoop = false;
+        this.loopReportSuccess = 'Köszönjük! A jelentést megkaptuk.';
+        setTimeout(() => { this.isLoopReportModalOpen = false; }, 900);
+      },
+      error: (err) => {
+        console.error('[loop report] error:', err);
+        this.isReportingLoop = false;
+        this.loopReportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
+      }
+    });
+  }
+
+
+  // ADMIN
+  private checkIsAdmin(): boolean {
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      if (!token) return false;
+      const payload = JSON.parse(atob(token.split('.')[1] || ''));
+      return payload?.role === 'admin' || payload?.isAdmin === true;
+    } catch {
+      return false;
+    }
+  }
+
+  //törlés
+  adminDeleteLoop(loop: ILoop): void {
+    if (!this.isAdmin) return;
+    if (!confirm('Biztosan törlöd ezt a loopot?')) return;
+
+    this.http.delete(`${this.loopService.apiUrl}/api/admin/loops/${loop._id}`).subscribe({
+      next: () => {
+        this.loops = this.loops.filter(l => l._id !== loop._id);
+      },
+      error: (err) => {
+        console.error('Loop törlés hiba:', err);
+        alert('A törlés nem sikerült.');
+      }
+    });
+  }
+
+  //módosítás
+  openEditModal(loop: any) {
+  if (!this.isAdmin) return;
+  this.editingLoopId = loop._id;
+  this.isEditModalOpen = true;
+  this.editError = null;
+
+  this.editForm = {
+    name: (loop.title ?? loop.customName ?? loop.filename ?? ''),
+    bpm: typeof loop.bpm === 'number' ? loop.bpm : null,
+    key: loop.key ?? '',
+    scale: loop.scale ?? '',
+    instrument: loop.instrument ?? '',
+    tags: Array.isArray(loop.tags) ? loop.tags.join(', ') : (loop.tags || '')
+  };
+}
+
+closeEditModal(evt: MouseEvent) {
+  if (evt && evt.target === evt.currentTarget) {
+    this.isEditModalOpen = false;
+  }
+}
+
+
+saveLoopEdit() {
+  if (!this.isAdmin || !this.editingLoopId) return;
+
+  // validálás
+  if (this.editForm.bpm !== null) {
+    const bpm = Number(this.editForm.bpm);
+    if (isNaN(bpm) || bpm < 40 || bpm > 300) {
+      this.editError = 'A BPM értéke 40 és 300 között legyen.';
+      return;
+    }
+  }
+
+  const payload: any = {};
+  // név
+  const loop = this.loops.find(l => l._id === this.editingLoopId);
+  if (loop) {
+    if ('title' in loop) payload.title = this.editForm.name?.trim() || '';
+    else payload.filename = this.editForm.name?.trim() || '';
+  } else {
+    payload.filename = this.editForm.name?.trim() || '';
+  }
+
+  if (this.editForm.bpm !== null) payload.bpm = Number(this.editForm.bpm);
+  if (this.editForm.key) payload.key = this.editForm.key;
+  if (this.editForm.scale) payload.scale = this.editForm.scale;
+  if (this.editForm.instrument) payload.instrument = this.editForm.instrument;
+
+  payload.tags = this.editForm.tags
+    ? this.editForm.tags.split(',').map(t => t.trim()).filter(Boolean)
+    : [];
+
+  this.isSavingEdit = true;
+  this.editError = null;
+
+  this.http.patch<{ success: boolean; data?: any }>(
+    `${this.loopService.apiUrl}/api/admin/loops/${this.editingLoopId}`,
+    payload
+  ).subscribe({
+    next: () => {
+      // helyi lista frissítése
+      const i = this.loops.findIndex(l => l._id === this.editingLoopId);
+      if (i > -1) {
+        const updated = { ...this.loops[i], ...payload };
+        if (payload.tags) updated.tags = payload.tags; // biztosan tömb maradjon
+        this.loops[i] = updated;
+      }
+      this.isSavingEdit = false;
+      this.isEditModalOpen = false;
+    },
+    error: (err) => {
+      console.error('Loop mentés hiba:', err);
+      this.isSavingEdit = false;
+      this.editError = 'A mentés nem sikerült.';
+    }
+  });
+}
+
 
 }
