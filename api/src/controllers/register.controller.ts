@@ -1,13 +1,14 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model";
-import { sendVerificationEmail } from "../utils/emailSender";
+// import { sendVerificationEmail } from "../utils/emailSender";
 import crypto from 'crypto';
-import { validateUser } from "../middlewares/validation.middleware"; // Importáljuk a validátort
+import { validateUser } from "../middlewares/validation.middleware";
+import { issueVerification } from "../utils/verify";
 
 const router = Router();
 
-// A validateUser middleware hozzáadása a regisztrációs útvonalhoz
+
 router.post("/register", validateUser, async (req: Request, res: Response) => {
     try {
         const { username, email, password, country } = req.body;
@@ -45,33 +46,38 @@ router.post("/register", validateUser, async (req: Request, res: Response) => {
             role: "user",
             date: new Date(),
             country,
-            verificationToken,
-            verificationTokenExpires,
+            // verificationToken,
+            // verificationTokenExpires,
             isVerified: false
         });
 
         await newUser.save();
 
         // Email küldése (hiba esetén is mentjük a felhasználót)
-        try {
-            await sendVerificationEmail(email, verificationToken);
-        } catch (emailError) {
-            console.error("Email küldési hiba:", emailError);
-        }
+       try {
+      await issueVerification({
+        _id: newUser._id,
+        email: newUser.email,
+        username: newUser.username,
+      });
+    } catch (emailErr) {
+      
+      console.error("[register] Verification email error:", emailErr);
 
-        res.status(201).json({ 
-            success: true,
-            message: "Registration successful",
-            userId: newUser._id
-        });
-
-    } catch (error) {
-        console.error("Registration error:", error);
-        res.status(500).json({ 
-            success: false,
-            message: "Server error during registration" 
-        });
     }
+
+    return res.status(201).json({
+      success: true,
+      message: "Registration successful",
+      userId: newUser._id,
+    });
+  } catch (error) {
+    console.error("Registration error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error during registration",
+    });
+  }
 });
 
 export default router;

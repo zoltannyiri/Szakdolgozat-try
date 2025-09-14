@@ -1,0 +1,27 @@
+<div class="min-h-[60vh] grid place-items-center p-6">
+  <div class="w-full max-w-md rounded-2xl border bg-white p-6 shadow">
+    <h1 class="text-xl font-semibold mb-3">E-mail megerősítés</h1>
+
+    <ng-container [ngSwitch]="state">
+      <p *ngSwitchCase="'loading'">🔄 {{ msg }}</p>
+
+      <div *ngSwitchCase="'success'" class="space-y-3">
+        <p>✅ {{ msg }}</p>
+        <a routerLink="/" class="inline-block rounded-lg bg-indigo-600 px-4 py-2 text-white">Tovább</a>
+      </div>
+
+      <div *ngSwitchCase="'expired'" class="space-y-3">
+        <p>⏰ {{ msg }}</p>
+        <button (click)="resend()" [disabled]="isSending"
+                class="rounded-lg border px-4 py-2 hover:bg-slate-50">
+          {{ isSending ? 'Küldés…' : 'Új megerősítő e-mail kérése' }}
+        </button>
+        <p *ngIf="resendOk" class="text-emerald-600 text-sm">{{ resendOk }}</p>
+        <p *ngIf="resendErr" class="text-rose-600 text-sm">{{ resendErr }}</p>
+      </div>
+
+      <p *ngSwitchCase="'invalid'">⚠️ {{ msg }}</p>
+      <p *ngSwitchCase="'error'">❌ {{ msg }}</p>
+    </ng-container>
+  </div>
+</div>

@@ -22,6 +22,20 @@ export class AuthService {
   }
 }
 
+
+  // verifikálás
+  verifyAccount(uid: string, token: string) {
+    return this.http.post(`${environment.apiUrl}/api/auth/verify`, { uid, token });
+  }
+
+  resendVerification() {
+    const token = this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    let userId: string | null = null;
+    try { const d: any = jwtDecode(token); userId = d?.userId || null; } catch {}
+    return this.http.post(`${environment.apiUrl}/api/auth/verify/resend`, { userId });
+  }
+
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
   private tokenCheckInterval: any;
@@ -141,7 +155,6 @@ export class AuthService {
   }
 
   //megerősített profil? frissítve: 2025. 04. 27
-  // In auth.service.ts, improve the isUserVerified method:
 isUserVerified(): Observable<boolean> {
   const token = this.getToken();
   if (!token) return of(false);

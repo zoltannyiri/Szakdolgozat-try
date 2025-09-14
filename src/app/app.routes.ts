@@ -16,6 +16,7 @@ import { AdminUsersComponent } from './components/admin/admin-users/admin-users.
 import { AdminLoopsComponent } from './components/admin/admin-loops/admin-loops.component';
 import { AdminCommentsComponent } from './components/admin/admin-comments/admin-comments.component';
 import { AdminReportsComponent } from './components/admin/admin-reports/admin-reports.component';
+// import { VerifyComponent } from './components/verify/verify.component';
 
 export const routes: Routes = [
     {'path': '', component: HomeComponent},
@@ -31,6 +32,7 @@ export const routes: Routes = [
     {'path': 'loop-detail/:id', component: LoopDetailComponent},
     {'path': 'favorites', component: FavoritesComponent},
     {'path': 'chat', component: ChatComponent},
+    {'path': 'verify', loadComponent: () => import('./components/verify/verify.component').then(m => m.VerifyComponent) },
     {'path': 'admin', component: AdminLayoutComponent, children: [
                                                                     { path: 'dashboard', component: AdminDashboardComponent },
                                                                     { path: 'users', component: AdminUsersComponent },

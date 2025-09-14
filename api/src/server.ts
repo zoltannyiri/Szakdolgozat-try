@@ -27,6 +27,8 @@ import profileRoutes from "./routes/profile.routes";
 import reportRoutes from './routes/report.routes';
 import { blockIfBanned } from './middlewares/ban.middleware';
 import { checkVerifiedOrBanned } from "./middlewares/userAccess.guard";
+import verifyRoutes from './routes/verify.routes';
+import { sendVerificationEmail } from './utils/mailer';
 
 
 
@@ -477,9 +479,24 @@ app.use('/api', chatRoutes);
 
 app.use("/api/profile", profileRoutes);
 
+// verifikálás
+app.use('/api', verifyRoutes);
 
+//teszt
 
-
+// app.post('/api/_dev/test-mail', async (req, res) => {
+//   try {
+//     await sendVerificationEmail({
+//       to: 'zolikaa0@gmail.com',
+//       link: 'http://localhost:4200/verify?uid=demo&token=demo',
+//       username: 'Teszt Elek',
+//     });
+//     res.json({ ok: true });
+//   } catch (e:any) {
+//     console.error('Test mail error:', e);
+//     res.status(500).json({ ok: false, message: e?.message || 'send fail' });
+//   }
+// });
 
 
 // feltöltés
