@@ -43,3 +43,5 @@ valaki - admin
 valaki02 - verfiied, nem banned
 valakik - nem verified
 banban - verified, banned
+
+gmail belépés: random felhnév még, automatikus verified, pw kell a módosításhoz, nem menti a nevet és várost,

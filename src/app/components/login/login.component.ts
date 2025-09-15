@@ -1,8 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../environments/environment';
+
+
+declare global {
+  interface Window { google: any; }
+}
 
 @Component({
   selector: 'app-login',
@@ -11,7 +17,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit {
   loginData = {
     username: '',
     password: ''
@@ -39,6 +45,45 @@ export class LoginComponent {
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Hibás felhasználónév vagy jelszó.';
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    const init = () => {
+      const btn = document.getElementById('googleBtn');
+      if (!window.google || !btn) { setTimeout(init, 100); return; }
+
+      window.google.accounts.id.initialize({
+        client_id: environment.googleClientId,
+        callback: (resp: any) => this.onGoogleCredential(resp),
+        ux_mode: 'popup',
+        auto_select: false,
+      });
+
+      window.google.accounts.id.renderButton(btn, {
+        theme: 'outline',
+        size: 'large',
+        shape: 'pill',
+        text: 'continue_with',
+        width: 280,
+        logo_alignment: 'left',
+      });
+
+    };
+    init();
+  }
+
+  private onGoogleCredential(resp: any) {
+    const idToken: string | undefined = resp?.credential;
+    if (!idToken) return;
+
+    this.errorMessage = '';
+    this.authService.loginWithGoogle(idToken).subscribe({
+      next: () => this.router.navigate(['/home']),
+      error: (err) => {
+        console.error('Google login error:', err);
+        this.errorMessage = err?.error?.message || 'Google bejelentkezés sikertelen.';
       }
     });
   }

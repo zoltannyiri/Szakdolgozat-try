@@ -2,8 +2,9 @@ import { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User from "../models/user.model";
-import { sendVerificationEmail } from "../utils/emailSender";
+// import { sendVerificationEmail } from "../utils/emailSender";
 import { CustomRequest } from "../middlewares/auth.middleware";
+import { issueVerification } from "../utils/verify"; 
 
 export const getProfile: RequestHandler = async (req, res) => {
   try {
@@ -63,19 +64,35 @@ export const changeEmail: RequestHandler = async (req, res) => {
     const dbUser = await User.findById(userId);
     if (!dbUser) return res.status(404).json({ success: false, message: "User not found" });
 
+    // ha gmail belépés, nincs jelszócsere
+    if (!dbUser.password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ez a fiók Google bejelentkezést használ, jelszó-ellenőrzés nélkül nem módosítható az e-mail.'
+      });
+    }
+
     const passOk = await bcrypt.compare(password, dbUser.password);
     if (!passOk) return res.status(400).json({ success: false, message: "Invalid password" });
 
     const exists = await User.findOne({ email: newEmail });
     if (exists) return res.status(400).json({ success: false, message: "Email already in use" });
 
+    // email megváltoztatása
     dbUser.email = newEmail;
     dbUser.isVerified = false;
+
     dbUser.verificationToken = crypto.randomBytes(20).toString("hex");
     dbUser.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await dbUser.save();
 
-    try { await sendVerificationEmail(newEmail, dbUser.verificationToken!); } catch {}
+    await issueVerification({
+      _id: dbUser._id,
+      email: dbUser.email,
+      username: dbUser.username,
+    });
+
+    // try { await sendVerificationEmail(newEmail, dbUser.verificationToken!); } catch {}
 
     return res.json({ success: true, message: "Email updated. Please verify your new email." });
   } catch (error) {
@@ -92,6 +109,14 @@ export const changePassword: RequestHandler = async (req, res) => {
 
     const dbUser = await User.findById(userId);
     if (!dbUser) return res.status(404).json({ success: false, message: "User not found" });
+
+    // ha gmail belépés, nincs jelszó
+    if (!dbUser.password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ez a fiók Google bejelentkezést használ, nincs beállított jelszó.'
+      });
+    }
 
     const match = await bcrypt.compare(currentPassword, dbUser.password);
     if (!match) return res.status(400).json({ success: false, message: "Current password is incorrect" });

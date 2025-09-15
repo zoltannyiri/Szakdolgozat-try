@@ -4,7 +4,12 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 export interface IUser extends Document {
   email: string;
   username: string;
-  password: string;
+  // Jelszó csak local esetén kötelező
+  password?: string;
+
+  provider: 'local' | 'google';
+  googleId?: string;
+
   role: string;
   date: Date;
   country: string;
@@ -21,15 +26,38 @@ export interface IUser extends Document {
   bannedUntil?: Date | null;
   banReason?: string | null;
   bannedBy?: Types.ObjectId | null;
+
+  
+
+
+  // googleId: { type: String, index: true },
 }
 
 const UserSchema: Schema = new Schema<IUser>({
   email: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+
+  provider:  { type: String, enum: ['local', 'google'], default: 'local', index: true },
+
+  googleId:  { type: String, unique: true, sparse: true },
+
+  // password: { type: String, required: true },
+  password:  { 
+    type: String, 
+    required: function (this: any) { 
+      return this.provider === 'local'; 
+    } 
+  },
+  
   role: { type: String, default: "user" },
   date: { type: Date, default: Date.now },
-  country: { type: String, required: true },
+  // country: { type: String, required: true },
+  country:  { 
+    type: String, 
+    required: function (this: any) {
+      return this.provider === 'local';
+    }
+  },
   lastLogin: { type: Date, default: Date.now },
   aboutMe: { type: String, default: "" },
   profileImage: { type: String },

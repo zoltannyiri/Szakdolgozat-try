@@ -29,6 +29,7 @@ import { blockIfBanned } from './middlewares/ban.middleware';
 import { checkVerifiedOrBanned } from "./middlewares/userAccess.guard";
 import verifyRoutes from './routes/verify.routes';
 import { sendVerificationEmail } from './utils/mailer';
+import googleAuthRoutes from './routes/google-auth.routes';
 
 
 
@@ -103,8 +104,8 @@ server.listen(PORT, () => {
 // });
 
 app.use("/api", registerRoutes); 
-
 app.use("/api", loginRoutes);
+app.use('/api', googleAuthRoutes);
 
 
 

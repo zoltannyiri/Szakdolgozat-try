@@ -15,6 +15,20 @@ router.post("/login", async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Invalid login credentials" });
         }
 
+        // jelszavas fiókok
+        if (user.provider && user.provider !== "local") {
+            return res.status(400).json({
+                message: "Ez a fiók Google-bejelentkezéshez van társítva. Kérlek, jelentkezz be a Google gombbal.",
+            });
+        }
+
+        // ha nincs jelszó
+        if (!user.password) {
+            return res.status(400).json({
+                message: "A fiókodhoz nincs jelszó társítva. Jelentkezz be a Google-lel vagy állíts be jelszót.",
+            });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid login credentials" });

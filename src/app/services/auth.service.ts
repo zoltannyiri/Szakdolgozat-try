@@ -222,4 +222,17 @@ isUserVerified(): Observable<boolean> {
       clearInterval(this.tokenCheckInterval);
     }
   }
+
+  // Google Sign-In
+  loginWithGoogle(idToken: string) {
+  return this.http.post<{ success: boolean; token: string }>(
+    `${environment.apiUrl}/api/auth/google`,
+    { idToken }
+  ).pipe(
+    tap(res => {
+      if (res?.token) this.handleSuccessfulLogin(res.token);
+    })
+  );
+}
+
 }
