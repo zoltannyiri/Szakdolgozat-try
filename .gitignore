@@ -42,4 +42,10 @@ testem.log
 Thumbs.db
 
 .env
-../api/src/.env
+**/.env
+**/.env.*
+/api/keys/*.json
+
+
+# Google service account kulcsok
+/api/keys/*.json
