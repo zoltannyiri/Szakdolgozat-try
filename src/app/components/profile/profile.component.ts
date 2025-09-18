@@ -1,21 +1,25 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportsService } from '../../services/reports.service';
+import { LoopService } from '../../services/loop.service';
 
 type ToastVariant = 'default' | 'success' | 'error';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
+  environmentApi = environment.apiUrl;
+
+
   userData: any = null;
   errorMessage = '';
   activeTab: string = 'general';
@@ -51,12 +55,17 @@ export class ProfileComponent implements OnInit {
   banning = false;
   unbanning = false;
 
+  // user loopjai
+  userLoops: any[] = [];
+  loopsLoading = false;
+
   constructor(
     private authService: AuthService,
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private reportsSvc: ReportsService,
+    private loopSvc: LoopService,   
   ) { }
 
   ngOnInit(): void {
@@ -82,9 +91,50 @@ export class ProfileComponent implements OnInit {
     this.originalAboutMe = user?.aboutMe || '';
     this.aboutMe = user?.aboutMe || '';
     this.fillGeneralForm();
+
+    // user loopok betöltése
+    this.fetchUserLoops();
   }
 
-  /** --- UI helpers --- */
+  fetchUserLoops() {
+  if (!this.userData?._id) return;
+  this.loopsLoading = true;
+  this.loopSvc.getLoops({ uploader: this.userData._id, sortBy: 'recent' })
+    .subscribe({
+      next: (items: any[]) => this.userLoops = items || [],
+      error: () => this.showToast('Loops betöltése sikertelen', 'error'),
+      complete: () => this.loopsLoading = false
+    });
+}
+
+uploadNewLoop(): void {
+  this.router.navigate(['/loops']);
+}
+
+
+totalDownloads(): number {
+  return (this.userLoops || []).reduce((s, l) => s + (Number(l?.downloads) || 0), 0);
+}
+totalLikes(): number {
+  return (this.userLoops || []).reduce((s, l) => s + (Number(l?.likes) || 0), 0);
+}
+getLoopSource(loop: any): string {
+  const p = loop?.path || '';
+  return p.startsWith('http') ? p : `${this.environmentApi}/${p}`;
+}
+
+
+// időtartam
+formatDuration(seconds?: number): string {
+  if (!seconds || seconds <= 0) return "0:00";
+  const total = Math.floor(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+
+
   get isActive(): boolean {
     if (!this.userData?.lastLogin) return false;
     const lastLoginTime = new Date(this.userData.lastLogin).getTime();
@@ -198,7 +248,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  /** --- avatar: click + drag&drop --- */
+
   onAvatarSelected(event: any): void {
     const file: File = event?.target?.files?.[0];
     if (file) this.uploadAvatar(file);
@@ -206,7 +256,7 @@ export class ProfileComponent implements OnInit {
 
   @HostListener('document:drop', ['$event'])
   preventDocumentDropDefault(e: DragEvent) {
-    // elkerülni, hogy a böngésző megnyisson képet
+    // képmegnyitás elkerülése
     e.preventDefault();
     e.stopPropagation();
   }
@@ -232,7 +282,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  /** --- HTTP helpers (token header) --- */
+ // tokken header
   private secureGet(url: string) {
     return this.http.get(url, { headers: { 'Authorization': `Bearer ${this.authService.getToken()}` } });
   }
@@ -402,6 +452,99 @@ submitBan() {
     },
     complete: () => (this.banning = false)
   });
+}
+
+//gmail login
+get isGoogleAccount(): boolean {
+return this.userData?.provider === 'google';
+}
+
+
+isSettingsOpen = false;
+settingsTab: 'profile' | 'account' = 'profile';
+
+usernameForm = { newUsername: '' };
+savingUsername = false;
+msgUsername = '';
+errUsername = '';
+
+// + metódusok:
+openSettings() { this.isSettingsOpen = true; this.settingsTab = 'profile'; }
+closeSettings(evt?: Event) {
+  if (!evt) { this.isSettingsOpen = false; return; }
+  const t = evt.target as HTMLElement;
+  if (t.classList.contains('bg-black/60') || t.classList.contains('bg-black/50')) {
+    this.isSettingsOpen = false;
+  }
+}
+
+// nicknév módosítás
+changeUsername() {
+  this.msgUsername = '';
+  this.errUsername = '';
+
+  const raw = this.usernameForm?.newUsername ?? '';
+  const newU = raw.trim();
+
+  // ha üres
+  if (!newU) {
+    this.errUsername = 'Adj meg egy új nicknevet';
+    return;
+  }
+
+  // kliens oldali validáció: 3–20, betű/szám/_
+  const valid = /^[a-zA-Z0-9_]{3,20}$/.test(newU);
+  if (!valid) {
+    this.errUsername = '3–20 karakter, csak betű/szám/alsóvonás (_) engedélyezett';
+    return;
+  }
+
+  // ne engedjük ugyanazt
+  const current = (this.userData?.username || '').trim();
+  if (current.toLowerCase() === newU.toLowerCase()) {
+    this.errUsername = 'Ez már a jelenlegi nickneved';
+    return;
+  }
+
+  this.savingUsername = true;
+
+  // Szerver
+  this.securePatch(`${environment.apiUrl}/api/profile/username`, { newUsername: newU })
+    .subscribe({
+      next: (res: any) => {
+        const updated = res?.user?.username || res?.username || newU;
+        if (!updated) {
+          this.errUsername = 'Váratlan válasz a szervertől';
+          return;
+        }
+        this.userData.username = updated;
+        this.usernameForm.newUsername = '';
+        this.msgUsername = 'Nicknév frissítve ✅';
+        this.showToast('Nicknév frissítve', 'success');
+      },
+      error: (e: any) => {
+        // ha foglalt a nick
+        if (e?.status === 409) {
+          this.errUsername = 'Ez a nick már foglalt';
+        } else {
+          this.errUsername = e?.error?.message || 'Nicknév módosítás sikertelen';
+        }
+        this.showToast(this.errUsername, 'error');
+      },
+      complete: () => this.savingUsername = false
+    });
+}
+
+
+// fő tabok + al-tab
+activeMainTab: 'profile' | 'loops' | 'acapellas' | 'tracks' | 'comments' = 'profile';
+profileSub: 'about' | 'blocked' | 'ignored' | 'followed' = 'about';
+
+// stat getter 
+stat(key: 'uploads' | 'downloads' | 'downloaded' | 'commentsOut' | 'favouritesIn' | 'favouritesOut'): number {
+  const u = this.userData || {};
+  // ha nincs, akkor 0
+  return Number(u[key] ?? 0);
 }
 
 

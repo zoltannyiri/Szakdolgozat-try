@@ -130,3 +130,38 @@ export const changePassword: RequestHandler = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+export const changeUsername: RequestHandler = async (req, res) => {
+  try {
+    const { user } = req as CustomRequest;
+    const userId = user?.userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const raw = String(req.body?.newUsername || "").trim();
+    const re = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!raw) return res.status(400).json({ message: "Adj meg egy új nicknevet" });
+    if (!re.test(raw)) {
+      return res.status(400).json({ message: "3–20 karakter, csak betű/szám/_ engedélyezett" });
+    }
+
+    
+    const me = await User.findById(userId).select("_id username");
+    if (!me) return res.status(404).json({ message: "User not found" });
+    if (me.username.toLowerCase() === raw.toLowerCase()) {
+      return res.status(200).json({ user: { username: me.username } });
+    }
+
+    // létezik e ilyen nicknév
+    const exists = await User.findOne({ username: { $regex: `^${raw}$`, $options: "i" } }).select("_id");
+    if (exists) return res.status(409).json({ message: "Ez a nick már foglalt" });
+
+    me.username = raw;
+    await me.save();
+
+    return res.status(200).json({ user: { username: me.username } });
+  } catch (err) {
+    console.error("changeUsername error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};

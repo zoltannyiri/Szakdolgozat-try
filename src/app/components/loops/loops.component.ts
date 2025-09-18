@@ -9,7 +9,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { WaveformService } from '../../services/waveform.service';
 import { FavoriteService } from '../../services/favorite.service';
-import mongoose from 'mongoose';
 import { ReportsService } from '../../services/reports.service';
 import { HttpClient } from '@angular/common/http';
 
@@ -136,13 +135,45 @@ export class LoopsComponent implements OnInit {
 
   getSafeAudioUrl(path: string | undefined): string {
     if (!path) return '';
-  
+
+
+
+
+
+
+    //új
+    const driveIdMatch = path.match(/[?&]id=([A-Za-z0-9_\-]+)/);
+
+
+
   // Ha már teljes URL, akkor visszaadjuk azt
+  // commented at 09.19.
+  // if (path.startsWith('http://') || path.startsWith('https://')) {
+  //   return path;
+  // }
+  // idáig
+
+
+  //új:
+
+  if (path.includes('drive.google.com') && driveIdMatch) {
+    const fileId = driveIdMatch[1];
+    return `${this.loopService.apiUrl}/api/files/${fileId}`;
+  }
+
   if (path.startsWith('http://') || path.startsWith('https://')) {
     return path;
   }
+
+
+
+
+
+
+
   
-  // Egyébként összeállítjuk a teljes URL-t
+  // teljes url
+  // return `${this.loopService.apiUrl}/${path.replace(/^\/?uploads\//, 'uploads/')}`;
   return `${this.loopService.apiUrl}/${path.replace(/^\/?uploads\//, 'uploads/')}`;
   }
 

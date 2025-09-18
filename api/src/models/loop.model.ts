@@ -15,6 +15,11 @@ export interface ILoop extends Document {
   likes: number;
   likedBy: mongoose.Types.ObjectId[];
   downloads: number;
+
+  // drive
+  driveFileId?: string;
+  webViewLink?: string;
+  webContentLink?: string;
 }
 
 const LoopSchema: Schema = new Schema<ILoop>({
@@ -30,7 +35,12 @@ const LoopSchema: Schema = new Schema<ILoop>({
   uploadDate: { type: Date, default: Date.now },
   likes: { type: Number, default: 0 },
   likedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
-  downloads: { type: Number, default: 0 }
+  downloads: { type: Number, default: 0 },
+
+  // drive
+  driveFileId: { type: String },
+  webViewLink: { type: String },
+  webContentLink: { type: String },
 });
 
 export default mongoose.model<ILoop>("Loop", LoopSchema);

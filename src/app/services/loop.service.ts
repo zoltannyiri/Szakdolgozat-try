@@ -3,7 +3,8 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { environment } from '../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { AuthService } from './auth.service'; // Importáljuk az AuthService-t
+import { AuthService } from './auth.service';
+import { upload } from '../../../api/src/middlewares/upload.middleware';
 
 // Szűrő interfész típusdefiníció
 interface LoopFilters {
@@ -14,6 +15,7 @@ interface LoopFilters {
   instrument?: string;
   tags?: string;
   sortBy?: 'recent' | 'downloads' | 'likes';
+  uploader?: string;
 }
 
 @Injectable({
@@ -25,7 +27,7 @@ export class LoopService {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService // Dependency injection
+    private authService: AuthService
   ) {}
 
   // Loop feltöltése
@@ -37,8 +39,8 @@ export class LoopService {
     
     // 2. Metaadatok létrehozása JSON-ként
     const metadataJson = {
-      customName: metadata.customName || '', // Egyéni név vagy üres
-      bpm: Number(metadata.bpm), // Biztos, hogy számként küldjük
+      customName: metadata.customName || '',
+      bpm: Number(metadata.bpm),
       key: metadata.key,
       scale: metadata.scale,
       instrument: metadata.instrument,
@@ -86,9 +88,9 @@ export class LoopService {
 //     })
 //   );
 // }
-// loop.service.ts
+
 getLoopById(id: string): Observable<any> {
-  // Használd az /api prefixet, hogy egyezzen a backend route-tal
+
   return this.http.get(`${this.apiUrl}/api/loops/${id}`).pipe(
     catchError(error => {
       console.error('API hiba:', error);
@@ -133,6 +135,7 @@ getLoopById(id: string): Observable<any> {
     if (filters.instrument) params.instrument = filters.instrument;
     if (filters.tags) params.tags = filters.tags;
     if (filters.sortBy) params.sortBy = filters.sortBy;
+    if (filters.uploader) params.uploader = filters.uploader;
 
     // console.log('Request params:', params);
 
@@ -152,7 +155,7 @@ getLoopById(id: string): Observable<any> {
       headers: {
         'Authorization': `Bearer ${this.authService.getToken()}`
       },
-      observe: 'response' // A teljes választ figyeljük
+      observe: 'response'
     }).pipe(
       tap(response => {
         console.log('Download response:', { // [12]

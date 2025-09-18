@@ -14,3 +14,41 @@
 // .profile-container button{
 //     margin-top: 20px;
 // }
+
+:host {
+  display: block;
+}
+
+
+.sticky {
+  backdrop-filter: saturate(120%) blur(6px);
+}
+
+
+button {
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+button:hover {
+  transform: translateY(-1px);
+}
+button:active {
+  transform: translateY(0);
+}
+
+
+[ngclass] {
+  border-radius: 0.75rem;
+}
+
+:host { display:block; }
+
+
+.sticky { backdrop-filter: saturate(120%) blur(6px); }
+
+
+button { transition: transform .15s ease, box-shadow .15s ease; }
+button:hover { transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+
+
+[ngclass] { border-radius: .75rem; }

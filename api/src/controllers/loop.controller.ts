@@ -16,85 +16,232 @@ import { validateLoopMetadata } from "../middlewares/validation.middleware";
 
 const pump = promisify(pipeline);
 
-export const uploadLoop = 
-  async (req: CustomRequest, res: Response) => {
-    try {
-      console.log('Request body:', req.body);
-      console.log('Request file:', req.file);
+// export const uploadLoop = 
+//   async (req: CustomRequest, res: Response) => {
+//     try {
+//       console.log('Request body:', req.body);
+//       console.log('Request file:', req.file);
 
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
+//       if (!req.file) {
+//         return res.status(400).json({ message: "No file uploaded" });
+//       }
 
-      // Metaadatok kiolvasása a JSON-ból
-      const metadata = JSON.parse(req.body.metadata);
-      const { bpm, key, scale, tags, instrument } = metadata;
+//       // Metaadatok kiolvasása a JSON-ból
+//       const metadata = JSON.parse(req.body.metadata);
+//       const { bpm, key, scale, tags, instrument } = metadata;
 
-      // Validáció
-      const requiredFields = ['bpm', 'key', 'scale', 'instrument'];
-      for (const field of requiredFields) {
-        if (!metadata[field]) {
-          return res.status(400).json({ message: `Missing required field: ${field}` });
-        }
-      }
+//       // Validáció
+//       const requiredFields = ['bpm', 'key', 'scale', 'instrument'];
+//       for (const field of requiredFields) {
+//         if (!metadata[field]) {
+//           return res.status(400).json({ message: `Missing required field: ${field}` });
+//         }
+//       }
 
-      const uploader = req.user.userId;
-      const filePath = req.file.path;
-      const filename = req.file.filename;
+//       const uploader = req.user.userId;
+//       const filePath = req.file.path;
+//       const filename = req.file.filename;
 
-      // Egyéni név vagy eredeti fájlnév használata
-      const customName = req.body.customName || null;
-      const displayName = customName 
-        ? `${customName}${path.extname(filename)}`
-        : filename;
+//       // Egyéni név vagy eredeti fájlnév használata
+//       const customName = req.body.customName || null;
+//       const displayName = customName 
+//         ? `${customName}${path.extname(filename)}`
+//         : filename;
       
-      const duration = await getAudioDurationInSeconds(filePath);
+//       const duration = await getAudioDurationInSeconds(filePath);
 
-      // Új loop létrehozása
-      const newLoop = new Loop({
-        filename: displayName,
-        // path: filePath,
-        path: `uploads/${filename}`,
-        uploader,
-        bpm: parseInt(bpm),
-        key,
-        scale,
-        tags: Array.isArray(tags) ? tags : [],
-        instrument,
-        duration
-      });
+//       // Új loop létrehozása
+//       const newLoop = new Loop({
+//         filename: displayName,
+//         // path: filePath,
+//         path: `uploads/${filename}`,
+//         uploader,
+//         bpm: parseInt(bpm),
+//         key,
+//         scale,
+//         tags: Array.isArray(tags) ? tags : [],
+//         instrument,
+//         duration
+//       });
 
-      await newLoop.save();
+//       await newLoop.save();
       
-      res.status(201).json({
-        message: "Loop uploaded successfully",
-        loop: {
-          id: newLoop._id,
-          filename: newLoop.filename, 
-          bpm: newLoop.bpm,
-          key: newLoop.key,
-          scale: newLoop.scale,
-          instrument: newLoop.instrument,
-          duration: newLoop.duration
-        }
-      });
+//       res.status(201).json({
+//         message: "Loop uploaded successfully",
+//         loop: {
+//           id: newLoop._id,
+//           filename: newLoop.filename, 
+//           bpm: newLoop.bpm,
+//           key: newLoop.key,
+//           scale: newLoop.scale,
+//           instrument: newLoop.instrument,
+//           duration: newLoop.duration
+//         }
+//       });
 
-    } catch (error) {
-      console.error("Upload error:", {
-        error: error instanceof Error ? error.message : error,
-        file: req.file,
-        metadata: req.body.metadata,
-        user: req.user
-      });
-      if (req.file) {
-        fs.unlink(req.file.path, (err) => {
-          if (err) console.error("Error deleting file:", err);
-        });
-      }
-      res.status(500).json({ message: "Server error during upload", 
-        error: error instanceof Error ? error.message : 'Unknown error' });
+//     } catch (error) {
+//       console.error("Upload error:", {
+//         error: error instanceof Error ? error.message : error,
+//         file: req.file,
+//         metadata: req.body.metadata,
+//         user: req.user
+//       });
+//       if (req.file) {
+//         fs.unlink(req.file.path, (err) => {
+//           if (err) console.error("Error deleting file:", err);
+//         });
+//       }
+//       res.status(500).json({ message: "Server error during upload", 
+//         error: error instanceof Error ? error.message : 'Unknown error' });
+//     }
+//   };
+
+import { uploadBufferToDrive } from "../utils/drive";
+import { parseBuffer } from "music-metadata";
+
+
+
+export const uploadLoop = async (req: CustomRequest, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
-  };
+
+    // meta
+    const metadata = JSON.parse(req.body.metadata);
+    const { bpm, key, scale, tags, instrument } = metadata;
+
+    const uploader = req.user.userId;
+    const original = req.file.originalname;
+    const ext = (original.match(/\.[^.]+$/)?.[0] || '').toLowerCase();
+    const customName = req.body.customName?.trim();
+    const displayName = customName ? `${customName}${ext}` : original;
+
+    // 1) hossz bufferből
+    let duration = 0;
+    try {
+      const meta = await parseBuffer(req.file.buffer, { mimeType: req.file.mimetype, size: req.file.size });
+      duration = meta.format.duration ?? 0;
+    } catch (e) {
+      // fallback: ha nem sikerül kiolvasni, 0 marad
+      console.warn('duration parse failed:', e);
+    }
+
+    // 2) feltöltés Drive-ra bufferből
+    const up = await uploadBufferToDrive(req.file.buffer, displayName, req.file.mimetype);
+
+    // 3) DB mentés
+    const newLoop = new Loop({
+      filename: displayName,
+      // path: up.downloadUrl,        
+      // path: `/api/files/${up.fileId}`,
+      path: `${process.env.API_BASE_URL}/api/files/${up.fileId}`,
+      driveFileId: up.fileId,
+      webViewLink: up.webViewLink,
+      webContentLink: up.webContentLink,
+      uploader,
+      bpm: parseInt(bpm),
+      key,
+      scale,
+      tags: Array.isArray(tags) ? tags : [],
+      instrument,
+      duration
+    });
+
+    await newLoop.save();
+
+    return res.status(201).json({
+      message: "Loop uploaded successfully",
+      loop: {
+        id: newLoop._id,
+        filename: newLoop.filename,
+        bpm: newLoop.bpm,
+        key: newLoop.key,
+        scale: newLoop.scale,
+        instrument: newLoop.instrument,
+        duration: newLoop.duration
+      }
+    });
+
+  } catch (error) {
+    console.error("Upload error:", error);
+    return res.status(500).json({ message: "Server error during upload" });
+  }
+};
+
+
+
+//módosítva: 2025. 04. 27
+// export const downloadLoop = [
+//   authenticateToken,
+//   checkVerified,
+//   async (req: CustomRequest, res: Response) => {
+//     try {
+//       const { id } = req.params;
+//       console.log('Download request for loop ID:', id); // [4]
+
+//       const userId = req.user?.userId;
+
+//       const loop = await Loop.findById(id);
+//       if (!loop) {
+//         console.log('Loop not found in database'); // [5]
+//         return res.status(404).json({ 
+//           success: false,
+//           message: "Loop not found" 
+//         });
+//       }
+
+//       // Frissítjük a letöltések számát
+//       await Loop.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
+
+//       // Abszolút útvonal létrehozása
+//       const absolutePath = path.join(__dirname, '..', loop.path);
+      
+      
+//       console.log('Attempting to send file:', { // [6]
+//         dbPath: loop.path,
+//         absolutePath: absolutePath,
+//         exists: fs.existsSync(absolutePath)
+//       });
+
+//       // Ellenőrizzük, hogy a fájl létezik-e
+//       if (!fs.existsSync(absolutePath)) {
+//         console.error('File not found at path:', absolutePath); // [7]
+//         return res.status(404).json({ 
+//           success: false,
+//           message: "File not found on server" 
+//         });
+//       }
+
+//       // Beállítjuk a megfelelő header-eket
+//       res.setHeader('Content-Disposition', `attachment; filename="${loop.filename}"`);
+//       res.setHeader('Content-Type', 'audio/wav');
+//       console.log('Headers set, sending file...'); // [8]
+      
+//       // Fájl küldése
+//       res.sendFile(absolutePath, (err) => {
+//         if (err) {
+//           console.error('File send error:', err); // [9]
+//           if (!res.headersSent) {
+//             res.status(500).json({ 
+//               success: false,
+//               message: "Error sending file" 
+//             });
+//           }
+//         }
+//         else {
+//           console.log('File sent successfully'); // [10]
+//         }
+//       });
+//     } catch (error) {
+//       console.error('Download error:', error); // [11]
+//       res.status(500).json({ 
+//         success: false,
+//         message: "Server error" 
+//       });
+//     }
+//   }
+// ];
 
 
 //módosítva: 2025. 04. 27
@@ -104,77 +251,52 @@ export const downloadLoop = [
   async (req: CustomRequest, res: Response) => {
     try {
       const { id } = req.params;
-      console.log('Download request for loop ID:', id); // [4]
-
-      const userId = req.user?.userId;
-
       const loop = await Loop.findById(id);
       if (!loop) {
-        console.log('Loop not found in database'); // [5]
-        return res.status(404).json({ 
-          success: false,
-          message: "Loop not found" 
-        });
+        return res.status(404).json({ success: false, message: "Loop not found" });
       }
 
-      // Frissítjük a letöltések számát
+      // Letöltésszámláló
       await Loop.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
 
-      // Abszolút útvonal létrehozása
-      const absolutePath = path.join(__dirname, '..', loop.path);
       
-      
-      console.log('Attempting to send file:', { // [6]
-        dbPath: loop.path,
-        absolutePath: absolutePath,
-        exists: fs.existsSync(absolutePath)
-      });
-
-      // Ellenőrizzük, hogy a fájl létezik-e
-      if (!fs.existsSync(absolutePath)) {
-        console.error('File not found at path:', absolutePath); // [7]
-        return res.status(404).json({ 
-          success: false,
-          message: "File not found on server" 
-        });
+      if (/^https?:\/\//i.test(loop.path)) {
+        
+        return res.redirect(loop.path);
       }
 
-      // Beállítjuk a megfelelő header-eket
+      // Lokális fájlok keresése
+      const absolutePath = path.join(__dirname, '..', loop.path);
+      if (!fs.existsSync(absolutePath)) {
+        return res.status(404).json({ success: false, message: "File not found on server" });
+      }
+
       res.setHeader('Content-Disposition', `attachment; filename="${loop.filename}"`);
       res.setHeader('Content-Type', 'audio/wav');
-      console.log('Headers set, sending file...'); // [8]
-      
-      // Fájl küldése
-      res.sendFile(absolutePath, (err) => {
-        if (err) {
-          console.error('File send error:', err); // [9]
-          if (!res.headersSent) {
-            res.status(500).json({ 
-              success: false,
-              message: "Error sending file" 
-            });
-          }
-        }
-        else {
-          console.log('File sent successfully'); // [10]
+      return res.sendFile(absolutePath, (err) => {
+        if (err && !res.headersSent) {
+          res.status(500).json({ success: false, message: "Error sending file" });
         }
       });
     } catch (error) {
-      console.error('Download error:', error); // [11]
-      res.status(500).json({ 
-        success: false,
-        message: "Server error" 
-      });
+      console.error('Download error:', error);
+      res.status(500).json({ success: false, message: "Server error" });
     }
   }
 ];
 
+
 // Loop lista
 export const getLoops = async (req: Request, res: Response) => {
   try {
-    const { bpm, minBpm, maxBpm, key, scale, instrument, tags } = req.query;
+    const { bpm, minBpm, maxBpm, key, scale, instrument, tags, uploader } = req.query;
     
     const filter: any = {};
+
+    //feltöltő
+    if (uploader) {
+      filter.uploader = uploader; 
+    }
     // BPM szűrés javítása
     if (bpm) {
       filter.bpm = parseInt(bpm as string);

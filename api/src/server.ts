@@ -30,7 +30,8 @@ import { checkVerifiedOrBanned } from "./middlewares/userAccess.guard";
 import verifyRoutes from './routes/verify.routes';
 import { sendVerificationEmail } from './utils/mailer';
 import googleAuthRoutes from './routes/google-auth.routes';
-
+import googleOAuthRoutes from "./routes/google-oauth";
+import filesRouter from './routes/files';
 
 
 
@@ -547,6 +548,11 @@ app.post('/api/loop-detail/:id/unlike', authenticateToken, blockIfBanned, unlike
 //REPORT
 // app.use('/api/reports', reportRoutes);
 app.use('/api', reportRoutes);
+
+// oauth
+app.use("/api/google", googleOAuthRoutes);
+
+app.use('/api', filesRouter);
 
 
 console.log("Registering admin routes...");
