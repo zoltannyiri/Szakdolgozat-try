@@ -32,6 +32,7 @@ import { sendVerificationEmail } from './utils/mailer';
 import googleAuthRoutes from './routes/google-auth.routes';
 import googleOAuthRoutes from "./routes/google-oauth";
 import filesRouter from './routes/files';
+import userCommentsRoutes from './routes/comment.routes';
 
 
 
@@ -553,6 +554,10 @@ app.use('/api', reportRoutes);
 app.use("/api/google", googleOAuthRoutes);
 
 app.use('/api', filesRouter);
+
+
+// kommentek
+app.use('/api', userCommentsRoutes);
 
 
 console.log("Registering admin routes...");

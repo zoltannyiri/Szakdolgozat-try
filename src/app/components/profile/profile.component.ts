@@ -7,6 +7,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportsService } from '../../services/reports.service';
 import { LoopService } from '../../services/loop.service';
+import { catchError } from 'rxjs';
+import { CommentService } from '../../services/comment.service';
 
 type ToastVariant = 'default' | 'success' | 'error';
 
@@ -59,13 +61,18 @@ export class ProfileComponent implements OnInit {
   userLoops: any[] = [];
   loopsLoading = false;
 
+  // user kommentjei
+  userComments: any[] = [];
+  commentsLoading = false;
+
   constructor(
     private authService: AuthService,
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private reportsSvc: ReportsService,
-    private loopSvc: LoopService,   
+    private loopSvc: LoopService,
+    private commentSvc: CommentService
   ) { }
 
   ngOnInit(): void {
@@ -94,44 +101,47 @@ export class ProfileComponent implements OnInit {
 
     // user loopok betöltése
     this.fetchUserLoops();
+
+    // user kommentek betöltése
+    this.fetchUserComments();
   }
 
   fetchUserLoops() {
-  if (!this.userData?._id) return;
-  this.loopsLoading = true;
-  this.loopSvc.getLoops({ uploader: this.userData._id, sortBy: 'recent' })
-    .subscribe({
-      next: (items: any[]) => this.userLoops = items || [],
-      error: () => this.showToast('Loops betöltése sikertelen', 'error'),
-      complete: () => this.loopsLoading = false
-    });
-}
+    if (!this.userData?._id) return;
+    this.loopsLoading = true;
+    this.loopSvc.getLoops({ uploader: this.userData._id, sortBy: 'recent' })
+      .subscribe({
+        next: (items: any[]) => this.userLoops = items || [],
+        error: () => this.showToast('Loops betöltése sikertelen', 'error'),
+        complete: () => this.loopsLoading = false
+      });
+  }
 
-uploadNewLoop(): void {
-  this.router.navigate(['/loops']);
-}
-
-
-totalDownloads(): number {
-  return (this.userLoops || []).reduce((s, l) => s + (Number(l?.downloads) || 0), 0);
-}
-totalLikes(): number {
-  return (this.userLoops || []).reduce((s, l) => s + (Number(l?.likes) || 0), 0);
-}
-getLoopSource(loop: any): string {
-  const p = loop?.path || '';
-  return p.startsWith('http') ? p : `${this.environmentApi}/${p}`;
-}
+  uploadNewLoop(): void {
+    this.router.navigate(['/loops']);
+  }
 
 
-// időtartam
-formatDuration(seconds?: number): string {
-  if (!seconds || seconds <= 0) return "0:00";
-  const total = Math.floor(seconds);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+  totalDownloads(): number {
+    return (this.userLoops || []).reduce((s, l) => s + (Number(l?.downloads) || 0), 0);
+  }
+  totalLikes(): number {
+    return (this.userLoops || []).reduce((s, l) => s + (Number(l?.likes) || 0), 0);
+  }
+  getLoopSource(loop: any): string {
+    const p = loop?.path || '';
+    return p.startsWith('http') ? p : `${this.environmentApi}/${p}`;
+  }
+
+
+  // időtartam
+  formatDuration(seconds?: number): string {
+    if (!seconds || seconds <= 0) return "0:00";
+    const total = Math.floor(seconds);
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
 
 
 
@@ -282,7 +292,7 @@ formatDuration(seconds?: number): string {
     });
   }
 
- // tokken header
+  // tokken header
   private secureGet(url: string) {
     return this.http.get(url, { headers: { 'Authorization': `Bearer ${this.authService.getToken()}` } });
   }
@@ -308,18 +318,18 @@ formatDuration(seconds?: number): string {
 
   // report
   openProfileReportModal(): void {
-  if (!this.authService.getToken()) {
-    this.showToast('Kérlek jelentkezz be a jelentéshez', 'error');
-    this.router.navigate(['/login'], { queryParams: { redirect: this.router.url } });
-    return;
-  }
-  if (this.isCurrentUser || !this.userData?._id) return;
+    if (!this.authService.getToken()) {
+      this.showToast('Kérlek jelentkezz be a jelentéshez', 'error');
+      this.router.navigate(['/login'], { queryParams: { redirect: this.router.url } });
+      return;
+    }
+    if (this.isCurrentUser || !this.userData?._id) return;
 
-  this.profileReportReason = '';
-  this.profileReportError = '';
-  this.profileReportSuccess = '';
-  this.isProfileReportOpen = true;
-}
+    this.profileReportReason = '';
+    this.profileReportError = '';
+    this.profileReportSuccess = '';
+    this.isProfileReportOpen = true;
+  }
 
 
   closeProfileReportModal(evt?: Event): void {
@@ -332,38 +342,38 @@ formatDuration(seconds?: number): string {
 
 
   submitProfileReport(): void {
-  if (!this.userData?._id || !this.profileReportReason.trim()) return;
+    if (!this.userData?._id || !this.profileReportReason.trim()) return;
 
-  this.isReportingProfile = true;
-  this.profileReportError = '';
-  this.profileReportSuccess = '';
+    this.isReportingProfile = true;
+    this.profileReportError = '';
+    this.profileReportSuccess = '';
 
-  this.reportsSvc.reportProfile(this.userData._id, this.profileReportReason.trim())
-    .subscribe({
-      next: () => {
-        this.isReportingProfile = false;
-        this.profileReportSuccess = 'Köszönjük! A jelentést megkaptuk.';
-        this.showToast('Jelentés elküldve', 'success');
-        setTimeout(() => (this.isProfileReportOpen = false), 900);
-      },
-      error: (err) => {
-        this.isReportingProfile = false;
-        this.profileReportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
-        this.showToast(this.profileReportError, 'error');
-      }
-    });
+    this.reportsSvc.reportProfile(this.userData._id, this.profileReportReason.trim())
+      .subscribe({
+        next: () => {
+          this.isReportingProfile = false;
+          this.profileReportSuccess = 'Köszönjük! A jelentést megkaptuk.';
+          this.showToast('Jelentés elküldve', 'success');
+          setTimeout(() => (this.isProfileReportOpen = false), 900);
+        },
+        error: (err) => {
+          this.isReportingProfile = false;
+          this.profileReportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
+          this.showToast(this.profileReportError, 'error');
+        }
+      });
   }
 
 
   //admin
   get isAdmin(): boolean {
-  try {
-    const token = this.authService.getToken();
-    if (!token) return false;
-    const payload = JSON.parse(atob(token.split('.')[1] || ''));
-    return payload?.role === 'admin' || payload?.isAdmin === true;
-  } catch { return false; }
-}
+    try {
+      const token = this.authService.getToken();
+      if (!token) return false;
+      const payload = JSON.parse(atob(token.split('.')[1] || ''));
+      return payload?.role === 'admin' || payload?.isAdmin === true;
+    } catch { return false; }
+  }
 
   isStillBanned(until: string | Date | null | undefined) {
     if (!until) return false;
@@ -374,179 +384,202 @@ formatDuration(seconds?: number): string {
     return new Date(until).getUTCFullYear() >= 9999;
   }
 
-  ban(duration: '1d'|'1m'|'permanent') {
-  if (!this.userData?._id) return;
-  const reason = prompt('Indoklás (opcionális):') || '';
-  this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/ban`, { duration, reason })
-    .subscribe({
+  ban(duration: '1d' | '1m' | 'permanent') {
+    if (!this.userData?._id) return;
+    const reason = prompt('Indoklás (opcionális):') || '';
+    this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/ban`, { duration, reason })
+      .subscribe({
+        next: (res: any) => {
+          this.userData.bannedUntil = res?.data?.bannedUntil;
+          this.userData.banReason = reason;
+          this.showToast('Felhasználó tiltva', 'success');
+        },
+        error: (e: any) => this.showToast(e?.error?.message || 'Tiltás sikertelen', 'error')
+      });
+  }
+
+  // unban() {
+  //   if (!this.userData?._id) return;
+  //   this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/unban`, {})
+  //     .subscribe({
+  //       next: (res: any) => {
+  //         this.userData.bannedUntil = null;
+  //         this.userData.banReason = '';
+  //         this.showToast('Tiltás feloldva', 'success');
+  //       },
+  //       error: (e: any) => this.showToast(e?.error?.message || 'Feloldás sikertelen', 'error')
+  //     });
+  // }
+
+  unban() {
+    if (!this.userData?._id) return;
+    this.unbanning = true;
+
+    this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/unban`, {})
+      .subscribe({
+        next: () => {
+          this.userData.bannedUntil = null;
+          this.userData.banReason = '';
+          this.showToast('Tiltás feloldva', 'success');
+        },
+        error: (e: any) => this.showToast(e?.error?.message || 'Feloldás sikertelen', 'error'),
+        complete: () => { this.unbanning = false; this.isBanModalOpen = false; }
+      });
+  }
+
+
+  openBanModal() {
+    if (!this.userData?._id) return;
+    this.banPreset = '1d';
+    this.banReason = this.userData?.banReason || '';
+    this.isBanModalOpen = true;
+  }
+
+  closeBanModal(evt?: Event) {
+    if (!evt) { this.isBanModalOpen = false; return; }
+    const target = evt.target as HTMLElement;
+    if (target.classList.contains('bg-black') || target.classList.contains('bg-black/50')) {
+      this.isBanModalOpen = false;
+    }
+  }
+
+  submitBan() {
+    if (!this.userData?._id) return;
+    this.banning = true;
+
+    this.securePost(
+      `${environment.apiUrl}/api/admin/users/${this.userData._id}/ban`,
+      { duration: this.banPreset, reason: this.banReason?.trim() || '' }
+    ).subscribe({
       next: (res: any) => {
         this.userData.bannedUntil = res?.data?.bannedUntil;
-        this.userData.banReason = reason;
-        this.showToast('Felhasználó tiltva', 'success');
-      },
-      error: (e: any) => this.showToast(e?.error?.message || 'Tiltás sikertelen', 'error')
-    });
-}
-
-// unban() {
-//   if (!this.userData?._id) return;
-//   this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/unban`, {})
-//     .subscribe({
-//       next: (res: any) => {
-//         this.userData.bannedUntil = null;
-//         this.userData.banReason = '';
-//         this.showToast('Tiltás feloldva', 'success');
-//       },
-//       error: (e: any) => this.showToast(e?.error?.message || 'Feloldás sikertelen', 'error')
-//     });
-// }
-
-unban() {
-  if (!this.userData?._id) return;
-  this.unbanning = true;
-
-  this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/unban`, {})
-    .subscribe({
-      next: () => {
-        this.userData.bannedUntil = null;
-        this.userData.banReason = '';
-        this.showToast('Tiltás feloldva', 'success');
-      },
-      error: (e: any) => this.showToast(e?.error?.message || 'Feloldás sikertelen', 'error'),
-      complete: () => { this.unbanning = false; this.isBanModalOpen = false; }
-    });
-}
-
-
-openBanModal() {
-  if (!this.userData?._id) return;
-  this.banPreset = '1d';
-  this.banReason = this.userData?.banReason || '';
-  this.isBanModalOpen = true;
-}
-
-closeBanModal(evt?: Event) {
-  if (!evt) { this.isBanModalOpen = false; return; }
-  const target = evt.target as HTMLElement;
-  if (target.classList.contains('bg-black') || target.classList.contains('bg-black/50')) {
-    this.isBanModalOpen = false;
-  }
-}
-
-submitBan() {
-  if (!this.userData?._id) return;
-  this.banning = true;
-
-  this.securePost(
-    `${environment.apiUrl}/api/admin/users/${this.userData._id}/ban`,
-    { duration: this.banPreset, reason: this.banReason?.trim() || '' }
-  ).subscribe({
-    next: (res: any) => {
-      this.userData.bannedUntil = res?.data?.bannedUntil;
-      this.userData.banReason = this.banReason?.trim() || '';
-      this.showToast('Tiltás alkalmazva', 'success');
-      this.isBanModalOpen = false;
-    },
-    error: (e: any) => {
-      this.showToast(e?.error?.message || 'Tiltás sikertelen', 'error');
-    },
-    complete: () => (this.banning = false)
-  });
-}
-
-//gmail login
-get isGoogleAccount(): boolean {
-return this.userData?.provider === 'google';
-}
-
-
-isSettingsOpen = false;
-settingsTab: 'profile' | 'account' = 'profile';
-
-usernameForm = { newUsername: '' };
-savingUsername = false;
-msgUsername = '';
-errUsername = '';
-
-// + metódusok:
-openSettings() { this.isSettingsOpen = true; this.settingsTab = 'profile'; }
-closeSettings(evt?: Event) {
-  if (!evt) { this.isSettingsOpen = false; return; }
-  const t = evt.target as HTMLElement;
-  if (t.classList.contains('bg-black/60') || t.classList.contains('bg-black/50')) {
-    this.isSettingsOpen = false;
-  }
-}
-
-// nicknév módosítás
-changeUsername() {
-  this.msgUsername = '';
-  this.errUsername = '';
-
-  const raw = this.usernameForm?.newUsername ?? '';
-  const newU = raw.trim();
-
-  // ha üres
-  if (!newU) {
-    this.errUsername = 'Adj meg egy új nicknevet';
-    return;
-  }
-
-  // kliens oldali validáció: 3–20, betű/szám/_
-  const valid = /^[a-zA-Z0-9_]{3,20}$/.test(newU);
-  if (!valid) {
-    this.errUsername = '3–20 karakter, csak betű/szám/alsóvonás (_) engedélyezett';
-    return;
-  }
-
-  // ne engedjük ugyanazt
-  const current = (this.userData?.username || '').trim();
-  if (current.toLowerCase() === newU.toLowerCase()) {
-    this.errUsername = 'Ez már a jelenlegi nickneved';
-    return;
-  }
-
-  this.savingUsername = true;
-
-  // Szerver
-  this.securePatch(`${environment.apiUrl}/api/profile/username`, { newUsername: newU })
-    .subscribe({
-      next: (res: any) => {
-        const updated = res?.user?.username || res?.username || newU;
-        if (!updated) {
-          this.errUsername = 'Váratlan válasz a szervertől';
-          return;
-        }
-        this.userData.username = updated;
-        this.usernameForm.newUsername = '';
-        this.msgUsername = 'Nicknév frissítve ✅';
-        this.showToast('Nicknév frissítve', 'success');
+        this.userData.banReason = this.banReason?.trim() || '';
+        this.showToast('Tiltás alkalmazva', 'success');
+        this.isBanModalOpen = false;
       },
       error: (e: any) => {
-        // ha foglalt a nick
-        if (e?.status === 409) {
-          this.errUsername = 'Ez a nick már foglalt';
-        } else {
-          this.errUsername = e?.error?.message || 'Nicknév módosítás sikertelen';
-        }
-        this.showToast(this.errUsername, 'error');
+        this.showToast(e?.error?.message || 'Tiltás sikertelen', 'error');
       },
-      complete: () => this.savingUsername = false
+      complete: () => (this.banning = false)
     });
-}
+  }
+
+  //gmail login
+  get isGoogleAccount(): boolean {
+    return this.userData?.provider === 'google';
+  }
 
 
-// fő tabok + al-tab
-activeMainTab: 'profile' | 'loops' | 'acapellas' | 'tracks' | 'comments' = 'profile';
-profileSub: 'about' | 'blocked' | 'ignored' | 'followed' = 'about';
+  isSettingsOpen = false;
+  settingsTab: 'profile' | 'account' = 'profile';
 
-// stat getter 
-stat(key: 'uploads' | 'downloads' | 'downloaded' | 'commentsOut' | 'favouritesIn' | 'favouritesOut'): number {
-  const u = this.userData || {};
-  // ha nincs, akkor 0
-  return Number(u[key] ?? 0);
-}
+  usernameForm = { newUsername: '' };
+  savingUsername = false;
+  msgUsername = '';
+  errUsername = '';
+
+  // + metódusok:
+  openSettings() { this.isSettingsOpen = true; this.settingsTab = 'profile'; }
+  closeSettings(evt?: Event) {
+    if (!evt) { this.isSettingsOpen = false; return; }
+    const t = evt.target as HTMLElement;
+    if (t.classList.contains('bg-black/60') || t.classList.contains('bg-black/50')) {
+      this.isSettingsOpen = false;
+    }
+  }
+
+  // nicknév módosítás
+  changeUsername() {
+    this.msgUsername = '';
+    this.errUsername = '';
+
+    const raw = this.usernameForm?.newUsername ?? '';
+    const newU = raw.trim();
+
+    // ha üres
+    if (!newU) {
+      this.errUsername = 'Adj meg egy új nicknevet';
+      return;
+    }
+
+    // kliens oldali validáció: 3–20, betű/szám/_
+    const valid = /^[a-zA-Z0-9_]{3,20}$/.test(newU);
+    if (!valid) {
+      this.errUsername = '3–20 karakter, csak betű/szám/alsóvonás (_) engedélyezett';
+      return;
+    }
+
+    // ne engedjük ugyanazt
+    const current = (this.userData?.username || '').trim();
+    if (current.toLowerCase() === newU.toLowerCase()) {
+      this.errUsername = 'Ez már a jelenlegi nickneved';
+      return;
+    }
+
+    this.savingUsername = true;
+
+    // Szerver
+    this.securePatch(`${environment.apiUrl}/api/profile/username`, { newUsername: newU })
+      .subscribe({
+        next: (res: any) => {
+          const updated = res?.user?.username || res?.username || newU;
+          if (!updated) {
+            this.errUsername = 'Váratlan válasz a szervertől';
+            return;
+          }
+          this.userData.username = updated;
+          this.usernameForm.newUsername = '';
+          this.msgUsername = 'Nicknév frissítve ✅';
+          this.showToast('Nicknév frissítve', 'success');
+        },
+        error: (e: any) => {
+          // ha foglalt a nick
+          if (e?.status === 409) {
+            this.errUsername = 'Ez a nick már foglalt';
+          } else {
+            this.errUsername = e?.error?.message || 'Nicknév módosítás sikertelen';
+          }
+          this.showToast(this.errUsername, 'error');
+        },
+        complete: () => this.savingUsername = false
+      });
+  }
 
 
+  // fő tabok + al-tab
+  activeMainTab: 'profile' | 'loops' | 'acapellas' | 'tracks' | 'comments' = 'profile';
+  profileSub: 'about' | 'blocked' | 'ignored' | 'followed' = 'about';
 
+  // stat getter 
+  stat(key: 'uploads' | 'downloads' | 'downloaded' | 'commentsOut' | 'favouritesIn' | 'favouritesOut'): number {
+    const u = this.userData || {};
+    // ha nincs, akkor 0
+    return Number(u[key] ?? 0);
+  }
+
+
+  // user adatai jobb oldali sávban
+  get statUploads(): number {
+    return this.userLoops?.length || 0;
+  }
+  get statDownloads(): number {
+    return this.totalDownloads();
+  }
+  get statLikesIn(): number {
+    return this.totalLikes();
+  }
+  get statCommentsOut(): number {
+    return this.userComments?.length || 0;
+  }
+
+  // user kommentjei
+  fetchUserComments() {
+    if (!this.userData?._id) return;
+    this.commentsLoading = true;
+    this.commentSvc.getCommentsByUser(this.userData._id).subscribe({
+      next: (res) => this.userComments = res?.items || [],
+      error: () => this.showToast('Kommentek betöltése sikertelen', 'error'),
+      complete: () => this.commentsLoading = false
+    });
+  }
 }

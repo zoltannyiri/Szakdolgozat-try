@@ -417,13 +417,74 @@
           <p class="text-sm text-slate-300">No tracks yet.</p>
         </div>
 
-        <div *ngIf="activeMainTab==='comments'" class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-6 text-center shadow-xl backdrop-blur-sm">
-          <div class="text-slate-400 mb-3 text-5xl">
-            <i class="bi bi-chat-dots-fill"></i>
+        <div *ngIf="activeMainTab==='comments'" class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-6 shadow-xl backdrop-blur-sm">
+
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                {{ userData?.username }}'s Comments
+              </h3>
+              <p class="text-sm text-slate-300 mt-1">Your activity on loops</p>
+            </div>
+            <div class="text-sm text-slate-400">
+              Total: <span class="text-slate-200 font-semibold">{{ userComments.length }}</span>
+            </div>
           </div>
-          <h3 class="text-lg font-semibold text-amber-400 mb-1">Comments</h3>
-          <p class="text-sm text-slate-300">No comments yet.</p>
+
+          <!-- Loading -->
+          <div *ngIf="commentsLoading" class="flex flex-col items-center justify-center py-12 text-slate-400">
+            <i class="bi bi-arrow-repeat animate-spin text-4xl mb-3"></i>
+            <p>Loading your comments...</p>
+          </div>
+
+          <!-- Empty -->
+          <div *ngIf="!commentsLoading && userComments.length === 0"
+              class="flex flex-col items-center justify-center py-12 text-center">
+            <div class="w-20 h-20 rounded-full bg-slate-700/40 flex items-center justify-center mb-4 backdrop-blur-sm">
+              <i class="bi bi-chat-dots text-4xl text-slate-400"></i>
+            </div>
+            <h4 class="text-lg font-semibold text-slate-200 mb-2">No comments yet</h4>
+            <p class="text-sm text-slate-300 max-w-md">Start by commenting on some loops</p>
+          </div>
+
+          <!-- List -->
+          <div *ngIf="!commentsLoading && userComments.length" class="space-y-4">
+            <div *ngFor="let c of userComments"
+                class="group rounded-xl border border-slate-600/30 bg-gradient-to-b from-slate-700/40 to-slate-800/40 p-4 hover:bg-slate-700/60 transition-all duration-300 backdrop-blur-sm">
+
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="text-sm text-slate-400 mb-1">
+                    <i class="bi bi-clock me-1 text-amber-400"></i>
+                    {{ c.createdAt | date:'MMM dd, yyyy • HH:mm' }}
+                  </div>
+                  <div class="text-slate-100 whitespace-pre-wrap">{{ c.text }}</div>
+
+                  <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-400">
+                    <span class="flex items-center gap-1">
+                      <i class="bi bi-music-note-beamed text-orange-400"></i>
+                      <span class="text-slate-300 font-medium truncate max-w-[220px]">{{ c?.loop?.filename || 'Loop' }}</span>
+                    </span>
+                    <span *ngIf="c?.loop?.bpm" class="flex items-center gap-1">
+                      <i class="bi bi-speedometer2 text-amber-400"></i>
+                      <span class="text-slate-300 font-medium">{{ c.loop.bpm }} BPM</span>
+                    </span>
+                    <span *ngIf="c?.loop?.key && c?.loop?.scale" class="flex items-center gap-1">
+                      <i class="bi bi-music-note text-amber-400"></i>
+                      <span class="text-slate-300 font-medium">{{ c.loop.key }} {{ c.loop.scale }}</span>
+                    </span>
+                  </div>
+                </div>
+
+                <a [routerLink]="['/loop-detail/', c?.loop?._id]"
+                  class="shrink-0 rounded-lg bg-slate-600/50 px-3 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
+                  View loop
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
 
       <!-- RIGHT: STATS SIDEBAR -->
@@ -434,11 +495,11 @@
 
           <div class="grid grid-cols-2 gap-3">
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
-              <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ stat('uploads') }}</div>
+              <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ statUploads }}</div>
               <div class="text-[12px] text-slate-400 mt-1">Uploads</div>
             </div>
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
-              <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ stat('downloads') }}</div>
+              <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ statDownloads }}</div>
               <div class="text-[12px] text-slate-400 mt-1">Downloads</div>
             </div>
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
@@ -446,11 +507,11 @@
               <div class="text-[12px] text-slate-400 mt-1">Downloaded</div>
             </div>
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
-              <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ stat('commentsOut') }}</div>
+              <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ statCommentsOut }}</div>
               <div class="text-[12px] text-slate-400 mt-1">Comments out</div>
             </div>
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
-              <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ stat('favouritesIn') }}</div>
+              <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ statLikesIn }}</div>
               <div class="text-[12px] text-slate-400 mt-1">Favourites In</div>
             </div>
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">

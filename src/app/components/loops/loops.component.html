@@ -1,776 +1,305 @@
-<link href="https://fonts.googleapis.com/css?family=Schoolbell&v1"
-  rel="stylesheet">
-<link
-  href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap"
-  rel="stylesheet">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-white text-slate-900 relative">
+  <div class="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
 
-<div class="min-h-screen bg-gray-50 relative">
-  <!-- Background noise effect -->
-  <div class="fixed inset-0 overflow-hidden opacity-10 pointer-events-none">
-    <div
-      class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
-  </div>
-
-  <div class="relative z-10 container mx-auto px-4 py-8 sm:py-12">
-    <!-- Search and Upload Section -->
-    <div class="max-w-6xl mx-auto mb-8 sm:mb-12">
-      <div class="flex flex-col sm:flex-row gap-3 items-center">
-        <!-- Modern kereső mező -->
-        <div class="relative flex-1 w-full">
-          <div
-            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
+  <div class="relative mx-auto max-w-7xl px-4 py-8">
+    <section class="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_10px_40px_rgba(15,23,42,0.06)]">
+      <div class="flex flex-col gap-4 sm:flex-row">
+        <div class="relative flex-1">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <i class="bi bi-search text-slate-400"></i>
           </div>
-          <input type="text" [(ngModel)]="searchQuery"
-            (keyup.enter)="searchLoops()" placeholder="Loopok keresése..."
-            class="w-full pl-10 pr-4 py-3 border-0 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-gray-400 text-gray-700 placeholder-gray-400 transition duration-200">
+          <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="searchLoops()" placeholder="Loopok keresése…"
+                 class="w-full rounded-2xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-slate-900 placeholder-slate-400 transition-all focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
         </div>
 
-        <!-- Modern gombok -->
-        <div class="flex gap-3 w-full sm:w-auto">
+        <div class="flex gap-3">
           <button (click)="toggleUploadModal()"
-            class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 whitespace-nowrap">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2"
-              viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
-                clip-rule="evenodd" />
-            </svg>
-            <span class="text-sm font-medium">Feltöltés</span>
+                  class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-tr from-indigo-500 to-sky-500 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_-12px_rgba(37,99,235,0.5)] transition-all hover:brightness-110">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            Feltöltés
           </button>
-
           <button (click)="toggleAdvancedSearch()"
-            class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 whitespace-nowrap">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2"
-              viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                clip-rule="evenodd" />
-            </svg>
-            <span class="text-sm font-medium">Szűrők</span>
+                  class="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition-all hover:border-indigo-300/70 hover:bg-indigo-50">
+            <i class="bi bi-sliders"></i>
+            Szűrők
           </button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Feltöltési Modal -->
+    <!-- Upload Modal -->
     <div *ngIf="isUploadModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-      (click)="closeUploadModal($event)">
-      <div
-        class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-2xl mx-4 relative animate-fade-in">
-        <button (click)="toggleUploadModal()"
-          class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center transition">
-          &times;
-        </button>
-
-        <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-          <i class="bi bi-cloud-arrow-up-fill mr-2 text-gray-600"></i> Loop
-          Feltöltése
-        </h2>
+         class="fixed inset-0 z-50 grid place-items-center bg-black bg-opacity-0 p-4"
+         (click)="closeUploadModal($event)">
+      <div class="pointer-events-none absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
+      <div class="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(2,6,23,0.15)]"
+           (click)="$event.stopPropagation()">
+        <div class="mb-6 flex items-center justify-between">
+          <h3 class="text-xl font-semibold tracking-tight text-slate-900">
+            <i class="bi bi-cloud-arrow-up-fill mr-2 text-indigo-500"></i> Loop feltöltése
+          </h3>
+          <button (click)="toggleUploadModal()" class="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"><i class="bi bi-x-lg text-lg"></i></button>
+        </div>
 
         <div class="space-y-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">WAV fájl
-              kiválasztása (max 20MB)</label>
-            <div class="flex items-center justify-center w-full">
-              <label
-                class="flex flex-col w-full border-2 border-dashed rounded-xl hover:border-gray-300 transition cursor-pointer">
-                <div class="flex flex-col items-center justify-center py-8">
-                  <svg class="w-12 h-12 text-gray-400" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                  </svg>
-                  <p class="text-sm text-gray-500 mt-2">Kattints a tallózáshoz
-                    vagy húzd ide a fájlt</p>
-                </div>
-                <input type="file" accept=".wav,.mp3,.aiff"
-                  (change)="onFileSelected($event)"
-                  class="opacity-0 absolute">
-              </label>
-            </div>
-            <p *ngIf="selectedFile" class="text-sm text-gray-600 mt-2">{{
-              selectedFile.name }}</p>
-            <p *ngIf="fileError" class="text-red-500 text-sm mt-2">{{ fileError
-              }}</p>
+            <label class="mb-2 block text-sm font-medium text-slate-700">WAV fájl kiválasztása (max 20MB)</label>
+            <label class="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 text-center transition hover:border-indigo-300/70 hover:bg-indigo-50">
+              <i class="bi bi-cloud-arrow-up text-4xl text-slate-400"></i>
+              <p class="mt-2 text-sm text-slate-500">Kattints a tallózáshoz vagy húzd ide a fájlt</p>
+              <input type="file" accept=".wav,.aiff" (change)="onFileSelected($event)" class="absolute inset-0 opacity-0" />
+            </label>
+            <p *ngIf="selectedFile" class="mt-2 text-sm text-slate-700">{{ selectedFile.name }}</p>
+            <p *ngIf="fileError" class="mt-2 text-sm text-rose-500">{{ fileError }}</p>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">BPM</label>
-              <input type="number" [(ngModel)]="metadata.bpm" min="40" max="300"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+              <label class="mb-2 block text-sm font-medium text-slate-700">BPM</label>
+              <input type="number" [(ngModel)]="metadata.bpm" min="40" max="300" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder-slate-400 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
             </div>
             <div>
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">Hangnem</label>
-              <select [(ngModel)]="metadata.key"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+              <label class="mb-2 block text-sm font-medium text-slate-700">Hangnem</label>
+              <select [(ngModel)]="metadata.key" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30">
                 <option value disabled selected>Válassz hangnemet</option>
                 <option *ngFor="let k of keys" [value]="k">{{ k }}</option>
               </select>
             </div>
             <div>
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">Skála</label>
-              <select [(ngModel)]="metadata.scale"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
-                <option *ngFor="let scale of scales" [value]="scale">{{ scale
-                  }}</option>
+              <label class="mb-2 block text-sm font-medium text-slate-700">Skála</label>
+              <select [(ngModel)]="metadata.scale" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30">
+                <option *ngFor="let scale of scales" [value]="scale">{{ scale }}</option>
               </select>
             </div>
             <div>
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">Hangszer</label>
-              <select [(ngModel)]="metadata.instrument"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
-                <option value disabled selected>Válassz hangszeret</option>
-                <option *ngFor="let instrument of instruments"
-                  [value]="instrument">{{ instrument }}</option>
+              <label class="mb-2 block text-sm font-medium text-slate-700">Hangszer</label>
+              <select [(ngModel)]="metadata.instrument" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30">
+                <option value disabled selected>Válassz hangszert</option>
+                <option *ngFor="let instrument of instruments" [value]="instrument">{{ instrument }}</option>
               </select>
             </div>
           </div>
 
           <div *ngIf="selectedFile">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Loop
-              neve (opcionális)</label>
-            <input type="text" [(ngModel)]="metadata.customName"
-              placeholder="Egyedi név (opcionális)"
-              class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+            <label class="mb-2 block text-sm font-medium text-slate-700">Loop neve (opcionális)</label>
+            <input type="text" [(ngModel)]="metadata.customName" placeholder="Egyedi név (opcionális)" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder-slate-400 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Címkék
-              (vesszővel elválasztva)</label>
-            <input type="text" [(ngModel)]="metadata.tags"
-              placeholder="hiphop, trap, dark"
-              class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+            <label class="mb-2 block text-sm font-medium text-slate-700">Címkék (vesszővel elválasztva)</label>
+            <input type="text" [(ngModel)]="metadata.tags" placeholder="hiphop, trap, dark" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder-slate-400 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
           </div>
 
-          <div class="flex justify-end space-x-4">
-            <button (click)="toggleUploadModal()"
-              class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
-              Mégse
-            </button>
-            <button (click)="uploadFile()"
-              [disabled]="!selectedFile || isUploading"
-              class="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+          <div class="flex justify-end gap-3">
+            <button (click)="toggleUploadModal()" class="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-50">Mégse</button>
+            <button (click)="uploadFile()" [disabled]="!selectedFile || isUploading" class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-tr from-indigo-500 to-sky-500 px-5 py-2 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50">
               <span *ngIf="!isUploading">Feltöltés</span>
-              <span *ngIf="isUploading" class="flex items-center">
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10"
-                    stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                  </path>
-                </svg>
-                Feltöltés...
-              </span>
+              <span *ngIf="isUploading" class="flex items-center gap-2"><i class="bi bi-arrow-repeat animate-spin"></i>Feltöltés…</span>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Haladó Keresés Modal -->
+    <!-- Advanced Search Modal -->
     <div *ngIf="isAdvancedSearchOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-      (click)="closeAdvancedSearch($event)">
-      <div
-        class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-2xl mx-4 relative animate-fade-in">
-        <button (click)="toggleAdvancedSearch()"
-          class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center transition">
-          &times;
-        </button>
+         class="fixed inset-0 z-50 grid place-items-center bg-black bg-opacity-0 p-4"
+         (click)="closeAdvancedSearch($event)">
+      <div class="pointer-events-none absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
 
-        <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-          <i class="bi bi-funnel-fill mr-2 text-gray-600"></i> Haladó Keresés
-        </h2>
+      <div class="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(2,6,23,0.15)]"
+           (click)="$event.stopPropagation()">
+        <div class="mb-6 flex items-center justify-between">
+          <h3 class="text-xl font-semibold tracking-tight text-slate-900"><i class="bi bi-sliders mr-2 text-indigo-500"></i> Haladó keresés</h3>
+          <button (click)="toggleAdvancedSearch()" class="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"><i class="bi bi-x-lg text-lg"></i></button>
+        </div>
 
         <form (ngSubmit)="applyAdvancedSearch()" class="space-y-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <!-- BPM Tartomány -->
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">BPM
-                Tartomány</label>
-              <div class="flex space-x-4">
-                <input type="number" [(ngModel)]="filters.minBpm" name="minBpm"
-                  placeholder="Min" min="40" max="300"
-                  class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
-                <input type="number" [(ngModel)]="filters.maxBpm" name="maxBpm"
-                  placeholder="Max" min="40" max="300"
-                  class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+              <label class="mb-2 block text-sm font-medium text-slate-700">BPM tartomány</label>
+              <div class="flex gap-4">
+                <input type="number" [(ngModel)]="filters.minBpm" name="minBpm" placeholder="Min" min="40" max="300" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder-slate-400 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
+                <input type="number" [(ngModel)]="filters.maxBpm" name="maxBpm" placeholder="Max" min="40" max="300" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder-slate-400 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
               </div>
             </div>
-
-            <!-- Hangnem -->
             <div>
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">Hangnem</label>
-              <select [(ngModel)]="filters.key" name="key"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+              <label class="mb-2 block text-sm font-medium text-slate-700">Hangnem</label>
+              <select [(ngModel)]="filters.key" name="key" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30">
                 <option value>Bármilyen hangnem</option>
                 <option *ngFor="let k of keys" [value]="k">{{ k }}</option>
               </select>
             </div>
-
-            <!-- Skála -->
             <div>
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">Skála</label>
-              <select [(ngModel)]="filters.scale" name="scale"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+              <label class="mb-2 block text-sm font-medium text-slate-700">Skála</label>
+              <select [(ngModel)]="filters.scale" name="scale" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30">
                 <option value>Bármilyen skála</option>
-                <option *ngFor="let scale of scales" [value]="scale">{{ scale
-                  }}</option>
+                <option *ngFor="let scale of scales" [value]="scale">{{ scale }}</option>
               </select>
             </div>
-
-            <!-- Hangszer -->
             <div>
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">Hangszer</label>
-              <select [(ngModel)]="filters.instrument" name="instrument"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+              <label class="mb-2 block text-sm font-medium text-slate-700">Hangszer</label>
+              <select [(ngModel)]="filters.instrument" name="instrument" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30">
                 <option value>Bármilyen hangszer</option>
-                <option *ngFor="let instrument of instruments"
-                  [value]="instrument">{{ instrument }}</option>
+                <option *ngFor="let instrument of instruments" [value]="instrument">{{ instrument }}</option>
               </select>
             </div>
-
-            <!-- Címkék -->
             <div class="sm:col-span-2">
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">Címkék</label>
-              <input type="text" [(ngModel)]="filters.tags" name="tags"
-                placeholder="hiphop, trap, dark"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+              <label class="mb-2 block text-sm font-medium text-slate-700">Címkék</label>
+              <input type="text" [(ngModel)]="filters.tags" name="tags" placeholder="hiphop, trap, dark" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder-slate-400 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
             </div>
-
-            <!-- Rendezés -->
             <div class="sm:col-span-2">
-              <label
-                class="block text-sm font-medium text-gray-700 mb-2">Rendezés</label>
-              <select [(ngModel)]="filters.sortBy" name="sortBy"
-                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent transition bg-white">
+              <label class="mb-2 block text-sm font-medium text-slate-700">Rendezés</label>
+              <select [(ngModel)]="filters.sortBy" name="sortBy" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30">
                 <option value="recent">Legújabbak</option>
                 <option value="downloads">Legtöbb letöltés</option>
                 <option value="likes">Legtöbb like</option>
               </select>
             </div>
           </div>
-
-          <div class="flex justify-end">
-            <button type="submit"
-              class="w-full sm:w-auto bg-gray-700 hover:bg-gray-800 text-white px-8 py-3 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
-              Szűrők Alkalmazása
-            </button>
-          </div>
+          <div class="flex justify-end"><button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-tr from-indigo-500 to-sky-500 px-6 py-3 text-sm font-semibold text-white transition-all hover:brightness-110">Szűrők alkalmazása</button></div>
         </form>
       </div>
     </div>
 
-    <!-- Loopok Listája - Egymás alatt -->
-    <div class="max-w-6xl mx-auto space-y-6">
-      <div *ngIf="isLoading" class="flex justify-center items-center py-12">
-        <div
-          class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
+    <!-- Loops List -->
+    <div class="space-y-6">
+      <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+        <div class="flex flex-col items-center text-slate-500">
+          <div class="mb-3 h-10 w-10 animate-pulse rounded-full bg-slate-200"></div>
+          <p>Loopok betöltése…</p>
+        </div>
       </div>
 
-      <div *ngIf="!isLoading && loops.length === 0" class="text-center py-12">
-        <p class="text-gray-500">Nincs találat. Próbáld meg módosítani a
-          keresési feltételeket.</p>
+      <div *ngIf="!isLoading && loops.length === 0" class="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-[0_10px_40px_rgba(2,6,23,0.08)]">
+        <div class="mx-auto mb-4 h-20 w-20 rounded-2xl bg-slate-100 flex items-center justify-center"><i class="bi bi-music-note-beamed text-4xl text-slate-400"></i></div>
+        <h3 class="mb-2 text-lg font-semibold text-slate-900">Nincs találat</h3>
+        <p class="text-sm text-slate-500">Próbáld meg módosítani a keresési feltételeket</p>
       </div>
 
-      <!-- Loop kártyák -->
-      <div *ngFor="let loop of loops"
-        class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden">
-        <audio #audioPlayer [id]="'audio-' + loop._id"
-          [src]="getSafeAudioUrl(loop.path)" hidden
-          (play)="onAudioPlay(loop._id)" (pause)="onAudioPause()"
-          (error)="onAudioError(audioPlayer)"
-          (timeupdate)="updateProgress(loop._id)"></audio>
+      <div *ngFor="let loop of loops" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_10px_40px_rgba(2,6,23,0.07)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(2,6,23,0.08)]">
+        <audio #audioPlayer [id]="'audio-' + loop._id" [src]="getSafeAudioUrl(loop.path)" hidden
+               (play)="onAudioPlay(loop._id)" (pause)="onAudioPause()" (error)="onAudioError(audioPlayer)"
+               (timeupdate)="updateProgress(loop._id)"></audio>
 
-        <div class="p-6">
-          <!-- Header -->
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <div class="flex items-center mb-2">
-                <h3
-                  class="text-xl font-bold text-gray-800 hover:text-gray-600 cursor-pointer transition"
-                  [routerLink]="['/loop-detail', loop._id]">{{ loop.filename
-                  }}</h3>
-                <span
-                  class="ml-3 bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full">{{
-                  loop.bpm }} BPM</span>
-              </div>
-
-              <div class="flex items-center space-x-4">
-                <span class="text-sm text-gray-600 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 mr-1 text-blue-500" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                  </svg>
-                  {{ loop.instrument }}
-                </span>
-                <span class="text-sm text-gray-600 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 mr-1 text-blue-500" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 012.728-2.728" />
-                  </svg>
-                  {{ loop.key }} {{ loop.scale }}
-                </span>
-              </div>
+        <div class="mb-6 flex items-start justify-between gap-4">
+          <div class="flex-1">
+            <div class="mb-3 flex items-center gap-3">
+              <h3 class="text-xl font-semibold tracking-tight text-slate-900 hover:text-indigo-600 cursor-pointer transition-colors" [routerLink]="['/loop-detail', loop._id]">{{ loop.filename }}</h3>
+              <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-mono font-medium text-indigo-600 ring-1 ring-inset ring-indigo-200">{{ loop.bpm }} BPM</span>
             </div>
-
-            <!-- A loop kártyán belül a like gomb -->
-            <div class="flex items-center space-x-2">
-              <button (click)="toggleLike(loop)"
-                class="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full transition"
-                [class.text-red-500]="hasLiked(loop._id)">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                  fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
-              <span class="text-sm text-gray-600">{{ loop.likes }}</span>
-            </div>
-
-            <!-- Action buttons -->
-            <div class="flex space-x-2">
-              <!-- Favorite gomb -->
-              <button (click)="toggleFavorite(loop)"
-                class="p-2 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 rounded-full transition"
-                [class.text-yellow-500]="isFavorite(loop._id)">
-                <span
-                  *ngIf="isCheckingFavorites && isFavorite(loop._id) === undefined">...</span>
-                <span
-                  *ngIf="!(isCheckingFavorites && isFavorite(loop._id) === undefined)">
-                  {{ isFavorite(loop._id) ? '★' : '☆' }}
-                </span>
-              </button>
-              <!-- <button class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                </svg>
-              </button> -->
-
-              <!-- LETÖLTÉS -->
-              <button (click)="downloadLoop(loop)"
-                class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
-                title="Loop letöltése">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                  fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-              </button>
-
-              <!-- REPORT -->
-              <!-- USER -->
-              <ng-container *ngIf="!isAdmin">
-                <button
-                  (click)="openLoopReportModal(loop._id)"
-                  class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition"
-                  title="Loop jelentése">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 4v16m0-12h12l-3-4 3-4H4z"/>
-                  </svg>
-                </button>
-              </ng-container>
-
-              <!-- ADMIN: Törlés + megnyitás adminban -->
-              <ng-template [ngIf]="isAdmin">
-  <button
-    (click)="adminDeleteLoop(loop)"
-    class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition"
-    title="Loop törlése">
-    <!-- trash -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M9 3v1H4v2h16V4h-5V3zM6 7v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7z"/>
-    </svg>
-  </button>
-
-  <button
-    (click)="openEditModal(loop)"
-    class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-full transition"
-    title="Loop módosítása">
-    <!-- pencil -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM21 6.34l-3.69-3.69l-1.41 1.41l3.69 3.69L21 6.34z"/>
-    </svg>
-  </button>
-</ng-template>
+            <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+              <span class="inline-flex items-center gap-2"><i class="bi bi-speedometer2 text-indigo-500"></i>{{ loop.instrument }}</span>
+              <span class="inline-flex items-center gap-2"><i class="bi bi-music-note text-sky-500"></i>{{ loop.key }} {{ loop.scale }}</span>
             </div>
           </div>
 
-          <!-- Tags -->
-          <div class="mb-6 flex flex-wrap gap-2">
-            <span *ngFor="let tag of loop.tags"
-              class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
-                fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-              {{ tag }}
-            </span>
-          </div>
-
-          <!-- Player section -->
-          <div class="bg-gray-100 rounded-xl p-4 border border-gray-200">
-            <!-- Waveform visualization -->
-            <div
-              class="relative h-20 mb-4 bg-gray-200 rounded-lg overflow-hidden cursor-pointer"
-              (click)="seekAudio($event, loop._id, true)">
-              <!-- Static waveform background -->
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full h-8 flex items-center">
-                  <div
-                    *ngFor="let value of waveforms[loop._id] || []; let i = index"
-                    class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-gray-400/60"
-                    [style.height.%]="value * 0.8">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Active playback waveform -->
-              <div class="absolute inset-0 flex items-center overflow-hidden"
-                [style.width.%]="getProgress(loop._id)">
-                <div class="h-8 flex items-center">
-                  <div
-                    *ngFor="let value of waveforms[loop._id] || []; let i = index"
-                    class="waveform-bar mx-0.5 rounded-sm transition-all duration-100 bg-blue-600/80"
-                    [style.height.%]="value * 0.8">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Playhead indicator -->
-              <div class="absolute top-0 bottom-0 w-0.5 bg-blue-600 ml-1"
-                [style.left.%]="getProgress(loop._id)"></div>
-            </div>
-
-            <!-- Controls -->
-            <div class="flex items-center justify-between">
-              <!-- Play/Pause -->
-              <button (click)="togglePlay(loop._id, audioPlayer)"
-                class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-all transform hover:scale-105">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                  fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path *ngIf="currentlyPlayingId !== loop._id"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path *ngIf="currentlyPlayingId === loop._id"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </button>
-
-              <!-- Timeline with seek -->
-              <div class="flex-1 mx-4 flex items-center">
-                <span class="text-xs font-mono text-gray-500 w-10">{{
-                  formatTime(currentPositions[loop._id]) }}</span>
-
-                <!-- Seekable progress bar -->
-                <div
-                  class="flex-1 mx-2 relative h-2 bg-gray-300 rounded-full overflow-hidden cursor-pointer"
-                  (click)="seekAudio($event, loop._id, false)">
-                  <div
-                    class="absolute inset-y-0 left-0 bg-blue-600 rounded-full"
-                    [style.width.%]="getProgress(loop._id)"></div>
-                  <div
-                    class="absolute top-0 bottom-0 w-0.5 bg-blue-800 rounded-full"
-                    [style.left.%]="getProgress(loop._id)"></div>
-                </div>
-
-                <span class="text-xs font-mono text-gray-500 w-10">{{
-                  formatTime(durations[loop._id]) }}</span>
-              </div>
-
-              <!-- Volume and other controls -->
-              <div class="flex items-center space-x-3">
-                <div class="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-gray-500" fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15.536 8.464a5 5 0 010 7.072M12 6a7.975 7.975 0 015.657 2.343m0 0a7.975 7.975 0 010 11.314m-11.314 0a7.975 7.975 0 010-11.314m0 0a7.975 7.975 0 015.657-2.343" />
-                  </svg>
-                  <input type="range" min="0" max="1" step="0.01"
-                    [value]="volumes[loop._id] || 0.7"
-                    (input)="setVolume(loop._id, $any($event.target).value)"
-                    class="w-20 ml-2 h-1 bg-gray-300 rounded-full appearance-none cursor-pointer">
-                </div>
-
-                <button
-                  class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                    fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+          <div class="flex items-center gap-2">
+            <button (click)="toggleLike(loop)" class="rounded-xl border border-slate-300 bg-white p-2 text-slate-500 transition-all hover:bg-rose-50 hover:text-rose-500"><i class="bi bi-heart-fill"></i></button>
+            <span class="text-sm text-slate-500">{{ loop.likes }}</span>
+            <button (click)="toggleFavorite(loop)" class="rounded-xl border border-slate-300 bg-white p-2 text-slate-500 transition-all hover:bg-indigo-50 hover:text-indigo-500">
+              <span *ngIf="isCheckingFavorites && isFavorite(loop._id) === undefined">…</span>
+              <span *ngIf="!(isCheckingFavorites && isFavorite(loop._id) === undefined)"><i class="bi" [class.bi-star]="!isFavorite(loop._id)" [class.bi-star-fill]="isFavorite(loop._id)"></i></span>
+            </button>
+            <button (click)="downloadLoop(loop)" class="rounded-xl border border-slate-300 bg-white p-2 text-slate-500 transition-all hover:bg-emerald-50 hover:text-emerald-600" title="Loop letöltése"><i class="bi bi-download"></i></button>
+            <ng-container *ngIf="!isAdmin"><button (click)="openLoopReportModal(loop._id)" class="rounded-xl border border-slate-300 bg-white p-2 text-slate-500 transition-all hover:bg-rose-50 hover:text-rose-500" title="Loop jelentése"><i class="bi bi-flag"></i></button></ng-container>
+            <ng-container *ngIf="isAdmin">
+              <button (click)="adminDeleteLoop(loop)" class="rounded-xl border border-slate-300 bg-white p-2 text-slate-500 transition-all hover:bg-rose-50 hover:text-rose-500" title="Loop törlése"><i class="bi bi-trash"></i></button>
+              <button (click)="openEditModal(loop)" class="rounded-xl border border-slate-300 bg-white p-2 text-slate-500 transition-all hover:bg-slate-100 hover:text-slate-700" title="Loop módosítása"><i class="bi bi-pencil"></i></button>
+            </ng-container>
           </div>
         </div>
 
-      </div>
+        <!-- Tags -->
+        <div class="mb-6 flex flex-wrap gap-2">
+          <span *ngFor="let tag of loop.tags" class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700 ring-1 ring-inset ring-slate-200">
+            <i class="bi bi-tag-fill mr-1 text-indigo-500"></i>{{ tag }}
+          </span>
+        </div>
 
-      <div *ngIf="isLoopReportModalOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        (click)="closeLoopReportModal($event)">
-        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4"
-          (click)="$event.stopPropagation()">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">Loop jelentése</h3>
-            <button (click)="isLoopReportModalOpen=false"
-              class="p-2 rounded hover:bg-gray-100">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M18.3 5.71 12 12.01l-6.29-6.3-1.42 1.42 6.3 6.29-6.3 6.29 1.42 1.42 6.29-6.3 6.29 6.3 1.42-1.42-6.3-6.29 6.3-6.29z" />
-              </svg>
-            </button>
+        <!-- Player -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-4">
+          <div class="relative mb-4 h-20 cursor-pointer overflow-hidden rounded-xl bg-slate-100 ring-1 ring-inset ring-slate-200" (click)="seekAudio($event, loop._id, true)">
+            <!-- Static waveform -->
+            <div class="absolute inset-0 flex items-center opacity-80">
+              <div class="flex h-8 w-full items-end">
+                <div *ngFor="let value of waveforms[loop._id] || []; let i = index" class="waveform-bar mx-0.5 rounded-sm bg-slate-300 transition-all duration-100" [style.height.%]="value * 0.8"></div>
+              </div>
+            </div>
+            <!-- Active waveform -->
+            <div class="absolute inset-0 flex items-center overflow-hidden" [style.width.%]="getProgress(loop._id)">
+              <div class="flex h-8 items-end">
+                <div *ngFor="let value of waveforms[loop._id] || []; let i = index" class="waveform-bar mx-0.5 rounded-sm bg-indigo-400 transition-all duration-100" [style.height.%]="value * 0.8"></div>
+              </div>
+            </div>
+            <div class="absolute top-0 bottom-0 ml-1 w-0.5 bg-indigo-500" [style.left.%]="getProgress(loop._id)"></div>
           </div>
 
-          <p class="text-sm text-gray-600 mb-3">Kérlek írd le röviden, mi a
-            probléma ezzel a looppal.</p>
-          <textarea [(ngModel)]="loopReportReason" rows="5" maxlength="1000"
-            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-400"
-            placeholder="Részletek..."></textarea>
-
-          <div *ngIf="loopReportError"
-            class="mt-2 text-sm text-red-600">{{loopReportError}}</div>
-          <div *ngIf="loopReportSuccess"
-            class="mt-2 text-sm text-green-600">{{loopReportSuccess}}</div>
-
-          <div class="mt-4 flex justify-end gap-2">
-            <button (click)="isLoopReportModalOpen=false"
-              class="px-4 py-2 rounded border hover:bg-gray-50">Mégse</button>
-            <button (click)="submitLoopReport()"
-              [disabled]="isReportingLoop || !loopReportReason.trim()"
-              class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
-              {{ isReportingLoop ? 'Küldés...' : 'Jelentés elküldése' }}
+          <div class="flex items-center justify-between">
+            <button (click)="togglePlay(loop._id, audioPlayer)" class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500 text-white shadow-[0_12px_30px_-12px_rgba(59,130,246,0.6)] transition-all hover:scale-105">
+              <i class="bi" [class.bi-play-fill]="currentlyPlayingId !== loop._id" [class.bi-pause-fill]="currentlyPlayingId === loop._id"></i>
             </button>
+
+            <div class="mx-4 flex flex-1 items-center">
+              <span class="w-10 font-mono text-xs text-slate-500">{{ formatTime(currentPositions[loop._id]) }}</span>
+              <div class="relative mx-2 h-2 flex-1 cursor-pointer overflow-hidden rounded-full bg-slate-200" (click)="seekAudio($event, loop._id, false)">
+                <div class="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500" [style.width.%]="getProgress(loop._id)"></div>
+                <div class="absolute top-0 bottom-0 w-0.5 rounded-full bg-slate-900/60" [style.left.%]="getProgress(loop._id)"></div>
+              </div>
+              <span class="w-10 font-mono text-xs text-slate-500">{{ formatTime(durations[loop._id]) }}</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <i class="bi bi-volume-up text-slate-500"></i>
+              <input type="range" min="0" max="1" step="0.01" [value]="volumes[loop._id] || 0.7" (input)="setVolume(loop._id, $any($event.target).value)" class="ml-2 h-1 w-24 cursor-pointer appearance-none rounded-full bg-slate-200" />
+            </div>
           </div>
         </div>
       </div>
-      <!-- ADMIN: Loop szerkesztő modal -->
-<div *ngIf="isEditModalOpen"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-     (click)="closeEditModal($event)">
-  <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg mx-4" (click)="$event.stopPropagation()">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-gray-800">Loop módosítása</h3>
-      <button (click)="isEditModalOpen=false" class="p-2 rounded hover:bg-gray-100">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.3 5.71 12 12.01l-6.29-6.3-1.42 1.42 6.3 6.29-6.3 6.29 1.42 1.42 6.29-6.3 6.29 6.3 1.42-1.42-6.3-6.29 6.3-6.29z"/>
-        </svg>
-      </button>
     </div>
 
-    <div class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Név</label>
-        <input type="text" [(ngModel)]="editForm.name"
-               class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
-      </div>
+    <!-- Report Modal -->
+    <div *ngIf="isLoopReportModalOpen"
+         class="fixed inset-0 z-50 grid place-items-center bg-black bg-opacity-0 p-4"
+         (click)="closeLoopReportModal($event)">
+      <div class="pointer-events-none absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">BPM</label>
-          <input type="number" [(ngModel)]="editForm.bpm" min="40" max="300"
-                 class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Hangnem</label>
-          <select [(ngModel)]="editForm.key"
-                  class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
-            <option value="">—</option>
-            <option *ngFor="let k of keys" [value]="k">{{ k }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Skála</label>
-          <select [(ngModel)]="editForm.scale"
-                  class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
-            <option value="">—</option>
-            <option *ngFor="let s of scales" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Hangszer</label>
-          <select [(ngModel)]="editForm.instrument"
-                  class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
-            <option value="">—</option>
-            <option *ngFor="let i of instruments" [value]="i">{{ i }}</option>
-          </select>
+      <div class="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(2,6,23,0.15)]"
+           (click)="$event.stopPropagation()">
+        <div class="mb-4 flex items-center justify-between"><h3 class="text-lg font-semibold text-slate-900">Loop jelentése</h3><button (click)="isLoopReportModalOpen=false" class="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"><i class="bi bi-x-lg"></i></button></div>
+        <p class="mb-3 text-sm text-slate-600">Kérlek írd le röviden, mi a probléma ezzel a looppal.</p>
+        <textarea [(ngModel)]="loopReportReason" rows="5" maxlength="1000" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder-slate-400 focus:border-rose-400/70 focus:ring-4 focus:ring-rose-300/30" placeholder="Részletek…"></textarea>
+        <div *ngIf="loopReportError" class="mt-2 text-sm text-rose-600">{{ loopReportError }}</div>
+        <div *ngIf="loopReportSuccess" class="mt-2 text-sm text-emerald-600">{{ loopReportSuccess }}</div>
+        <div class="mt-4 flex justify-end gap-2">
+          <button (click)="isLoopReportModalOpen=false" class="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-50">Mégse</button>
+          <button (click)="submitLoopReport()" [disabled]="isReportingLoop || !loopReportReason.trim()" class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-tr from-rose-500 to-red-500 px-4 py-2 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50">{{ isReportingLoop ? 'Küldés…' : 'Jelentés elküldése' }}</button>
         </div>
       </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Címkék (vesszővel)</label>
-        <input type="text" [(ngModel)]="editForm.tags"
-               placeholder="hiphop, trap, dark"
-               class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 bg-white">
-      </div>
-
-      <div *ngIf="editError" class="text-sm text-red-600">{{ editError }}</div>
     </div>
 
-    <div class="mt-6 flex justify-end gap-2">
-      <button (click)="isEditModalOpen=false" class="px-4 py-2 rounded border hover:bg-gray-50">Mégse</button>
-      <button (click)="saveLoopEdit()"
-              [disabled]="isSavingEdit"
-              class="px-4 py-2 rounded bg-gray-900 text-white hover:opacity-95 disabled:opacity-50">
-        {{ isSavingEdit ? 'Mentés...' : 'Mentés' }}
-      </button>
+    <!-- Edit Modal (Admin) -->
+    <div *ngIf="isEditModalOpen"
+         class="fixed inset-0 z-50 grid place-items-center bg-black bg-opacity-0 p-4"
+         (click)="closeEditModal($event)">
+      <div class="pointer-events-none absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
+
+      <div class="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(2,6,23,0.15)]"
+           (click)="$event.stopPropagation()">
+        <div class="mb-4 flex items-center justify-between"><h3 class="text-lg font-semibold text-slate-900">Loop módosítása</h3><button (click)="isEditModalOpen=false" class="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"><i class="bi bi-x-lg"></i></button></div>
+        <div class="space-y-4">
+          <div><label class="mb-1 block text-sm font-medium text-slate-700">Név</label><input type="text" [(ngModel)]="editForm.name" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/></div>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div><label class="mb-1 block text-sm font-medium text-slate-700">BPM</label><input type="number" [(ngModel)]="editForm.bpm" min="40" max="300" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/></div>
+            <div><label class="mb-1 block text-sm font-medium text-slate-700">Hangnem</label><select [(ngModel)]="editForm.key" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"><option value="">—</option><option *ngFor="let k of keys" [value]="k">{{ k }}</option></select></div>
+            <div><label class="mb-1 block text-sm font-medium text-slate-700">Skála</label><select [(ngModel)]="editForm.scale" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"><option value="">—</option><option *ngFor="let s of scales" [value]="s">{{ s }}</option></select></div>
+            <div><label class="mb-1 block text-sm font-medium text-slate-700">Hangszer</label><select [(ngModel)]="editForm.instrument" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"><option value="">—</option><option *ngFor="let i of instruments" [value]="i">{{ i }}</option></select></div>
+          </div>
+          <div><label class="mb-1 block text-sm font-medium text-slate-700">Címkék (vesszővel)</label><input type="text" [(ngModel)]="editForm.tags" placeholder="hiphop, trap, dark" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder-slate-400 focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/></div>
+          <div *ngIf="editError" class="text-sm text-rose-600">{{ editError }}</div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2"><button (click)="isEditModalOpen=false" class="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-50">Mégse</button><button (click)="saveLoopEdit()" [disabled]="isSavingEdit" class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-tr from-indigo-500 to-sky-500 px-4 py-2 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50">{{ isSavingEdit ? 'Mentés…' : 'Mentés' }}</button></div>
+      </div>
     </div>
   </div>
 </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- Animációk -->
-<style>
-  @keyframes float {
-
-    0%,
-    100% {
-      transform: translateY(0) rotate(0deg);
-    }
-
-    50% {
-      transform: translateY(-10px) rotate(1deg);
-    }
-  }
-
-  @keyframes float-delay {
-
-    0%,
-    100% {
-      transform: translateY(0) rotate(0deg);
-    }
-
-    50% {
-      transform: translateY(10px) rotate(-1deg);
-    }
-  }
-
-  @keyframes pulse-slow {
-
-    0%,
-    100% {
-      opacity: 0.2;
-    }
-
-    50% {
-      opacity: 0.3;
-    }
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(5px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-float {
-    animation: float 12s ease-in-out infinite;
-    will-change: transform;
-  }
-
-  .animate-float-delay {
-    animation: float-delay 12s ease-in-out infinite 3s;
-    will-change: transform;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse-slow 8s ease-in-out infinite;
-    will-change: opacity;
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-    will-change: opacity, transform;
-  }
-
-  /* Egyedi görgetősáv vízszintes görgetéshez */
-  .overflow-x-auto::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  .overflow-x-auto::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-
-  .overflow-x-auto::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 10px;
-  }
-
-  .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
-  }
-
-  /* Spektrumanalizátor animáció */
-  @keyframes bandPulse {
-
-    0%,
-    100% {
-      height: 10%;
-    }
-
-    50% {
-      height: 90%;
-    }
-  }
-
-  .waveform-bar {
-    transition: height 0.1s ease-out;
-  }
-</style>

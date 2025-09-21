@@ -1,5 +1,4 @@
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 relative">
-  <!-- Zenés háttérhatás -->
   <div class="fixed inset-0 overflow-hidden opacity-5 pointer-events-none">
     <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
     <div class="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-blue-50/30 mix-blend-overlay"></div>
@@ -324,7 +323,7 @@
               <div class="flex-shrink-0">
                 <div
                   class="h-10 w-10 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
-                  <img *ngIf="comment.user?.profileImage" [src]="comment.user.profileImage"
+                  <img *ngIf="comment.user?.profileImage" [src]="getImageUrl(comment.user.profileImage)"
                     class="h-full w-full object-cover">
                   <span *ngIf="!comment.user?.profileImage" class="text-purple-600 font-medium">
                     {{comment.user?.username?.charAt(0) || '?'}}

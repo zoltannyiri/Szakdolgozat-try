@@ -149,10 +149,10 @@ export class LoopDetailComponent implements OnInit {
     this.isLoading = true;
     this.loopService.getLoopById(id).subscribe({
       next: (loop) => {
-        console.log('Loop response:', loop); // Debug log
+        console.log('Loop response:', loop);
         this.loop = loop;
         
-        // Ha az uploader stringként van (ID)
+
         if (typeof this.loop.uploader === 'string') {
           this.userService.getUserById(this.loop.uploader).subscribe({
             next: (user) => {
@@ -244,6 +244,8 @@ export class LoopDetailComponent implements OnInit {
   
     this.isAddingComment = true;
     this.errorMessage = '';
+
+    
   
     this.commentService.addComment(this.loop._id, this.newComment).subscribe({
       next: (newComment) => {
@@ -258,6 +260,14 @@ export class LoopDetailComponent implements OnInit {
       }
     });
   }
+
+  // avatar
+  getImageUrl(path?: string): string {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const clean = path.startsWith('/') ? path : `/${path}`;
+  return `${this.loopService.apiUrl}${clean}`;
+}
 
   private getErrorMessage(error: any): string {
     if (error.status === 404) {
@@ -736,7 +746,6 @@ adminDeleteLoop(): void {
 
   this.http.delete(`${this.loopService.apiUrl}/api/admin/loops/${this.loop._id}`).subscribe({
     next: () => {
-      // menjünk vissza az előző oldalra
       this.location.back();
     },
     error: (err) => {
@@ -827,8 +836,6 @@ saveLoopEdit(): void {
     payload
   ).subscribe({
     next: (res) => {
-      // ha a backend visszaadja az updated loopot, azt vegyük át,
-      // különben csak a módosított mezőket
      
       this.loop = res?.data ? res.data : { ...this.loop, ...payload };
       if (!res?.data && payload.tags) this.loop.tags = payload.tags;
