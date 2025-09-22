@@ -4,7 +4,7 @@
 - adatbázis létrehozása  ✓
 - sign in, log in ✓
 - profile oldal ✓
-- profile adatok változtatása (csak leírás van meg eddig) ✓❌
+- profile adatok változtatása (csak leírás van meg eddig) ✓✓ ?
 - leírások, stb. profilon belül ✓
 - avatar ✓
 - más profiljának megtekintése ✓
@@ -16,13 +16,13 @@
 - kommentelés ✓ 
 - loop likeolása ✓
 - notification küldése (comment, like, letöltés) ✓
-- loop mentése ❌
-- loop mentéseinek összegyűjtése ❌
+- loop mentése ✓
+- loop mentéseinek összegyűjtése ✓
 - roleok létrehozása (eddig csak user van meg) ✓
 - admin felület létrehozása ✓
 - csak verifikált userek tudjanak le és feltölteni ✓
-- email küldő applikáció verifikáláshoz❌
-- kapcsolatfelvétel❌
+- email küldő applikáció verifikáláshoz ✓
+- kapcsolatfelvétel ✓ (CHAT!)
 - designolások: 
             profile✓
             loopok✓
@@ -32,10 +32,10 @@
 
 
 
-észrevételek: nem verifikált user ne is tudjon kommentbe írni
+észrevételek: nem verifikált user ne is tudjon kommentbe írni ❌
 
 
-bug: verified de banned usernél tud letölteni loop-detailsben, és errornak azt kapja a többineél h nincs verifyolva az email
+bug: verified de banned usernél tud letölteni loop-detailsben, és errornak azt kapja a többineél h nincs verifyolva az email ?
 
 
 FEJLESZTÉS SORÁN HASZNÁLT LOGINEK:
