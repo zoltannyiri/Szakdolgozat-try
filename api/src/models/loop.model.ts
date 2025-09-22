@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ILoop extends Document {
+  genre: any;
   _id: string; // Explicit string típus
   filename: string;
   path: string;

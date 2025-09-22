@@ -45,3 +45,8 @@ valakik - nem verified
 banban - verified, banned
 
 gmail belépés: random felhnév még, automatikus verified, pw kell a módosításhoz, nem menti a nevet és várost,
+
+
+09.23.
+AKI NEM VERIFIED, AZ IS TUD REPORTOLNI!
+ADMIN USERS PANEL NEM MUTATJA A BANNOLTAKNÁL, HOGY BANNOLT PROFIL.

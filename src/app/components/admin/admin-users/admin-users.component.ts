@@ -12,7 +12,7 @@ import { environment } from '../../../environments/environment';
   styleUrl: './admin-users.component.scss'
 })
 export class AdminUsersComponent implements OnInit{
-users: any[] = [];
+  users: any[] = [];
   errorMessage = '';
 
   constructor(private http: HttpClient) {}
@@ -50,12 +50,53 @@ loadUsers() {
   });
 }
 
+isBanned(user: any): boolean {
+    if (!user?.bannedUntil) return false;
+    const until = new Date(user.bannedUntil).getTime();
+    return until > Date.now() && !this.isPermanent(user);
+  }
 
-  toggleBan(userId: string, banned: boolean) {
-    const endpoint = banned ? 'unban' : 'ban';
-    this.http.put(`${environment.apiUrl}/api/admin/users/${userId}/${endpoint}`, {}).subscribe({
+  isPermanent(user: any): boolean {
+    if (!user?.bannedUntil) return false;
+    const y = new Date(user.bannedUntil).getUTCFullYear();
+    return y >= 9999;
+  }
+
+
+  banLabel(user: any): string {
+    if (this.isPermanent(user)) return 'permanent';
+    return this.isBanned(user) ? 'Igen' : 'Nem';
+  }
+
+
+  isAnyBanActive(user: any): boolean {
+    return this.isPermanent(user) || this.isBanned(user);
+  }
+
+
+  toggleBan(user: any) {
+    const token = localStorage.getItem('token');
+    const base = `${environment.apiUrl}/api/admin/users/${user._id}`;
+
+    // ha tiltva → UNBAN
+    if (this.isAnyBanActive(user)) {
+      this.http.post(`${base}/unban`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).subscribe({
+        next: () => this.loadUsers(),
+        error: (err) => console.error('Unban hiba:', err)
+      });
+      return;
+    }
+
+    // ha nincs tiltva → BAN
+    // default: 1 hónap
+    const body = { duration: '1m', reason: '' as string }; // '1d' | '1m' | 'permanent'
+    this.http.post(`${base}/ban`, body, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
       next: () => this.loadUsers(),
-      error: (err) => console.error('Nem sikerült módosítani a tiltást:', err)
+      error: (err) => console.error('Ban hiba:', err)
     });
   }
 }

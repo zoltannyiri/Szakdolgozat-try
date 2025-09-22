@@ -21,16 +21,24 @@
         <td class="p-4">{{ user.country }}</td>
         <td class="p-4">{{ user.date | date: 'yyyy.MM.dd' }}</td>
         <td class="p-4">
-          <span [ngClass]="user.banned ? 'text-red-500' : 'text-green-500'">
-            {{ user.banned ? 'Igen' : 'Nem' }}
+          <span
+            [ngClass]="(isAnyBanActive(user)) ? 'text-red-500' : 'text-green-500'">
+            {{ banLabel(user) }}
           </span>
+
+          <ng-container *ngIf="isBanned(user)">
+            <span class="ml-2 text-xs text-gray-500">
+              (eddig: {{ user.bannedUntil | date:'yyyy.MM.dd. HH:mm' }})
+            </span>
+          </ng-container>
         </td>
+        
         <td class="p-4">
           <button
-            (click)="toggleBan(user._id, user.banned)"
-            [ngClass]="user.banned ? 'bg-green-500' : 'bg-red-500'"
+            (click)="toggleBan(user)"
+            [ngClass]="isAnyBanActive(user) ? 'bg-green-500' : 'bg-red-500'"
             class="text-white px-3 py-1 rounded hover:opacity-90">
-            {{ user.banned ? 'Engedélyezés' : 'Tiltás' }}
+            {{ isAnyBanActive(user) ? 'Engedélyezés' : 'Tiltás' }}
           </button>
         </td>
       </tr>
