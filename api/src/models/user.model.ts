@@ -27,7 +27,9 @@ export interface IUser extends Document {
   banReason?: string | null;
   bannedBy?: Types.ObjectId | null;
 
-  
+  // új logika: kredit rendszer a letöltés korlátozására
+  credits?: number;
+  downloadsTotal?: number;
 
 
   // googleId: { type: String, index: true },
@@ -68,6 +70,10 @@ const UserSchema: Schema = new Schema<IUser>({
   bannedUntil: { type: Date, default: null },
   banReason:   { type: String, default: "" },
   bannedBy:    { type: Schema.Types.ObjectId, ref: "User", default: null },
+
+  // új lokika: kredit rendszer a letöltés korlátozására
+  credits: { type: Number, default: 0 },
+  downloadsTotal: { type: Number, default: 0 },
 });
 
 export default mongoose.model<IUser>("User", UserSchema);

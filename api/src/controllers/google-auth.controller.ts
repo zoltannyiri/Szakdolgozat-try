@@ -57,6 +57,22 @@ router.post('/auth/google', async (req: Request, res: Response) => {
         });
       }
 
+      // Ha eddig nem volt verified, de a Google e-mail verified, akkor egyszeri +2 kredit.
+      if (email_verified && !user.isVerified) {
+        
+        const upd = await User.updateOne(
+          { _id: user._id, isVerified: false },
+          { $set: { isVerified: true, provider: 'google', googleId: user.googleId || googleId },
+            $inc: { credits: 2 } }
+        );
+
+        // frissítjük a usert
+        if ((upd as any).modifiedCount > 0 || (upd as any).nModified > 0) {
+          user.isVerified = true;
+          user.credits = (user.credits ?? 0) + 2;
+        }
+      }
+
       // Frissítések google fiókra
       user.provider = 'google' as any;
       user.googleId = user.googleId || googleId;
@@ -73,6 +89,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
         provider: 'google',
         googleId,
         isVerified: !!email_verified,
+        credits: email_verified ? 2 : 0,
         profileImage: picture || undefined,
         lastLogin: new Date(),
       });
@@ -86,7 +103,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       { expiresIn: '7d' }
     );
 
-    return res.json({ success: true, token, user: { email: user.email, lastLogin: user.lastLogin } });
+    return res.json({ success: true, token, user: { email: user.email, lastLogin: user.lastLogin, credits: user.credits, isVerified: user.isVerified } });
   } catch (e) {
     console.error('[googleSignIn] error:', e);
     return res.status(500).json({ success: false, message: 'Google sign-in failed' });

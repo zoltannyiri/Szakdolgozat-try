@@ -597,6 +597,12 @@ export class LoopsComponent implements OnInit {
   // Helper
   const handle = (data: any) => {
     const code = data?.code;
+
+    if (err.status === 402 && code === 'NO_CREDITS') {
+      alert('Nincs elég kredited a letöltéshez. Tölts fel loopot, hogy creditet szerezhess!');
+      return;
+    }
+
     if (err.status === 403 && code === 'BANNED') {
       const untilIso = data?.until;
       const reason = (data?.reason || '').trim();

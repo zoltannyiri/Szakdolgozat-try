@@ -98,6 +98,8 @@ const pump = promisify(pipeline);
 
 import { uploadBufferToDrive } from "../utils/drive";
 import { parseBuffer } from "music-metadata";
+import { checkVerifiedOrBanned } from "../middlewares/userAccess.guard";
+import { requireDownloadCredit } from "../middlewares/credits.middleware";
 
 
 
@@ -153,6 +155,11 @@ export const uploadLoop = async (req: CustomRequest, res: Response) => {
     });
 
     await newLoop.save();
+
+    
+    if (newLoop.status === 'approved') {
+      await User.findByIdAndUpdate(uploader, { $inc: { credits: 2 } });
+    }
 
     return res.status(201).json({
       message: newLoop.status === 'approved'
@@ -253,8 +260,10 @@ export const uploadLoop = async (req: CustomRequest, res: Response) => {
 
 //módosítva: 2025. 04. 27
 export const downloadLoop = [
-  authenticateToken,
-  checkVerified,
+  // authenticateToken,
+  // // checkVerified,
+  // checkVerifiedOrBanned,
+  // requireDownloadCredit,
   async (req: CustomRequest, res: Response) => {
     try {
       const { id } = req.params;
@@ -503,6 +512,10 @@ export const approveLoopAdmin: RequestHandler = async (req: any, res) => {
     loop.moderatedBy = req.user?.userId || null;
     loop.moderatedAt = new Date();
     await loop.save();
+
+    // kreditek jóváírása a feltöltönek
+    const CREDIT_PER_APPROVED_UPLOAD = 2;
+    await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: CREDIT_PER_APPROVED_UPLOAD } });
 
     return res.json({ success: true });
   } catch (e) {

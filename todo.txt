@@ -50,3 +50,15 @@ gmail belépés: random felhnév még, automatikus verified, pw kell a módosít
 09.23.
 AKI NEM VERIFIED, AZ IS TUD REPORTOLNI!
 ADMIN USERS PANEL NEM MUTATJA A BANNOLTAKNÁL, HOGY BANNOLT PROFIL.
+
+
+
+
+KREDIT RENDSZER!
+regisztrálás után: 0 KREDIT
+email verifikálás után: 2 KREDIT
+upload után: 2 KREDIT
+ha egy loopra 10 likeot kap: 1 KREDIT
+egy loopjának minden 10. letöltésénél kap: 1 KREDIT
+
+működik: upload után 2 kredit, letöltés után -1 kredit, gmail login után kapunk 2 kreditet, verify után 2 kredit

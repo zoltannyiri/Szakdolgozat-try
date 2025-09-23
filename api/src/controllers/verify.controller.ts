@@ -8,7 +8,20 @@ export async function verifyAccount(req: Request, res: Response) {
     if (!uid || !token) {
       return res.status(400).json({ success: false, message: 'Missing uid or token' });
     }
+
+    // verifikált volt eddig?
+    const before = await User.findById(uid).select('isVerified credits');
+    if (!before) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
     await consumeVerification(uid, token);
+
+    // ha eddig nem volt verified de most lett az: +2 kredit
+    if (!before.isVerified) {
+      await User.findByIdAndUpdate(uid, { $inc: { credits: 2 } });
+    }
+
     return res.json({ success: true, message: 'Verified' });
   } catch (e: any) {
     const code = String(e?.message || '');
