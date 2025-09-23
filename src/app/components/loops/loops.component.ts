@@ -78,6 +78,10 @@ export class LoopsComponent implements OnInit {
   editingLoopId: string | null = null;
   isSavingEdit = false;
   editError: string | null = null;
+
+  // loopok elfogadva vagy sem
+  uploadInfoMessage = '';
+  uploadInfoType: 'info' | 'success' | 'warning' = 'info';
   
   editForm: {
   name: string;
@@ -324,12 +328,24 @@ export class LoopsComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       
-      const validTypes = ['audio/wav', 'audio/mpeg', 'audio/aiff'];
-      if (!validTypes.includes(file.type)) {
-        this.fileError = "Only WAV, MP3, or AIFF files are allowed.";
-        this.selectedFile = null;
-        return;
-      }
+      const validTypes = [
+      'audio/wav', 'audio/x-wav',
+      'audio/aiff', 'audio/x-aiff'
+    ];
+      const validExt = ['.wav', '.aif', '.aiff'];
+      const hasValidMime = validTypes.includes(file.type);
+      const hasValidExt = validExt.some(ext => file.name.toLowerCase().endsWith(ext));
+      // if (!validTypes.includes(file.type)) {
+      //   this.fileError = "Only WAV or AIFF files are allowed.";
+      //   this.selectedFile = null;
+      //   return;
+      // }
+
+      if (!(hasValidMime && hasValidExt)) {
+      this.fileError = "Only WAV or AIFF files are allowed.";
+      this.selectedFile = null;
+      return;
+    }
 
       if (file.size > 20 * 1024 * 1024) {
         this.fileError = "File size must be under 20MB.";
@@ -410,6 +426,16 @@ export class LoopsComponent implements OnInit {
       next: (response) => {
         this.isUploading = false;
         this.isUploadModalOpen = false;
+
+        // visszajelzés a loop állapotáról
+        const st = response?.loop?.status as 'pending' | 'approved' | undefined;
+          if (st === 'pending') {
+            this.uploadInfoMessage = 'Köszönjük a feltöltést! Az első 5 feltöltésedet moderáljuk. Amint jóváhagyjuk, meg fog jelenni.';
+            this.uploadInfoType = 'info';
+          } else {
+            this.uploadInfoMessage = 'Loop sikeresen feltöltve!';
+            this.uploadInfoType = 'success';
+          }
         this.loadLoops();
       },
       error: (error) => {

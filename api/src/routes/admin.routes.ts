@@ -11,7 +11,7 @@ import { getAllLoopsForAdmin, deleteLoopById } from '../controllers/admin.contro
 // import { getAllReports, updateReportStatus } from '../controllers/report.controller';
 import { deleteCommentAdmin } from '../controllers/comment.controller';
 import { listReports, setReportStatus } from '../controllers/report.controller';
-import { updateLoopAdmin } from '../controllers/loop.controller';
+import { approveLoopAdmin, listLoopsAdmin, rejectLoopAdmin, updateLoopAdmin } from '../controllers/loop.controller';
 import { banUser, unbanUser } from '../controllers/ban.controller';
 
 
@@ -42,7 +42,8 @@ router.get("/", authenticateToken, requireAdmin, getAllUsers);
 router.get("/stats", authenticateToken, requireAdmin, getAdminStats);
 router.get('/stats/weekly-uploads', authenticateToken, requireAdmin, getWeeklyUploads);
 router.get('/stats/weekly-registrations', authenticateToken, requireAdmin, getWeeklyRegistrations);
-router.get('/loops', authenticateToken, requireAdmin, getAllLoopsForAdmin);
+// router.get('/loops', authenticateToken, requireAdmin, getAllLoopsForAdmin);
+router.get('/loops', authenticateToken, requireAdmin, listLoopsAdmin);
 router.delete('/loops/:id', authenticateToken, requireAdmin, deleteLoopById);
 router.delete('/comments/:id', authenticateToken, requireAdmin, deleteCommentAdmin);
 
@@ -56,6 +57,22 @@ router.patch('/loops/:id', authenticateToken, requireAdmin, updateLoopAdmin);
 
 router.post('/users/:id/ban', authenticateToken, requireAdmin, banUser);
 router.post('/users/:id/unban', authenticateToken, requireAdmin, unbanUser);
+
+router.patch('/loops/:id/approve', authenticateToken, requireAdmin, approveLoopAdmin);
+router.patch('/loops/:id/reject', authenticateToken, requireAdmin, rejectLoopAdmin);
+
+
+// IDEIGLENES TESZT MIATT:
+router.get('/loops/status-summary', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const byStatus = await Loop.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]);
+    res.json({ success: true, byStatus });
+  } catch (e) {
+    res.status(500).json({ success: false });
+  }
+});
 
 // Egy loop részleteinek lekérése
 router.get('/loops/:id', authenticateToken,requireAdmin, async (req, res) => {

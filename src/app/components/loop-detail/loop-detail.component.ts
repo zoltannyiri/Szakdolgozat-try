@@ -807,8 +807,8 @@ saveLoopEdit(): void {
   // minimális validáció
   if (this.editForm.bpm !== null) {
     const bpm = Number(this.editForm.bpm);
-    if (isNaN(bpm) || bpm < 40 || bpm > 300) {
-      this.editError = 'A BPM értéke 40 és 300 között legyen.';
+    if (isNaN(bpm) || bpm < 40 || bpm > 600) {
+      this.editError = 'A BPM értéke 40 és 600 között legyen.';
       return;
     }
   }

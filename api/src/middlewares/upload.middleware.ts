@@ -49,8 +49,15 @@ export const upload = multer({
   //   if (file.mimetype.startsWith('audio/')) cb(null, true);
   //   else cb(new Error('Only audio files are allowed!'));
   // }
+  // fileFilter: (req, file, cb) => {
+  //   file.mimetype.startsWith('audio/') ? cb(null, true) : cb(new Error('Only audio files are allowed!'));
+  // }
   fileFilter: (req, file, cb) => {
-    file.mimetype.startsWith('audio/') ? cb(null, true) : cb(new Error('Only audio files are allowed!'));
+    const ok = [
+      'audio/wav', 'audio/x-wav',
+      'audio/aiff', 'audio/x-aiff'
+    ].includes(file.mimetype);
+    ok ? cb(null, true) : cb(new Error('Only WAV/AIFF files are allowed!'));
   }
 });
 

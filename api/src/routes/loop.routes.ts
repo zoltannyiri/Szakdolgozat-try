@@ -14,7 +14,7 @@ const router = Router();
 // Meglévő loop útvonalak
 router.post("/upload", 
   authenticateToken, 
-  checkVerified, 
+  checkVerifiedOrBanned, 
   // checkVerifiedOrBanned,
   upload.single("loop"), 
   validateLoopMetadata, 

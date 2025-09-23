@@ -18,6 +18,20 @@ interface LoopFilters {
   uploader?: string;
 }
 
+export interface UploadResponse {
+  message: string;
+  loop: {
+    id: string;
+    filename: string;
+    bpm: number;
+    key: string;
+    scale: string;
+    instrument: string;
+    duration: number;
+    status: 'pending' | 'approved' | 'rejected';
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -184,6 +198,26 @@ getLoopById(id: string): Observable<any> {
   
   unlikeLoop(loopId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/loop-detail/${loopId}/unlike`, {});
+  }
+
+  // loop admin általi jóváhagyása / státusza
+  getPendingLoops() {
+  return this.http.get<{ success: boolean; loops: any[] }>(
+    `${this.apiUrl}/api/admin/loops?status=pending`
+    );
+  }
+
+  approveLoop(loopId: string) {
+    return this.http.patch<{ success: boolean }>(
+      `${this.apiUrl}/api/admin/loops/${loopId}/approve`, {}
+    );
+  }
+
+  rejectLoop(loopId: string, reason: string) {
+    return this.http.patch<{ success: boolean }>(
+      `${this.apiUrl}/api/admin/loops/${loopId}/reject`,
+      { reason }
+    );
   }
 }
 

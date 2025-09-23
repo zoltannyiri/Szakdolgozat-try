@@ -16,6 +16,7 @@ import { AdminUsersComponent } from './components/admin/admin-users/admin-users.
 import { AdminLoopsComponent } from './components/admin/admin-loops/admin-loops.component';
 import { AdminCommentsComponent } from './components/admin/admin-comments/admin-comments.component';
 import { AdminReportsComponent } from './components/admin/admin-reports/admin-reports.component';
+import { AdminLoopModerationComponent } from './components/admin/admin-loop-moderation/admin-loop-moderation.component';
 // import { VerifyComponent } from './components/verify/verify.component';
 
 export const routes: Routes = [
@@ -38,7 +39,8 @@ export const routes: Routes = [
                                                                     { path: 'users', component: AdminUsersComponent },
                                                                     { path: 'loops', component: AdminLoopsComponent },
                                                                     { path: 'comments', component: AdminCommentsComponent },
-                                                                    { path: 'reports', component: AdminReportsComponent }
+                                                                    { path: 'reports', component: AdminReportsComponent },
+                                                                    { path: 'loop-moderation', component: AdminLoopModerationComponent }
                                                                 ]
 }
 

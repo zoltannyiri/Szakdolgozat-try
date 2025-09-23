@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface ILoop extends Document {
   genre: any;
@@ -21,6 +21,12 @@ export interface ILoop extends Document {
   driveFileId?: string;
   webViewLink?: string;
   webContentLink?: string;
+
+  // új logika: admin engedélyezés
+  status: 'pending' | 'approved' | 'rejected';
+  moderatedBy?: Types.ObjectId | null;
+  moderatedAt?: Date | null;
+  rejectReason?: string | null;
 }
 
 const LoopSchema: Schema = new Schema<ILoop>({
@@ -42,6 +48,12 @@ const LoopSchema: Schema = new Schema<ILoop>({
   driveFileId: { type: String },
   webViewLink: { type: String },
   webContentLink: { type: String },
+
+  // új logika: admin engedélyezés
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', index: true },
+  moderatedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+  moderatedAt: { type: Date, default: null },
+  rejectReason: { type: String, default: '' },
 });
 
 export default mongoose.model<ILoop>("Loop", LoopSchema);

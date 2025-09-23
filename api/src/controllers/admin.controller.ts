@@ -82,6 +82,10 @@ export const getAdminStats = async (req: Request, res: Response) => {
 };
 
 
+
+
+
+
 export const getWeeklyUploads = async (req: Request, res: Response) => {
   try {
     const oneWeekAgo = new Date();
@@ -179,7 +183,10 @@ export const getAllLoops = async (req: Request, res: Response) => {
 
 export const getAllLoopsForAdmin = async (req: Request, res: Response) => {
   try {
-    const loops = await Loop.find()
+    const { status } = req.query as { status?: 'pending'|'approved'|'rejected' };
+    const q: any = {};
+    if (status) q.status = status;
+    const loops = await Loop.find(q)
       .populate('uploader', 'username')
       .sort({ uploadDate: -1 })
       .lean(); 
@@ -193,10 +200,10 @@ export const getAllLoopsForAdmin = async (req: Request, res: Response) => {
       downloads: loop.downloads ?? 0
     }));
 
-    res.status(200).json({ success: true, loops: formatted });
+    return res.status(200).json({ success: true, loops });
   } catch (error) {
-    console.error('Loop lekérés hiba:', error);
-    res.status(500).json({ success: false, message: 'Loopok betöltése sikertelen.' });
+    console.error('getAllLoopsForAdmin error:', error);
+    return res.status(500).json({ success: false, message: 'Loopok betöltése sikertelen.' });
   }
 };
 

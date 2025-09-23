@@ -27,10 +27,26 @@
       </div>
     </section>
 
+    <!-- Info a feltöltés eredményéről -->
+    <div *ngIf="uploadInfoMessage" class="mb-4">
+      <div
+        class="rounded-2xl px-4 py-3 text-sm"
+        [ngClass]="{
+          'bg-indigo-50 text-indigo-800 ring-1 ring-indigo-200': uploadInfoType==='info',
+          'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200': uploadInfoType==='success',
+          'bg-amber-50 text-amber-900 ring-1 ring-amber-200': uploadInfoType==='warning'
+        }">
+        {{ uploadInfoMessage }}
+      </div>
+    </div>
+
     <!-- Upload Modal -->
     <div *ngIf="isUploadModalOpen"
          class="fixed inset-0 z-50 grid place-items-center bg-black bg-opacity-0 p-4"
          (click)="closeUploadModal($event)">
+         <div class="rounded-xl bg-slate-50 ring-1 ring-slate-200 px-4 py-3 text-xs text-slate-600">
+          Tipp: az első 5 feltöltésedet egy admin hagyja jóvá, utána automatikusan publikáljuk.
+        </div>
       <div class="pointer-events-none absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
       <div class="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(2,6,23,0.15)]"
            (click)="$event.stopPropagation()">

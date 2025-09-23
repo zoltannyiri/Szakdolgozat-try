@@ -16,13 +16,13 @@ import { checkVerifiedOrBanned } from '../middlewares/userAccess.guard';
 const router = Router();
 
 // user oldal: komment jelentése
-router.post('/reports/comments/:commentId', authenticateToken, blockIfBanned, createCommentReport);
+router.post('/reports/comments/:commentId', authenticateToken, checkVerifiedOrBanned, createCommentReport);
 
 // user oldal: loop jelentése
-router.post('/reports/loops/:loopId', authenticateToken, blockIfBanned, createLoopReport);
+router.post('/reports/loops/:loopId', authenticateToken, checkVerifiedOrBanned, createLoopReport);
 
 // user oldal: profil jelentése
-router.post('/reports/profiles/:userId', authenticateToken, blockIfBanned, createProfileReport);
+router.post('/reports/profiles/:userId', authenticateToken, checkVerifiedOrBanned, createProfileReport);
 
 // admin oldali cuccok
 router.get('/admin/reports', authenticateToken, requireAdmin, listReports);

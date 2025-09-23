@@ -1,0 +1,196 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-white text-slate-900 relative">
+  <div class="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+  <div class="relative mx-auto max-w-7xl px-4 py-8">
+    <!-- CÍMSOR + összegző -->
+    <header class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Várólista (pending loopok)</h1>
+        <p class="mt-1 text-sm text-slate-500">
+          Itt bírálhatod el a friss feltöltéseket. Az első 5 feltöltés moderációt igényel.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="rounded-xl bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">
+          Összes: {{ pendingLoops.length || 0 }}
+        </span>
+        <button (click)="refresh()"
+                class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">
+          Frissítés
+        </button>
+      </div>
+    </header>
+
+    <!-- HIBA/SUCCESS sáv -->
+    <div *ngIf="errorMessage" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-rose-700">
+      {{ errorMessage }}
+    </div>
+
+    <!-- SZŰRŐSÁV -->
+    <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <form class="grid grid-cols-1 gap-3 md:grid-cols-6">
+        <div class="md:col-span-2">
+          <label class="mb-1 block text-xs font-medium text-slate-600">Keresés (fájlnév / tag)</label>
+          <input type="text" [(ngModel)]="filters.q" name="q"
+                 placeholder="pl. hiphop, 140bpm, filename…"
+                 (keyup.enter)="refresh()"
+                 class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600">BPM (min)</label>
+          <input type="number" [(ngModel)]="filters.minBpm" name="minBpm" min="40" max="300"
+                 class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600">BPM (max)</label>
+          <input type="number" [(ngModel)]="filters.maxBpm" name="maxBpm" min="40" max="300"
+                 class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600">Hangnem</label>
+          <input type="text" [(ngModel)]="filters.key" name="key" placeholder="pl. C, F#, Gm…"
+                 class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30"/>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600">Skála</label>
+          <select [(ngModel)]="filters.scale" name="scale"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-300/30">
+            <option value="">—</option>
+            <option>major</option><option>minor</option><option>dorian</option><option>phrygian</option>
+            <option>lydian</option><option>mixolydian</option><option>locrian</option>
+          </select>
+        </div>
+        <div class="md:col-span-6 flex items-center justify-end gap-2">
+          <button type="button" (click)="clearFilters()"
+                  class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+            Törlés
+          </button>
+          <button type="button" (click)="refresh()"
+                  class="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:brightness-110">
+            Szűrés
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- LISTA ÁLLAPOTOK -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-16 text-slate-500">
+      <div class="flex items-center gap-3">
+        <div class="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-indigo-500"></div>
+        Betöltés…
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && (!pendingLoops || pendingLoops.length === 0)"
+         class="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+      <div class="mx-auto mb-4 h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+        <i class="bi bi-inbox text-3xl text-slate-400"></i>
+      </div>
+      <h3 class="mb-1 text-lg font-semibold">Nincs függőben lévő loop</h3>
+      <p class="text-sm text-slate-500">Amint lesz új feltöltés, itt jelenik meg.</p>
+    </div>
+
+    <!-- LOOP KÁRTYÁK -->
+    <div class="space-y-5" *ngIf="!isLoading && pendingLoops?.length">
+      <article *ngFor="let loop of pendingLoops"
+               class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_10px_40px_rgba(2,6,23,0.06)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(2,6,23,0.08)]">
+        <!-- FELSŐ SOR: Fájlnév + meta badge-ek -->
+        <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
+            <h3 class="truncate text-xl font-semibold text-slate-900" title="{{ loop.filename }}">
+              {{ loop.filename || 'ismeretlen.wav' }}
+            </h3>
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span class="rounded-full bg-indigo-50 px-2.5 py-1 font-medium text-indigo-600 ring-1 ring-inset ring-indigo-200">
+                {{ loop.bpm || '—' }} BPM
+              </span>
+              <span class="rounded-full bg-sky-50 px-2.5 py-1 font-medium text-sky-600 ring-1 ring-inset ring-sky-200">
+                {{ loop.key || '—' }} {{ loop.scale || '' }}
+              </span>
+              <span class="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-600 ring-1 ring-inset ring-emerald-200">
+                {{ loop.instrument || '—' }}
+              </span>
+              <span class="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600 ring-1 ring-inset ring-slate-200">
+                {{ loop.duration ? (loop.duration/60 | number:'1.0-0') + ' min ' + (loop.duration%60 | number:'1.0-0') + ' s' : '—' }}
+              </span>
+              <span class="rounded-full bg-amber-50 px-2.5 py-1 font-medium text-amber-700 ring-1 ring-inset ring-amber-200"
+                    *ngIf="loop.uploadDate">
+                Feltöltve: {{ loop.uploadDate | date:'yyyy.MM.dd. HH:mm' }}
+              </span>
+              <span class="rounded-full bg-slate-50 px-2.5 py-1 font-medium text-slate-500 ring-1 ring-inset ring-slate-200">
+                ID: {{ loop._id }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Feltöltő -->
+          <div class="flex items-center gap-3 shrink-0">
+            <div class="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">
+              {{ (loop.uploader?.username || ' ? ') | slice:0:2 | uppercase }}
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-medium text-slate-800">Uploader</div>
+              <div class="text-sm text-slate-600">
+                {{ loop.uploader?.username || 'Ismeretlen' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KÖZÉPSŐ RÉSZ: Tag-ek + előnézet -->
+        <div class="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <!-- Meta + tagek -->
+          <div class="lg:col-span-2">
+            <div class="mb-3 text-xs font-medium text-slate-600">Címkék</div>
+            <div class="flex flex-wrap gap-2">
+              <ng-container *ngIf="loop.tags?.length; else noTags">
+                <span *ngFor="let tag of loop.tags"
+                      class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700 ring-1 ring-inset ring-slate-200">
+                  <i class="bi bi-tag-fill mr-1 text-indigo-500"></i>{{ tag }}
+                </span>
+              </ng-container>
+              <ng-template #noTags>
+                <span class="text-sm text-slate-400">Nincsenek tagek</span>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Audio előnézet -->
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div class="mb-2 text-xs font-medium text-slate-600">Előnézet</div>
+            <audio [src]="loop.path" controls class="w-full"></audio>
+          </div>
+        </div>
+
+        <!-- AKCIÓSOR -->
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <!-- Indok -->
+          <div class="flex-1">
+            <label class="mb-1 block text-xs font-medium text-slate-600">Elutasítás indoka</label>
+            <input type="text"
+                   [(ngModel)]="reasonMap[loop._id]"
+                   placeholder="Pl. téves BPM / rossz skála / hiányos meta…"
+                   class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-rose-400/70 focus:ring-4 focus:ring-rose-300/30"/>
+            <p class="mt-1 text-xs text-slate-400">Jóváhagyáshoz nem kötelező, elutasításhoz ajánlott.</p>
+          </div>
+
+          <!-- Gombok -->
+          <div class="flex shrink-0 items-center gap-2">
+            <button (click)="approve(loop)"
+                    class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-600">
+              Jóváhagyás
+            </button>
+            <button (click)="reject(loop, reasonMap[loop._id])"
+                    class="rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-600">
+              Elutasítás
+            </button>
+            <a [routerLink]="['/loop-detail', loop._id]"
+               class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+              Részletek
+            </a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
