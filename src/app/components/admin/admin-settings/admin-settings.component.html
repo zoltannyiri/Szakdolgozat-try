@@ -1,0 +1,47 @@
+<div class="mx-auto max-w-3xl p-4">
+    <h1 class="text-2xl font-semibold mb-4">Admin Settings – Credits</h1>
+
+    <div class="grid gap-4">
+        <label class="block">
+            <span class="text-sm text-slate-600">Initial credits for new
+                user</span>
+            <input type="number" class="form-input"
+                [(ngModel)]="form.initialCreditsForNewUser" />
+        </label>
+
+        <label class="block">
+            <span class="text-sm text-slate-600">Bonus on verify</span>
+            <input type="number" class="form-input"
+                [(ngModel)]="form.bonusOnVerify" />
+        </label>
+
+        <label class="block">
+            <span class="text-sm text-slate-600">Credits per approved upload (to
+                uploader)</span>
+            <input type="number" class="form-input"
+                [(ngModel)]="form.creditsPerApprovedUpload" />
+        </label>
+
+        <label class="block">
+            <span class="text-sm text-slate-600">Download cost (paid by
+                downloader)</span>
+            <input type="number" class="form-input"
+                [(ngModel)]="form.downloadCost" />
+        </label>
+
+        <label class="block">
+            <span class="text-sm text-slate-600">Reward per download to
+                uploader</span>
+            <input type="number" class="form-input"
+                [(ngModel)]="form.rewardPerDownloadToUploader" />
+        </label>
+
+        <div class="flex gap-2 mt-2">
+            <button class="btn-primary" (click)="save()"
+                [disabled]="saving">Save</button>
+            <button class="btn-ghost" (click)="load()"
+                [disabled]="loading">Reset</button>
+            <span *ngIf="saved" class="text-green-600 text-sm">Saved.</span>
+        </div>
+    </div>
+</div>

@@ -1,7 +1,10 @@
-import { Request, Response } from 'express';
+import { Request, RequestHandler, Response } from 'express';
 import User from '../models/user.model';
 import Loop from '../models/loop.model';
 import Comment from '../models/comment.model';
+import CreditConfig from "../models/creditConfig.model";
+import { getCreditConfig, invalidateCreditConfigCache } from "../utils/creditConfig";
+import Notification from '../models/notification.model';
 
 // export const getAllUsers = async (req: Request, res: Response) => {
 //   try {
@@ -82,7 +85,26 @@ export const getAdminStats = async (req: Request, res: Response) => {
 };
 
 
+// admin bírálás loopról
+export const listLoopsAdmin: RequestHandler = async (req, res) => {
+  console.log('[listLoopsAdmin] status=', req.query.status);
+  try {
+    const { status } = req.query as { status?: 'pending'|'approved'|'rejected' };
+    const q: any = {};
+    if (status) q.status = status;
 
+    const loops = await Loop.find(q)
+      .populate('uploader', 'username')
+      .sort({ uploadDate: -1 })
+      .lean();
+
+    res.json({ success: true, loops });
+    console.log('[listLoopsAdmin] found:', loops.length);
+  } catch (e) {
+    console.error('listLoopsAdmin error:', e);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 
 
 
@@ -226,4 +248,123 @@ export const deleteLoopById = async (req: Request, res: Response) => {
   }
 };
 
+// creditek módosítása
+export const getCreditSettings = async (_req: Request, res: Response) => {
+  try {
+    const cfg = await getCreditConfig();
+    res.json({ success: true, data: cfg });
+  } catch (e) {
+    console.error("[getCreditSettings]", e);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 
+
+export const updateCreditSettings = async (req: Request, res: Response) => {
+  try {
+    const payload: Partial<{
+      initialCreditsForNewUser: number;
+      bonusOnVerify: number;
+      creditsPerApprovedUpload: number;
+      downloadCost: number;
+      rewardPerDownloadToUploader: number;
+    }> = req.body || {};
+
+
+    const cfg = await CreditConfig.findOne();
+    if (!cfg) {
+      const created = await CreditConfig.create(payload);
+      invalidateCreditConfigCache();
+      return res.json({ success: true, data: created });
+    }
+
+
+    if (payload.initialCreditsForNewUser != null)
+      cfg.initialCreditsForNewUser = Number(payload.initialCreditsForNewUser);
+    if (payload.bonusOnVerify != null)
+      cfg.bonusOnVerify = Number(payload.bonusOnVerify);
+    if (payload.creditsPerApprovedUpload != null)
+      cfg.creditsPerApprovedUpload = Number(payload.creditsPerApprovedUpload);
+    if (payload.downloadCost != null)
+      cfg.downloadCost = Number(payload.downloadCost);
+    if (payload.rewardPerDownloadToUploader != null)
+      cfg.rewardPerDownloadToUploader = Number(payload.rewardPerDownloadToUploader);
+
+
+    cfg.updatedAt = new Date();
+    await cfg.save();
+    invalidateCreditConfigCache();
+    res.json({ success: true, data: cfg });
+  } catch (e) {
+    console.error("[updateCreditSettings]", e);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+export const approveLoopAdmin: RequestHandler = async (req: any, res) => {
+  try {
+    const { id } = req.params;
+    const loop = await Loop.findById(id);
+    if (!loop) return res.status(404).json({ success: false, message: 'Loop nem található' });
+
+    const prevStatus = loop.status;
+
+    loop.status = 'approved';
+    loop.rejectReason = '';
+    loop.moderatedBy = req.user?.userId || null;
+    loop.moderatedAt = new Date();
+    await loop.save();
+
+    // kredit az uploadernek
+    const cfg = await getCreditConfig();
+    await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: cfg.creditsPerApprovedUpload ?? 0 } });
+
+
+    if (prevStatus !== 'approved') {
+      await Notification.create({
+        userId: loop.uploader,
+        type: 'loop_approved',
+        message: `A(z) “${loop.filename}” loopodat jóváhagytuk.`,
+        relatedItemId: loop._id
+      });
+    }
+
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('approveLoopAdmin error:', e);
+    return res.status(500).json({ success: false, message: 'Szerver hiba' });
+  }
+};
+
+export const rejectLoopAdmin: RequestHandler = async (req: any, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body as { reason?: string };
+    const loop = await Loop.findById(id);
+    if (!loop) return res.status(404).json({ success: false, message: 'Loop nem található' });
+
+    const prevStatus = loop.status;
+
+    loop.status = 'rejected';
+    loop.rejectReason = (reason || '').trim();
+    loop.moderatedBy = req.user?.userId || null;
+    loop.moderatedAt = new Date();
+    await loop.save();
+
+    
+    if (prevStatus !== 'rejected') {
+      await Notification.create({
+        userId: loop.uploader,
+        type: 'loop_rejected',
+        message: `A(z) “${loop.filename}” loopodat elutasítottuk${loop.rejectReason ? `: ${loop.rejectReason}` : '.'}`,
+        relatedItemId: loop._id
+      });
+    }
+
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('rejectLoopAdmin error:', e);
+    return res.status(500).json({ success: false, message: 'Szerver hiba' });
+  }
+};

@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../models/user.model';
+import { getCreditConfig } from '../utils/creditConfig';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const router = Router();
@@ -57,23 +58,23 @@ router.post('/auth/google', async (req: Request, res: Response) => {
         });
       }
 
-      // Ha eddig nem volt verified, de a Google e-mail verified, akkor egyszeri +2 kredit.
+
       if (email_verified && !user.isVerified) {
-        
+        const cfg = await getCreditConfig();
         const upd = await User.updateOne(
           { _id: user._id, isVerified: false },
           { $set: { isVerified: true, provider: 'google', googleId: user.googleId || googleId },
-            $inc: { credits: 2 } }
+            $inc: { credits: cfg.bonusOnVerify ?? 0 } }
         );
 
-        // frissítjük a usert
+        
         if ((upd as any).modifiedCount > 0 || (upd as any).nModified > 0) {
           user.isVerified = true;
-          user.credits = (user.credits ?? 0) + 2;
+          user.credits = (user.credits ?? 0) + (cfg.bonusOnVerify ?? 0);
         }
       }
 
-      // Frissítések google fiókra
+     
       user.provider = 'google' as any;
       user.googleId = user.googleId || googleId;
       if (email_verified && !user.isVerified) user.isVerified = true;
@@ -82,14 +83,27 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       user.lastLogin = new Date();
       await user.save();
     } else {
-      // Új user létrehozása JELSZÓ NÉLKÜL
+      // // Új user létrehozása JELSZÓ NÉLKÜL
+      // user = new User({
+      //   email,
+      //   username: await uniqueUsername(name || email),
+      //   provider: 'google',
+      //   googleId,
+      //   isVerified: !!email_verified,
+      //   credits: email_verified ? 2 : 0,
+      //   profileImage: picture || undefined,
+      //   lastLogin: new Date(),
+      // });
+      // await user.save();
+      // Új user létrehozása JELSZÓ NÉLKÜL (kezdő kreditek configból)
+      const cfg = await getCreditConfig();
       user = new User({
         email,
         username: await uniqueUsername(name || email),
         provider: 'google',
         googleId,
         isVerified: !!email_verified,
-        credits: email_verified ? 2 : 0,
+        credits: (cfg.initialCreditsForNewUser ?? 0) + (email_verified ? (cfg.bonusOnVerify ?? 0) : 0),
         profileImage: picture || undefined,
         lastLogin: new Date(),
       });

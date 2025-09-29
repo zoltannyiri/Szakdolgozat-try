@@ -13,6 +13,8 @@ import { checkVerified } from "../middlewares/verify.middleware";
 import { authenticateToken } from "../middlewares/auth.middleware";
 import { upload } from "../middlewares/upload.middleware";
 import { validateLoopMetadata } from "../middlewares/validation.middleware";
+import { getCreditConfig } from "../utils/creditConfig";
+import { Types } from 'mongoose';
 
 const pump = promisify(pipeline);
 
@@ -157,8 +159,14 @@ export const uploadLoop = async (req: CustomRequest, res: Response) => {
     await newLoop.save();
 
     
+    // if (newLoop.status === 'approved') {
+    //   await User.findByIdAndUpdate(uploader, { $inc: { credits: 2 } });
+    // }
+
+
+    const cfg = await getCreditConfig();
     if (newLoop.status === 'approved') {
-      await User.findByIdAndUpdate(uploader, { $inc: { credits: 2 } });
+    await User.findByIdAndUpdate(uploader, { $inc: { credits: cfg.creditsPerApprovedUpload ?? 0 } });
     }
 
     return res.status(201).json({
@@ -275,6 +283,11 @@ export const downloadLoop = [
       // Letöltésszámláló
       await Loop.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
 
+      const cfg = await getCreditConfig();
+      const reward = Math.max(0, cfg.rewardPerDownloadToUploader || 0);
+      if (reward > 0 && loop.uploader) {
+        await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: reward } }).exec();
+      }
       
       if (/^https?:\/\//i.test(loop.path)) {
         
@@ -439,13 +452,19 @@ export const unlikeLoop = [
 ];
 
 //LOOP MÓDOSÍTÁS
-export const updateLoopAdmin = async (req: Request, res: Response) => {
+export const updateLoopAdmin = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params;
 
     
     const allowed: Array<'filename'|'bpm'|'key'|'scale'|'instrument'|'tags'> =
       ['filename','bpm','key','scale','instrument','tags'];
+
+      // összehasonlítás
+    const original = await Loop.findById(id);
+    if (!original) {
+      return res.status(404).json({ success: false, message: 'Loop nem található' });
+    }
 
     const update: any = {};
     for (const k of allowed) {
@@ -466,9 +485,44 @@ export const updateLoopAdmin = async (req: Request, res: Response) => {
         .filter((t: string) => t.length);
     }
 
+
+    const changedFields: string[] = [];
+    for (const k of allowed) {
+      if (update[k] === undefined) continue;
+
+      const before = (original as any)[k];
+      const after  = update[k];
+
+      const isEqual = Array.isArray(before) && Array.isArray(after)
+        ? (before.length === after.length && before.every((v: any, i: number) => v === after[i]))
+        : before === after;
+
+      if (!isEqual) changedFields.push(k);
+    }
+
     const loop = await Loop.findByIdAndUpdate(id, update, { new: true });
     if (!loop) {
       return res.status(404).json({ success: false, message: 'Loop nem található' });
+    }
+
+    
+    const actorId =
+    req.user?.userId && Types.ObjectId.isValid(req.user.userId)
+      ? new Types.ObjectId(req.user.userId)
+      : undefined;
+
+     if (changedFields.length > 0) {
+      try {
+        await Notification.create({
+          userId: loop.uploader,
+          user: actorId || undefined,
+          type: 'loop_edited',
+          message: `Az admin módosította a(z) “${loop.filename}” loop adatait (mezők: ${changedFields.join(', ')}).`,
+          relatedItemId: loop._id
+        });
+      } catch (err) {
+        console.error('[updateLoopAdmin] failed to create loop_edited notification:', err);
+      }
     }
 
     return res.json({ success: true, data: loop });
@@ -479,67 +533,71 @@ export const updateLoopAdmin = async (req: Request, res: Response) => {
 };
 
 
-// új: admin bírálás loopról
-export const listLoopsAdmin: RequestHandler = async (req, res) => {
-  console.log('[listLoopsAdmin] status=', req.query.status);
-  try {
-    const { status } = req.query as { status?: 'pending'|'approved'|'rejected' };
-    const q: any = {};
-    if (status) q.status = status;
+// // új: admin bírálás loopról
+// export const listLoopsAdmin: RequestHandler = async (req, res) => {
+//   console.log('[listLoopsAdmin] status=', req.query.status);
+//   try {
+//     const { status } = req.query as { status?: 'pending'|'approved'|'rejected' };
+//     const q: any = {};
+//     if (status) q.status = status;
 
-    const loops = await Loop.find(q)
-      .populate('uploader', 'username')
-      .sort({ uploadDate: -1 })
-      .lean();
+//     const loops = await Loop.find(q)
+//       .populate('uploader', 'username')
+//       .sort({ uploadDate: -1 })
+//       .lean();
 
-    res.json({ success: true, loops });
-    console.log('[listLoopsAdmin] found:', loops.length);
-  } catch (e) {
-    console.error('listLoopsAdmin error:', e);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
+//     res.json({ success: true, loops });
+//     console.log('[listLoopsAdmin] found:', loops.length);
+//   } catch (e) {
+//     console.error('listLoopsAdmin error:', e);
+//     res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// };
 
 
-export const approveLoopAdmin: RequestHandler = async (req: any, res) => {
-  try {
-    const { id } = req.params;
-    const loop = await Loop.findById(id);
-    if (!loop) return res.status(404).json({ success: false, message: 'Loop nem található' });
+// export const approveLoopAdmin: RequestHandler = async (req: any, res) => {
+//   try {
+//     const { id } = req.params;
+//     const loop = await Loop.findById(id);
+//     if (!loop) return res.status(404).json({ success: false, message: 'Loop nem található' });
 
-    loop.status = 'approved';
-    loop.rejectReason = '';
-    loop.moderatedBy = req.user?.userId || null;
-    loop.moderatedAt = new Date();
-    await loop.save();
+//     loop.status = 'approved';
+//     loop.rejectReason = '';
+//     loop.moderatedBy = req.user?.userId || null;
+//     loop.moderatedAt = new Date();
+//     await loop.save();
 
-    // kreditek jóváírása a feltöltönek
-    const CREDIT_PER_APPROVED_UPLOAD = 2;
-    await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: CREDIT_PER_APPROVED_UPLOAD } });
+//     // kreditek jóváírása a feltöltönek
+//     // const CREDIT_PER_APPROVED_UPLOAD = 2;
+//     // await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: CREDIT_PER_APPROVED_UPLOAD } });
+//     const cfg = await getCreditConfig();
+//     await User.findByIdAndUpdate(loop.uploader, {
+//       $inc: { credits: cfg.creditsPerApprovedUpload ?? 0 }
+//     });
 
-    return res.json({ success: true });
-  } catch (e) {
-    console.error('approveLoopAdmin error:', e);
-    return res.status(500).json({ success: false, message: 'Szerver hiba' });
-  }
-};
+//     return res.json({ success: true });
+//   } catch (e) {
+//     console.error('approveLoopAdmin error:', e);
+//     return res.status(500).json({ success: false, message: 'Szerver hiba' });
+//   }
+// };
 
-export const rejectLoopAdmin: RequestHandler = async (req: any, res) => {
-  try {
-    const { id } = req.params;
-    const { reason } = req.body as { reason?: string };
-    const loop = await Loop.findById(id);
-    if (!loop) return res.status(404).json({ success: false, message: 'Loop nem található' });
+// export const rejectLoopAdmin: RequestHandler = async (req: any, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { reason } = req.body as { reason?: string };
+//     const loop = await Loop.findById(id);
+//     if (!loop) return res.status(404).json({ success: false, message: 'Loop nem található' });
 
-    loop.status = 'rejected';
-    loop.rejectReason = (reason || '').trim();
-    loop.moderatedBy = req.user?.userId || null;
-    loop.moderatedAt = new Date();
-    await loop.save();
+//     loop.status = 'rejected';
+//     loop.rejectReason = (reason || '').trim();
+//     loop.moderatedBy = req.user?.userId || null;
+//     loop.moderatedAt = new Date();
+//     await loop.save();
 
-    return res.json({ success: true });
-  } catch (e) {
-    console.error('rejectLoopAdmin error:', e);
-    return res.status(500).json({ success: false, message: 'Szerver hiba' });
-  }
-};
+//     return res.json({ success: true });
+//   } catch (e) {
+//     console.error('rejectLoopAdmin error:', e);
+//     return res.status(500).json({ success: false, message: 'Szerver hiba' });
+//   }
+// };

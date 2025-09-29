@@ -5,6 +5,7 @@ import User from "../models/user.model";
 import crypto from 'crypto';
 import { validateUser } from "../middlewares/validation.middleware";
 import { issueVerification } from "../utils/verify";
+import { getCreditConfig } from "../utils/creditConfig";
 
 const router = Router();
 
@@ -38,6 +39,9 @@ router.post("/register", validateUser, async (req: Request, res: Response) => {
         const verificationTokenExpires = new Date();
         verificationTokenExpires.setHours(verificationTokenExpires.getHours() + 24);
 
+        
+        const cfg = await getCreditConfig();
+
         // Új felhasználó létrehozása
         const newUser = new User({
             username,
@@ -48,7 +52,8 @@ router.post("/register", validateUser, async (req: Request, res: Response) => {
             country,
             // verificationToken,
             // verificationTokenExpires,
-            isVerified: false
+            isVerified: false,
+            credits: cfg.initialCreditsForNewUser ?? 0
         });
 
         await newUser.save();

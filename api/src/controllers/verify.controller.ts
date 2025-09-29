@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/user.model';
 import { consumeVerification, issueVerification } from '../utils/verify';
+import { getCreditConfig } from '../utils/creditConfig';
 
 export async function verifyAccount(req: Request, res: Response) {
   try {
@@ -17,10 +18,11 @@ export async function verifyAccount(req: Request, res: Response) {
 
     await consumeVerification(uid, token);
 
-    // ha eddig nem volt verified de most lett az: +2 kredit
     if (!before.isVerified) {
-      await User.findByIdAndUpdate(uid, { $inc: { credits: 2 } });
+    const cfg = await getCreditConfig();
+    await User.findByIdAndUpdate(uid, { $inc: { credits: cfg.bonusOnVerify ?? 0 } });
     }
+
 
     return res.json({ success: true, message: 'Verified' });
   } catch (e: any) {

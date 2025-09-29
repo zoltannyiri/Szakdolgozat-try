@@ -177,6 +177,9 @@
                   <button class="menu-item">
                     <i class="bi bi-gear mr-2"></i> Settings
                   </button>
+                  <button *ngIf="isAdmin" class="menu-item" [routerLink]="['/admin','settings']" (click)="showProfileMenu = false">
+                    <i class="bi bi-sliders mr-2"></i> Admin Settings
+                  </button>
                   <button class="menu-item text-red-600 hover:text-red-700" (click)="logout()">
                     <i class="bi bi-box-arrow-right mr-2"></i> Log Out
                   </button>

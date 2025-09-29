@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList, ElementRef, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoopService } from '../../services/loop.service';
 import { AuthService } from '../../services/auth.service';
@@ -11,6 +11,8 @@ import { WaveformService } from '../../services/waveform.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { ReportsService } from '../../services/reports.service';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs'; // új
+import { takeUntil } from 'rxjs/operators'; // új
 
 @Component({
   selector: 'app-loops',
@@ -19,7 +21,7 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './loops.component.html',
   styleUrls: ['./loops.component.scss']
 })
-export class LoopsComponent implements OnInit {
+export class LoopsComponent implements OnInit, OnDestroy {
   @ViewChildren('audioPlayer') audioPlayers!: QueryList<ElementRef<HTMLAudioElement>>;
 
   // Audio state variables
@@ -118,24 +120,62 @@ export class LoopsComponent implements OnInit {
     this.loadLoops();
   }
 
-  loadLoops(): void {
-    this.isLoading = true;
-    this.loopService.getLoops(this.filters).subscribe({
-      next: (loops: ILoop[]) => {
+  // új: betöltés optimalizálás, 09.30.
+ private destroy$ = new Subject<void>();
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+loadLoops(): void {
+  this.isLoading = true;
+  this.loopService.getLoops(this.filters)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (loops: ILoop[]) => {             // <— ITT a fontos
         this.loops = loops;
-        loops.forEach(loop => {
+
+        loops.forEach((loop: ILoop) => {      // opcionális, de tiszta
           this.volumes[loop._id] = 0.7;
           this.generateWaveform(loop._id);
-          this.checkFavoriteStatus(loop._id);
         });
+
+        if (this.authService.isLoggedIn()) {
+          loops.forEach((l: ILoop) => {       // opcionális, de tiszta
+            this.favoriteService.checkFavoriteStatus(l._id)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: r => this.favoriteStatus[l._id] = r.isFavorite,
+                error: () => {}
+              });
+          });
+        }
+
         this.isLoading = false;
       },
-      error: (err: any) => {
-        console.error('Error loading loops:', err);
-        this.isLoading = false;
-      }
+      error: () => this.isLoading = false
     });
-  }
+}
+
+  
+  // loadLoops(): void {
+  //   this.isLoading = true;
+  //   this.loopService.getLoops(this.filters).subscribe({
+  //     next: (loops: ILoop[]) => {
+  //       this.loops = loops;
+  //       loops.forEach(loop => {
+  //         this.volumes[loop._id] = 0.7;
+  //         this.generateWaveform(loop._id);
+  //         this.checkFavoriteStatus(loop._id);
+  //       });
+  //       this.isLoading = false;
+  //     },
+  //     error: (err: any) => {
+  //       console.error('Error loading loops:', err);
+  //       this.isLoading = false;
+  //     }
+  //   });
+  // }
 
   getSafeAudioUrl(path: string | undefined): string {
     if (!path) return '';

@@ -2,7 +2,7 @@ import express from 'express';
 import { authenticateToken } from '../middlewares/auth.middleware';
 import { requireAdmin } from '../middlewares/admin.middleware';
 import User from '../models/user.model';
-import { getAdminStats, getWeeklyRegistrations, getWeeklyUploads } from '../controllers/admin.controller';
+import { getAdminStats, getWeeklyRegistrations, getWeeklyUploads, listLoopsAdmin } from '../controllers/admin.controller';
 import Loop from '../models/loop.model';
 
 import { getAllUsers, deleteUserById } from '../controllers/admin.controller';
@@ -11,9 +11,10 @@ import { getAllLoopsForAdmin, deleteLoopById } from '../controllers/admin.contro
 // import { getAllReports, updateReportStatus } from '../controllers/report.controller';
 import { deleteCommentAdmin } from '../controllers/comment.controller';
 import { listReports, setReportStatus } from '../controllers/report.controller';
-import { approveLoopAdmin, listLoopsAdmin, rejectLoopAdmin, updateLoopAdmin } from '../controllers/loop.controller';
+import { updateLoopAdmin } from '../controllers/loop.controller';
 import { banUser, unbanUser } from '../controllers/ban.controller';
-
+import { getCreditSettings, updateCreditSettings } from '../controllers/admin.controller';
+import { approveLoopAdmin, rejectLoopAdmin } from '../controllers/admin.controller';
 
 
 const router = express.Router();
@@ -61,6 +62,8 @@ router.post('/users/:id/unban', authenticateToken, requireAdmin, unbanUser);
 router.patch('/loops/:id/approve', authenticateToken, requireAdmin, approveLoopAdmin);
 router.patch('/loops/:id/reject', authenticateToken, requireAdmin, rejectLoopAdmin);
 
+router.get('/credit-config', authenticateToken, requireAdmin, getCreditSettings);
+router.patch('/credit-config', authenticateToken, requireAdmin, updateCreditSettings);
 
 // IDEIGLENES TESZT MIATT:
 router.get('/loops/status-summary', authenticateToken, requireAdmin, async (req, res) => {

@@ -259,7 +259,10 @@ export class NavbarComponent {
       'like': 'bg-red-100 text-red-600',
       'download': 'bg-green-100 text-green-600',
       'comment': 'bg-blue-100 text-blue-600',
-      'follow': 'bg-purple-100 text-purple-600'
+      'follow': 'bg-purple-100 text-purple-600',
+      'loop_approved': 'bg-emerald-100 text-emerald-700',
+      'loop_rejected': 'bg-amber-100 text-amber-700',
+      'loop_edited': 'bg-cyan-100 text-cyan-700' 
     };
     return classes[type] || 'bg-gray-100 text-gray-600';
   }
@@ -269,7 +272,10 @@ export class NavbarComponent {
       'like': 'bi bi-heart-fill',
       'download': 'bi bi-download',
       'comment': 'bi bi-chat-square-text-fill',
-      'follow': 'bi bi-person-plus-fill'
+      'follow': 'bi bi-person-plus-fill',
+      'loop_approved': 'bi bi-check-circle-fill',
+      'loop_rejected': 'bi bi-x-circle-fill',
+      'loop_edited': 'bi bi-pencil-square'  
     };
     return icons[type] || 'bi bi-bell-fill';
   }
