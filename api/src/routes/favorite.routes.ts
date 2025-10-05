@@ -3,7 +3,8 @@ import {
   addFavorite, 
   removeFavorite, 
   getUserFavorites,
-  checkFavoriteStatus
+  checkFavoriteStatus,
+  getFavoriteIds
 } from "../controllers/favorite.controller";
 import { authenticateToken } from "../middlewares/auth.middleware";
 import { checkVerified } from "../middlewares/verify.middleware";
@@ -27,5 +28,11 @@ router.get("/favorites",
 router.get("/loops/:loopId/favorite-status", 
   authenticateToken, 
   checkFavoriteStatus);
+
+
+// új: teljesítmény miatt
+router.get("/favorites/ids",
+  authenticateToken,
+  getFavoriteIds);
 
 export default router;

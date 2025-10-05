@@ -17,7 +17,7 @@ export class AdminLoopsComponent implements OnInit {
   errorMessage = '';
 
   searchTerm = '';
-  sortField: string = 'createdAt';
+  // sortField: string = 'createdAt';
   sortDirection: 'asc' | 'desc' = 'desc';
 
   currentPage = 1;
@@ -65,39 +65,53 @@ export class AdminLoopsComponent implements OnInit {
     this.currentPage = 1;
   }
 
+  // get filteredLoops() {
+  //   const term = this.searchTerm.toLowerCase();
+  //   return this.loops.filter(loop =>
+  //     (loop.title || '').toLowerCase().includes(term) ||
+  //     (loop.username || '').toLowerCase().includes(term)
+  //   );
+  // }
+
   get filteredLoops() {
-    const term = this.searchTerm.toLowerCase();
-    return this.loops.filter(loop =>
-      (loop.title || '').toLowerCase().includes(term) ||
-      (loop.username || '').toLowerCase().includes(term)
-    );
-  }
+  const term = this.searchTerm.toLowerCase();
+  return this.loops.filter(loop => {
+    const title = (loop.filename || '').toLowerCase();
+    const uploader = (loop.uploader?.username || '').toLowerCase();
+    return title.includes(term) || uploader.includes(term);
+  });
+}
 
-  get sortedLoops() {
-    const sorted = [...this.filteredLoops];
-    sorted.sort((a, b) => {
-      const aValue = a[this.sortField];
-      const bValue = b[this.sortField];
+sortField: string = 'uploadDate';
 
-      if (this.sortField === 'createdAt') {
-        return this.sortDirection === 'asc'
-          ? new Date(aValue).getTime() - new Date(bValue).getTime()
-          : new Date(bValue).getTime() - new Date(aValue).getTime();
-      }
+get sortedLoops() {
+  const sorted = [...this.filteredLoops];
+  sorted.sort((a, b) => {
+    if (this.sortField === 'uploadDate') {
+      const av = new Date(a.uploadDate || a.createdAt || 0).getTime();
+      const bv = new Date(b.uploadDate || b.createdAt || 0).getTime();
+      return this.sortDirection === 'asc' ? av - bv : bv - av;
+    }
 
-      if (typeof aValue === 'string') {
-        return this.sortDirection === 'asc'
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
+    if (this.sortField === 'uploader') {
+      const av = (a.uploader?.username || '').toLowerCase();
+      const bv = (b.uploader?.username || '').toLowerCase();
+      return this.sortDirection === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+    }
 
-      return this.sortDirection === 'asc'
-        ? aValue - bValue
-        : bValue - aValue;
-    });
+    const aVal = (a[this.sortField] ?? '').toString().toLowerCase();
+    const bVal = (b[this.sortField] ?? '').toString().toLowerCase();
+    if (isNaN(aVal as any) && isNaN(bVal as any)) {
+      return this.sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    }
 
-    return sorted;
-  }
+    const an = Number(a[this.sortField] ?? 0);
+    const bn = Number(b[this.sortField] ?? 0);
+    return this.sortDirection === 'asc' ? an - bn : bn - an;
+  });
+  return sorted;
+}
+
 
   
 
@@ -125,12 +139,19 @@ export class AdminLoopsComponent implements OnInit {
   }
 
   exportToCSV() {
+    // const rows = this.sortedLoops.map(loop => ({
+    //   Cím: loop.title,
+    //   Feltöltő: loop.username,
+    //   Dátum: new Date(loop.createdAt).toLocaleDateString(),
+    //   Likeok: loop.likes,
+    //   Letöltések: loop.downloads
+    // }));
     const rows = this.sortedLoops.map(loop => ({
-      Cím: loop.title,
-      Feltöltő: loop.username,
-      Dátum: new Date(loop.createdAt).toLocaleDateString(),
-      Likeok: loop.likes,
-      Letöltések: loop.downloads
+      Cím: loop.filename,
+      Feltöltő: loop.uploader?.username || '',
+      Dátum: new Date(loop.uploadDate || loop.createdAt).toLocaleDateString(),
+      Likeok: loop.likes ?? 0,
+      Letöltések: loop.downloads ?? 0
     }));
 
     const csv = this.convertToCsv(rows);
@@ -172,8 +193,13 @@ closeModal() {
   this.selectedLoop = null;
 }
 
+// getAudioUrl(path: string): string {
+//   return `${environment.apiUrl}/${path}`;
+// }
 getAudioUrl(path: string): string {
-  return `${environment.apiUrl}/${path}`;
+  if (!path) return '';
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${environment.apiUrl}/${path.replace(/^\/+/, '')}`;
 }
 
 getLoopLink(loopId: string): string {
@@ -183,11 +209,4 @@ getLoopLink(loopId: string): string {
 openInNewTab(loopId: string) {
   window.open(this.getLoopLink(loopId), '_blank');
 }
-
-
-
-
-
-
-
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -30,6 +30,14 @@ export interface UploadResponse {
     duration: number;
     status: 'pending' | 'approved' | 'rejected';
   }
+}
+
+export interface LoopsPagedResponse {
+  success: boolean;
+  items: any[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 @Injectable({
@@ -131,36 +139,59 @@ getLoopById(id: string): Observable<any> {
     
     // API URL hozzáadása és elérési út tisztítása
     const cleanPath = path.replace(/\\/g, '/').replace(/^\/?uploads\//, '');
-    return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
+    // return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
+    return `${this.apiUrl}/uploads/${cleanPath}`;
   }
 
 
 
   // Loopok lekérése szűrőkkel
-  getLoops(filters: LoopFilters): Observable<any> {
-    // Query paraméterek létrehozása
-    const params: any = {};
+  getLoops(filters: LoopFilters, page = 1, limit = 8): Observable<LoopsPagedResponse> {
+    let params = new HttpParams()
+      .set('page', String(page))
+      .set('limit', String(limit));
     
     // if (filters.bpm) params.bpm = filters.bpm.toString();
-  if (filters.minBpm) params.minBpm = filters.minBpm.toString();
-  if (filters.maxBpm) params.maxBpm = filters.maxBpm.toString();
-    if (filters.key) params.key = filters.key;
-    if (filters.scale) params.scale = filters.scale;
-    if (filters.instrument) params.instrument = filters.instrument;
-    if (filters.tags) params.tags = filters.tags;
-    if (filters.sortBy) params.sortBy = filters.sortBy;
-    if (filters.uploader) params.uploader = filters.uploader;
+  // if (filters.minBpm) params.minBpm = filters.minBpm.toString();
+  // if (filters.maxBpm) params.maxBpm = filters.maxBpm.toString();
+  //   if (filters.key) params.key = filters.key;
+  //   if (filters.scale) params.scale = filters.scale;
+  //   if (filters.instrument) params.instrument = filters.instrument;
+  //   if (filters.tags) params.tags = filters.tags;
+  //   if (filters.sortBy) params.sortBy = filters.sortBy;
+  //   if (filters.uploader) params.uploader = filters.uploader;
+  if (filters.minBpm != null)   params = params.set('minBpm', String(filters.minBpm));
+    if (filters.maxBpm != null) params = params.set('maxBpm', String(filters.maxBpm));
+    if (filters.key)            params = params.set('key', filters.key);
+    if (filters.scale)          params = params.set('scale', filters.scale);
+    if (filters.instrument)     params = params.set('instrument', filters.instrument);
+    if (filters.tags)           params = params.set('tags', filters.tags);
+    if (filters.sortBy)         params = params.set('sortBy', filters.sortBy);
+    if (filters.uploader)       params = params.set('uploader', filters.uploader);
 
     // console.log('Request params:', params);
 
-    return this.http.get(`${this.apiUrl}/api/loops`, { params })
-      .pipe(
-        catchError(error => {
-          console.error('Loopok betöltési hiba:', error);
-          throw error;
-        })
-      );
-  }
+  //   return this.http.get(`${this.apiUrl}/api/loops`, { params })
+  //     .pipe(
+  //       catchError(error => {
+  //         console.error('Loopok betöltési hiba:', error);
+  //         throw error;
+  //       })
+  //     );
+  // }
+   return this.http
+    .get<any>(`${this.apiUrl}/api/loops`, { params })
+    .pipe(
+      map(resp => Array.isArray(resp)
+        ? ({ success: true, items: resp, total: resp.length, page, pageSize: limit } as LoopsPagedResponse)
+        : (resp as LoopsPagedResponse)
+      ),
+      catchError((error) => {
+        console.error('Loopok betöltési hiba:', error);
+        return throwError(() => error);
+      })
+    );
+}
 
   // Loop letöltése
   downloadLoop(loopId: string): Observable<Blob> {

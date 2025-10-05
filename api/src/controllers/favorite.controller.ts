@@ -123,3 +123,17 @@ export const checkFavoriteStatus = async (req: CustomRequest, res: Response) => 
     });
   }
 };
+
+
+
+// új: teljesítmény miatt
+export const getFavoriteIds = async (req: CustomRequest, res: Response) => {
+  try {
+    const userId = req.user.userId;
+    const ids = await Favorite.find({ user: userId }).distinct("loop");
+    res.json({ success: true, ids });
+  } catch (error) {
+    console.error("Get favorite ids error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

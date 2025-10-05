@@ -319,6 +319,11 @@ export const downloadLoop = [
 export const getLoops = async (req: Request, res: Response) => {
   try {
     const { bpm, minBpm, maxBpm, key, scale, instrument, tags, uploader } = req.query;
+
+    // lapozás
+    const page = Math.max(1, parseInt((req.query.page as string) || '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt((req.query.limit as string) || '8', 10)));
+    const skip = (page - 1) * limit;
     
     // const filter: any = {};
     const filter: any = { status: 'approved' };
@@ -348,7 +353,17 @@ export const getLoops = async (req: Request, res: Response) => {
       .populate("uploader", "username")
       .sort({ uploadDate: -1 });
 
-    res.json(loops);
+      const [items, total] = await Promise.all([
+      Loop.find(filter)
+        .populate("uploader", "username")
+        .sort({ uploadDate: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Loop.countDocuments(filter),
+    ]);
+
+    res.json({ success: true, items, total, page, pageSize: limit });
   } catch (error) {
     console.error("Error fetching loops:", error);
     res.status(500).json({ message: "Server error" });

@@ -111,7 +111,7 @@ export class ProfileComponent implements OnInit {
     this.loopsLoading = true;
     this.loopSvc.getLoops({ uploader: this.userData._id, sortBy: 'recent' })
       .subscribe({
-        next: (items: any[]) => this.userLoops = items || [],
+        next: (res) => this.userLoops = res.items || [],
         error: () => this.showToast('Loops betöltése sikertelen', 'error'),
         complete: () => this.loopsLoading = false
       });

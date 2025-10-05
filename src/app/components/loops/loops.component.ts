@@ -12,6 +12,7 @@ import { FavoriteService } from '../../services/favorite.service';
 import { ReportsService } from '../../services/reports.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs'; // új
+import { forkJoin, of } from 'rxjs';
 import { takeUntil } from 'rxjs/operators'; // új
 
 @Component({
@@ -101,6 +102,11 @@ export class LoopsComponent implements OnInit, OnDestroy {
   tags: ''
 };
 
+  //lapozók
+  page = 1;
+  pageSize = 8;
+  total = 0;
+
   // Constants
   keys = ["A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
   scales = ["major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
@@ -127,35 +133,86 @@ export class LoopsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+// loadLoops(): void {
+//   this.isLoading = true;
+//   this.loopService.getLoops(this.filters)
+//     .pipe(takeUntil(this.destroy$))
+//     .subscribe({
+//       next: (loops: ILoop[]) => {             // <— ITT a fontos
+//         this.loops = loops;
+
+//         loops.forEach((loop: ILoop) => {      // opcionális, de tiszta
+//           this.volumes[loop._id] = 0.7;
+//           this.generateWaveform(loop._id);
+//         });
+
+//         if (this.authService.isLoggedIn()) {
+//           loops.forEach((l: ILoop) => {       // opcionális, de tiszta
+//             this.favoriteService.checkFavoriteStatus(l._id)
+//               .pipe(takeUntil(this.destroy$))
+//               .subscribe({
+//                 next: r => this.favoriteStatus[l._id] = r.isFavorite,
+//                 error: () => {}
+//               });
+//           });
+//         }
+
+//         this.isLoading = false;
+//       },
+//       error: () => this.isLoading = false
+//     });
+// }
+
 loadLoops(): void {
   this.isLoading = true;
-  this.loopService.getLoops(this.filters)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (loops: ILoop[]) => {             // <— ITT a fontos
-        this.loops = loops;
 
-        loops.forEach((loop: ILoop) => {      // opcionális, de tiszta
-          this.volumes[loop._id] = 0.7;
-          this.generateWaveform(loop._id);
-        });
+  const loops$ = this.loopService
+  .getLoops(this.filters, this.page, this.pageSize)
+  .pipe(takeUntil(this.destroy$));
 
-        if (this.authService.isLoggedIn()) {
-          loops.forEach((l: ILoop) => {       // opcionális, de tiszta
-            this.favoriteService.checkFavoriteStatus(l._id)
-              .pipe(takeUntil(this.destroy$))
-              .subscribe({
-                next: r => this.favoriteStatus[l._id] = r.isFavorite,
-                error: () => {}
-              });
-          });
-        }
+  const favs$  = this.authService.isLoggedIn()
+    ? this.favoriteService.getFavoriteIds().pipe(takeUntil(this.destroy$))
+    : of({ success: true, ids: [] as string[] });
 
-        this.isLoading = false;
-      },
-      error: () => this.isLoading = false
+  forkJoin([loops$, favs$]).subscribe({
+  next: ([loopsRes, favRes]) => {
+    const favSet = new Set((favRes?.ids) ?? []);
+    const loops = (loopsRes?.items ?? []) as ILoop[];
+
+    const items = (loopsRes?.items ?? []) as ILoop[];
+      this.total = Number(loopsRes?.total ?? items.length);
+      this.page  = Number(loopsRes?.page ?? this.page);
+      this.pageSize = Number(loopsRes?.pageSize ?? this.pageSize);
+
+    this.loops = loops;
+
+    loops.forEach((loop: ILoop) => {
+      this.volumes[loop._id] = 0.7;
+      this.favoriteStatus[loop._id] = favSet.has(loop._id);
+      this.generateWaveform(loop._id);
     });
+
+    this.isLoading = false;
+  },
+  error: () => { this.isLoading = false; }
+});
 }
+loadFavoritesOnce(): void {
+  if (!this.authService.isLoggedIn()) return;
+
+  this.favoriteService.getUserFavorites().subscribe({
+    next: (res: any) => {
+      if (Array.isArray(res.favorites)) {
+        res.favorites.forEach((loop: any) => {
+          if (loop?._id) this.favoriteStatus[loop._id] = true;
+        });
+      }
+    },
+    error: (err) => console.error('Error loading favorites:', err)
+  });
+}
+
+
 
   
   // loadLoops(): void {
@@ -224,11 +281,13 @@ loadLoops(): void {
   searchLoops(): void {
     if (this.searchQuery.trim()) {
       this.filters.tags = this.searchQuery;
+      this.page = 1;
       this.loadLoops();
     }
   }
 
   applyAdvancedSearch(): void {
+    this.page = 1;
     this.loadLoops();
     this.isAdvancedSearchOpen = false;
   }
@@ -549,6 +608,31 @@ loadLoops(): void {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+
+  onLoadedMeta(loopId: string, audio: HTMLAudioElement) {
+  if (!audio) return;
+  const d = Number.isFinite(audio.duration) ? audio.duration : 0;
+  this.durations[loopId] = d;
+  if (!this.waveforms[loopId]?.length) this.generateWaveform(loopId);
+}
+
+  onDurationChange(loopId: string, audio: HTMLAudioElement) {
+    if (!audio) return;
+    const d = Number.isFinite(audio.duration) ? audio.duration : 0;
+    this.durations[loopId] = d;
+  }
+
+  onCanPlay(loopId: string) {
+    if (!this.waveforms[loopId]?.length) this.generateWaveform(loopId);
+  }
+
+  formatTimeSafe(val: number | undefined): string {
+    if (!Number.isFinite(val || NaN) || (val as number) <= 0) return '0:00';
+    const secs = Math.floor(val as number);
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
   }
 
   async generateWaveform(loopId: string): Promise<void> {
@@ -1014,6 +1098,53 @@ saveLoopEdit() {
     }
   });
 }
+
+
+  // lapozók:
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.total / this.pageSize));
+  }
+  get fromIndex(): number {
+    return this.total === 0 ? 0 : (this.page - 1) * this.pageSize + 1;
+  }
+  get toIndex(): number {
+    return Math.min(this.page * this.pageSize, this.total);
+  }
+
+  get pageNumbers(): number[] {
+    const total = this.totalPages;
+    const current = this.page;
+    const windowSize = 7;
+    if (total <= windowSize) return Array.from({ length: total }, (_, i) => i + 1);
+    const half = Math.floor(windowSize / 2);
+    let start = Math.max(1, current - half);
+    let end = Math.min(total, start + windowSize - 1);
+    if (end - start + 1 < windowSize) start = Math.max(1, end - windowSize + 1);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+
+
+  goToPage(p: number) {
+    if (p < 1 || p > this.totalPages || p === this.page) return;
+    this.page = p;
+    this.loadLoops();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+      this.loadLoops();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+      this.loadLoops();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
 
 
 }

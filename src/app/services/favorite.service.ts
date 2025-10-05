@@ -38,4 +38,13 @@ export class FavoriteService {
       ? this.removeFavorite(loopId)
       : this.addFavorite(loopId);
   }
+
+
+
+  // új: teljesítmény miatt
+  getFavoriteIds() {
+  return this.http.get<{ success: boolean; ids: string[] }>(
+    `${this.apiUrl}/api/favorites/ids`
+  );
+}
 }

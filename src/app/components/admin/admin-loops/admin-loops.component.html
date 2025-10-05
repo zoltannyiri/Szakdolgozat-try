@@ -2,17 +2,11 @@
   <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
     <h1 class="text-3xl font-extrabold text-gray-900">📂 Feltöltött Loops</h1>
     <div class="flex flex-col sm:flex-row gap-3">
-      <input
-        type="text"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="applyFilters()"
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
         placeholder="🔍 Keresés cím vagy feltöltő alapján"
-        class="px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300 w-full sm:w-80"
-      />
-      <button
-        (click)="exportToCSV()"
-        class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow"
-      >
+        class="px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300 w-full sm:w-80" />
+      <button (click)="exportToCSV()"
+        class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow">
         📤 Export CSV
       </button>
     </div>
@@ -24,26 +18,32 @@
     <table class="min-w-full text-sm text-left text-gray-800 bg-white">
       <thead class="bg-gray-100 text-xs uppercase text-gray-600">
         <tr>
-          <th class="px-6 py-4 cursor-pointer" (click)="setSort('title')">
+          <th class="px-6 py-4 cursor-pointer" (click)="setSort('filename')">
             <div class="flex items-center gap-1">
               Cím
-              <svg *ngIf="sortField === 'title'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg *ngIf="sortField === 'filename'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''"
+                class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
           </th>
-          <th class="px-6 py-4 cursor-pointer" (click)="setSort('username')">
+          <th class="px-6 py-4 cursor-pointer" (click)="setSort('uploader')">
             <div class="flex items-center gap-1">
               Feltöltő
-              <svg *ngIf="sortField === 'username'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg *ngIf="sortField === 'uploader'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''"
+                class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
           </th>
-          <th class="px-6 py-4 cursor-pointer" (click)="setSort('createdAt')">
+          <th class="px-6 py-4 cursor-pointer" (click)="setSort('uploadDate')">
             <div class="flex items-center gap-1">
               Dátum
-              <svg *ngIf="sortField === 'createdAt'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg *ngIf="sortField === 'uploadDate'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''"
+                class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -51,7 +51,9 @@
           <th class="px-6 py-4 cursor-pointer" (click)="setSort('likes')">
             <div class="flex items-center gap-1">
               👍 Like-ok
-              <svg *ngIf="sortField === 'likes'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg *ngIf="sortField === 'likes'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''"
+                class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -59,7 +61,9 @@
           <th class="px-6 py-4 cursor-pointer" (click)="setSort('downloads')">
             <div class="flex items-center gap-1">
               ⬇️ Letöltések
-              <svg *ngIf="sortField === 'downloads'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg *ngIf="sortField === 'downloads'" [ngClass]="sortDirection === 'asc' ? 'rotate-180' : ''"
+                class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -69,13 +73,15 @@
       </thead>
       <tbody>
         <tr *ngFor="let loop of paginatedLoops" class="hover:bg-blue-50 transition">
-          <td class="px-6 py-3 font-medium text-blue-600 underline cursor-pointer" (click)="openModal(loop)">{{ loop.title }}</td>
-          <td class="px-6 py-3">{{ loop.username }}</td>
-          <td class="px-6 py-3">{{ loop.createdAt | date: 'yyyy.MM.dd' }}</td>
+          <td class="px-6 py-3 font-medium text-blue-600 underline cursor-pointer" (click)="openModal(loop)">{{
+            loop.filename }}</td>
+          <td class="px-6 py-3">{{ loop.uploader?.username }}</td>
+          <td class="px-6 py-3">{{ loop.uploadDate | date: 'yyyy.MM.dd' }}</td>
           <td class="px-6 py-3">{{ loop.likes }}</td>
           <td class="px-6 py-3">{{ loop.downloads }}</td>
           <td class="px-6 py-3">
-            <button (click)="deleteLoop(loop._id)" class="text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md shadow">Törlés</button>
+            <button (click)="deleteLoop(loop._id)"
+              class="text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md shadow">Törlés</button>
           </td>
         </tr>
       </tbody>
@@ -87,20 +93,21 @@
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 relative">
       <button class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl" (click)="closeModal()">✖</button>
 
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ selectedLoop.title }}</h2>
-      <p class="text-gray-700 mb-1"><strong>Feltöltő:</strong> {{ selectedLoop.username }}</p>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ selectedLoop.filename }}</h2>
+      <p class="text-gray-700 mb-1"><strong>Feltöltő:</strong> {{ selectedLoop.uploader?.username }}</p>
       <p class="text-gray-700 mb-1"><strong>BPM:</strong> {{ selectedLoop.bpm || 'N/A' }}</p>
-      <p class="text-gray-700 mb-1"><strong>Hangnem:</strong> {{ selectedLoop.key || '-' }} {{ selectedLoop.scale || '' }}</p>
+      <p class="text-gray-700 mb-1"><strong>Hangnem:</strong> {{ selectedLoop.key || '-' }} {{ selectedLoop.scale || ''
+        }}</p>
       <p class="text-gray-700 mb-1"><strong>Hangszer:</strong> {{ selectedLoop.instrument || 'N/A' }}</p>
       <p class="text-gray-700 mb-4"><strong>Leírás / Tag-ek:</strong> {{ selectedLoop.tags?.join(', ') || 'Nincs' }}</p>
 
       <audio *ngIf="selectedLoop.path" class="w-full my-4" controls [src]="getAudioUrl(selectedLoop.path)"></audio>
 
       <div class="flex flex-wrap gap-4">
-       <a [href]="getLoopLink(selectedLoop._id)" target="_blank" rel="noopener noreferrer"
-   class="text-blue-500 underline hover:text-blue-700">
-  Részletes oldal megnyitása
-</a>
+        <a [href]="getLoopLink(selectedLoop._id)" target="_blank" rel="noopener noreferrer"
+          class="text-blue-500 underline hover:text-blue-700">
+          Részletes oldal megnyitása
+        </a>
 
 
 
@@ -110,12 +117,14 @@
     </div>
   </div>
 
-  <!-- Pagination -->
+  <!-- Oldalak -->
   <div class="flex justify-between items-center mt-6 text-sm text-gray-700">
     <div>📄 Összesen: {{ filteredLoops.length }} loop</div>
     <div class="space-x-2">
-      <button (click)="prevPage()" [disabled]="currentPage === 1" class="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50">← Előző</button>
-      <button (click)="nextPage()" [disabled]="currentPage * itemsPerPage >= filteredLoops.length" class="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50">Következő →</button>
+      <button (click)="prevPage()" [disabled]="currentPage === 1"
+        class="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50">← Előző</button>
+      <button (click)="nextPage()" [disabled]="currentPage * itemsPerPage >= filteredLoops.length"
+        class="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50">Következő →</button>
     </div>
   </div>
 </div>

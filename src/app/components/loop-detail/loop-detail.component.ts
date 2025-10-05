@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './loop-detail.component.html',
-  styleUrl: './loop-detail.component.scss'
+  styleUrls: ['./loop-detail.component.scss']
 })
 export class LoopDetailComponent implements OnInit {
   @ViewChild('audioPlayer') audioPlayer!: ElementRef<HTMLAudioElement>;
@@ -780,7 +780,8 @@ adminDeleteComment(commentId: string): void {
 
 
 openEditModal(): void {
-  if (!this.isAdmin || !this.loop) return;
+  console.log('[loop-detail] openEditModal clicked'); 
+  // if (!this.isAdmin || !this.loop) return;
   this.editError = null;
   this.isEditModalOpen = true;
 
