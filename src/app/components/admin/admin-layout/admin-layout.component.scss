@@ -1,0 +1,94 @@
+.layout-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+
+.sidebar {
+  width: 18rem;
+  background: linear-gradient(to bottom right, #1e293b, #0f172a);
+  color: #fff;
+  padding: 1.5rem;
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  overflow-y: auto; 
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+:root {
+  --admin-header-h: 64px; 
+}
+
+.content-area::-webkit-scrollbar {
+  width: 8px;
+}
+.content-area::-webkit-scrollbar-thumb {
+  background: rgba(251, 191, 36, 0.7);
+  border-radius: 4px;
+}
+.content-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(251, 191, 36, 1);
+}
+
+
+.admin-shell {
+  position: fixed;
+  top: var(--admin-header-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 18rem;  
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-content {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.5rem; 
+}
+
+.admin-content::-webkit-scrollbar { width: 8px; }
+.admin-content::-webkit-scrollbar-thumb { background: rgba(251,191,36,.7); border-radius: 4px; }
+.admin-content::-webkit-scrollbar-thumb:hover { background: rgba(251,191,36,1); }
+
+
+
+@media (max-width: 768px) {
+
+  .sidebar {
+    display: none !important;
+  }
+
+  .min-h-screen.flex {
+    flex-direction: column;
+  }
+
+  main,
+  .content-area {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 1rem !important;
+  }
+
+  .admin-shell {
+    position: static;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+}

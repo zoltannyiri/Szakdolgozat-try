@@ -1,56 +1,212 @@
-<h1 class="text-2xl font-bold mb-6 text-gray-800">Admin Dashboard</h1>
+<div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 p-6">
+  <div class="max-w-7xl mx-auto space-y-8">
 
-<!-- STAT BOXOK -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('users')">
-    <h2 class="text-sm text-gray-500">Felhasználók</h2>
-    <p class="text-3xl font-bold text-indigo-600 mt-2">{{ stats.users }}</p>
+    <!-- HEADER SECTION -->
+    <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-8">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div>
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+            Admin Dashboard
+          </h1>
+        </div>
+        
+        <!-- QUICK ACTIONS -->
+        <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+          <button (click)="refreshData()"
+                  class="flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl">
+            <i class="bi bi-arrow-clockwise"></i>
+            Adatok frissítése
+          </button>
+        </div>
+      </div>
+
+      <!-- REAL-TIME STATS -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 pt-6 border-t border-slate-600/30">
+        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-2xl font-bold text-emerald-400">{{ stats.activeUsers || 0 }}</div>
+          <div class="text-sm text-slate-300 mt-1 flex items-center justify-center gap-2">
+            <i class="bi bi-circle-fill text-emerald-400 text-xs"></i>
+            Aktív felhasználók
+          </div>
+        </div>
+        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-2xl font-bold text-blue-400">{{ stats.downloads || 0 }}</div>
+          <div class="text-sm text-slate-300 mt-1">Ma letöltések</div>
+        </div>
+        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-2xl font-bold text-rose-400">{{ stats.likes || 0 }}</div>
+          <div class="text-sm text-slate-300 mt-1">Ma like-ok</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN STATS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- USERS CARD -->
+      <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] group"
+           (click)="goTo('users')">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+            <i class="bi bi-people text-white text-xl"></i>
+          </div>
+          <i class="bi bi-arrow-right text-slate-400 group-hover:text-amber-400 text-lg transition-colors"></i>
+        </div>
+        <h3 class="text-sm font-medium text-slate-400 mb-2">Felhasználók</h3>
+        <p class="text-3xl font-bold text-blue-400 mb-2">{{ stats.users || 0 }}</p>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <i class="bi bi-graph-up-arrow text-emerald-400"></i>
+          <span>Összes regisztrált felhasználó</span>
+        </div>
+      </div>
+
+      <!-- LOOPS CARD -->
+      <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] group"
+           (click)="goTo('loops')">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
+            <i class="bi bi-music-note-beamed text-white text-xl"></i>
+          </div>
+          <i class="bi bi-arrow-right text-slate-400 group-hover:text-amber-400 text-lg transition-colors"></i>
+        </div>
+        <h3 class="text-sm font-medium text-slate-400 mb-2">Feltöltött loopok</h3>
+        <p class="text-3xl font-bold text-amber-400 mb-2">{{ stats.loops || 0 }}</p>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <i class="bi bi-graph-up-arrow text-emerald-400"></i>
+          <span>Összes feltöltött audio</span>
+        </div>
+      </div>
+
+      <!-- COMMENTS CARD -->
+      <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] group"
+           (click)="goTo('comments')">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center shadow-lg">
+            <i class="bi bi-chat-dots text-white text-xl"></i>
+          </div>
+          <i class="bi bi-arrow-right text-slate-400 group-hover:text-amber-400 text-lg transition-colors"></i>
+        </div>
+        <h3 class="text-sm font-medium text-slate-400 mb-2">Kommentek</h3>
+        <p class="text-3xl font-bold text-emerald-400 mb-2">{{ stats.comments || 0 }}</p>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <i class="bi bi-graph-up-arrow text-emerald-400"></i>
+          <span>Összes hozzászólás</span>
+        </div>
+      </div>
+
+      <!-- DOWNLOADS CARD -->
+      <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+            <i class="bi bi-download text-white text-xl"></i>
+          </div>
+        </div>
+        <h3 class="text-sm font-medium text-slate-400 mb-2">Letöltések</h3>
+        <p class="text-3xl font-bold text-purple-400 mb-2">{{ stats.downloads || 0 }}</p>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <i class="bi bi-graph-up-arrow text-emerald-400"></i>
+          <span>Összes letöltés</span>
+        </div>
+      </div>
+
+      <!-- LIKES CARD -->
+      <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-rose-500 to-red-500 flex items-center justify-center shadow-lg">
+            <i class="bi bi-heart text-white text-xl"></i>
+          </div>
+        </div>
+        <h3 class="text-sm font-medium text-slate-400 mb-2">Like-ok</h3>
+        <p class="text-3xl font-bold text-rose-400 mb-2">{{ stats.likes || 0 }}</p>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <i class="bi bi-graph-up-arrow text-emerald-400"></i>
+          <span>Összes like</span>
+        </div>
+      </div>
+
+      <!-- ACTIVE USERS CARD -->
+      <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-lime-500 to-green-500 flex items-center justify-center shadow-lg">
+            <i class="bi bi-person-check text-white text-xl"></i>
+          </div>
+        </div>
+        <h3 class="text-sm font-medium text-slate-400 mb-2">Aktív felhasználók</h3>
+        <p class="text-3xl font-bold text-lime-400 mb-2">{{ stats.activeUsers || 0 }}</p>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <i class="bi bi-circle-fill text-emerald-400 text-xs"></i>
+          <span>Jelenleg online</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS SECTION -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- WEEKLY UPLOADS CHART -->
+      <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-3">
+            <i class="bi bi-music-note-beamed text-amber-400"></i>
+            Heti loop feltöltések
+          </h2>
+          <div class="flex items-center gap-2 text-sm text-slate-400">
+            <i class="bi bi-calendar-week"></i>
+            Utolsó 7 nap
+          </div>
+        </div>
+        <apx-chart
+          [series]="chartOptions.series"
+          [chart]="chartOptions.chart"
+          [title]="chartOptions.title"
+          [xaxis]="chartOptions.xaxis"
+          [colors]="['#f59e0b']"
+          [stroke]="{ curve: 'smooth', width: 3 }">
+        </apx-chart>
+      </div>
+
+      <!-- WEEKLY REGISTRATIONS CHART -->
+      <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-3">
+            <i class="bi bi-person-plus text-blue-400"></i>
+            Heti regisztrációk
+          </h2>
+          <div class="flex items-center gap-2 text-sm text-slate-400">
+            <i class="bi bi-calendar-week"></i>
+            Utolsó 7 nap
+          </div>
+        </div>
+        <apx-chart
+          [series]="userChartOptions.series"
+          [chart]="userChartOptions.chart"
+          [title]="userChartOptions.title"
+          [xaxis]="userChartOptions.xaxis"
+          [colors]="['#3b82f6']"
+          [stroke]="{ curve: 'smooth', width: 3 }">
+        </apx-chart>
+      </div>
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6">
+      <h2 class="text-xl font-semibold text-slate-200 mb-6 flex items-center gap-3">
+        <i class="bi bi-clock-history text-amber-400"></i>
+        Legutóbbi tevékenységek
+      </h2>
+      <div class="space-y-4">
+        <div *ngFor="let activity of recentActivities" class="flex items-center gap-4 p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm border border-slate-600/30">
+          <div class="w-10 h-10 rounded-xl bg-slate-600/50 flex items-center justify-center">
+            <i [class]="getActivityIcon(activity.type)" class="text-amber-400"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-slate-200 font-medium">{{ activity.message }}</p>
+            <p class="text-sm text-slate-400">{{ activity.time }}</p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-medium bg-slate-600/50 text-slate-300">
+            {{ activity.type }}
+          </span>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('loops')">
-    <h2 class="text-sm text-gray-500">Feltöltött loopok</h2>
-    <p class="text-3xl font-bold text-blue-600 mt-2">{{ stats.loops }}</p>
-  </div>
-
-  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer hover:scale-105" (click)="goTo('comments')">
-    <h2 class="text-sm text-gray-500">Kommentek</h2>
-    <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.comments }}</p>
-  </div>
-
-  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
-    <h2 class="text-sm text-gray-500">Letöltések</h2>
-    <p class="text-3xl font-bold text-yellow-500 mt-2">{{ stats.downloads }}</p>
-  </div>
-
-  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
-    <h2 class="text-sm text-gray-500">Like-ok</h2>
-    <p class="text-3xl font-bold text-pink-500 mt-2">{{ stats.likes }}</p>
-  </div>
-
-  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
-    <h2 class="text-sm text-gray-500">Aktív felhasználók (live)</h2>
-    <p class="text-3xl font-bold text-lime-600 mt-2">{{ stats.activeUsers || 0 }}</p>
-  </div>
-</div>
-
-<!-- GRAFIKON: Heti loop feltöltés -->
-<div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-  <h2 class="text-lg font-semibold text-gray-700 mb-4">Heti loop feltöltések</h2>
-  <apx-chart
-    [series]="chartOptions.series"
-    [chart]="chartOptions.chart"
-    [title]="chartOptions.title"
-    [xaxis]="chartOptions.xaxis">
-  </apx-chart>
-</div>
-
-<!-- GRAFIKON: Heti regisztrációk -->
-<div class="bg-white rounded-2xl shadow-lg p-6">
-  <h2 class="text-lg font-semibold text-gray-700 mb-4">Heti regisztrációk</h2>
-  <apx-chart
-    [series]="userChartOptions.series"
-    [chart]="userChartOptions.chart"
-    [title]="userChartOptions.title"
-    [xaxis]="userChartOptions.xaxis">
-  </apx-chart>
 </div>

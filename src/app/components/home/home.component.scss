@@ -1,28 +1,18 @@
-#text-to-toggle
-{
-  color: #0087DB;
-  
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+
+.font-dancing-script {
+  font-family: 'Dancing Script', cursive;
 }
 
-.changing{
-  position: absolute;
-//   margin: 0 auto;
-//   left: calc(50% - 150px);
-//   top: 30px;
-  width: auto;
-  padding: 10px;
-//   font-family: 'Advent Pro', sans-serif;
-//   text-align: center;
+html, body {
+  overflow: hidden;
+  height: 100%;
 }
 
-.firstText{
-    font-family: 'Brush Script MT', cursive;
+* {
+  transition: all 0.3s ease;
 }
 
-.secondText{
-    font-family: 'Courier New', monospace;
-}
-
-.thirdText{
-    font-family: Garamond, serif;
+video {
+  filter: brightness(0.8);
 }

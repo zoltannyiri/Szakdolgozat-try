@@ -23,7 +23,8 @@ export async function banUser(req: CustomRequest, res: Response) {
     user.bannedUntil = computeUntil(duration);
     user.banReason = (reason || '').trim();
     user.bannedBy = req.user?.userId || null;
-    await user.save();
+    // await user.save();
+    await user.save({ validateBeforeSave: false });
 
     return res.json({ success: true, data: { userId: user._id, bannedUntil: user.bannedUntil, banReason: user.banReason } });
   } catch (e) {
@@ -40,7 +41,8 @@ export async function unbanUser(req: Request, res: Response) {
 
     user.bannedUntil = null;
     user.banReason = '';
-    await user.save();
+    // await user.save();
+    await user.save({ validateBeforeSave: false });
 
     return res.json({ success: true, data: { userId: user._id, bannedUntil: null } });
   } catch (e) {

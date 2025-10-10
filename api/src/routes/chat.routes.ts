@@ -9,24 +9,34 @@ import { send } from 'process';
 const router = express.Router();
 
 router.get('/messages', authenticateToken, async (req: Request & { user?: any }, res) => {
-  const senderId = req.user.userId;
-  const receiverId = req.query.receiverId as string;
-
-  if (!receiverId) {
-    return res.status(400).json({ message: 'receiverId szükséges a lekérdezéshez' });
-  }
+  const currentUserId = req.user.userId;
+  const otherId = req.query.receiverId as string;
+  if (!otherId) return res.status(400).json({ message: 'receiverId szükséges' });
 
   try {
     const messages = await ChatModel.find({
       $or: [
-        { senderId, receiverId },
-        { senderId: receiverId, receiverId: senderId }
+        { senderId: currentUserId, receiverId: otherId },
+        { senderId: otherId,        receiverId: currentUserId }
       ]
     }).sort({ timestamp: 1 });
 
-    res.json({ messages });
+    const ids = Array.from(new Set(
+      messages.flatMap(m => [m.senderId, m.receiverId])
+    ));
+
+    const users = await User.find({ _id: { $in: ids } })
+      .select('username profileImage')
+      .lean();
+
+    const usersById = users.reduce((acc: any, u: any) => {
+      acc[u._id.toString()] = { username: u.username, profileImage: u.profileImage || null };
+      return acc;
+    }, {});
+
+    res.json({ messages, users: usersById });
   } catch (err) {
-    console.error('[Chat] Hiba az üzenetek lekérdezésekor:', err);
+    console.error('[Chat] Hiba /messages-nél:', err);
     res.status(500).json({ message: 'Szerver hiba' });
   }
 });
@@ -55,7 +65,6 @@ router.get('/chats/summary', authenticateToken, async (req: Request & { user?: a
   const currentUserId = req.user.userId;
 
   try {
-    // Lekérjük az összes üzenetet, amiben a felhasználó érintett
     const chats = await ChatModel.aggregate([
       {
         $match: {
@@ -82,7 +91,7 @@ router.get('/chats/summary', authenticateToken, async (req: Request & { user?: a
       { $sort: { timestamp: -1 } },
       {
         $group: {
-          _id: "$participants", // páros azonosítás, pl. [A,B]
+          _id: "$participants",
           lastMessage: { $first: "$content" },
           timestamp: { $first: "$timestamp" },
           lastSenderId: { $first: "$senderId" }

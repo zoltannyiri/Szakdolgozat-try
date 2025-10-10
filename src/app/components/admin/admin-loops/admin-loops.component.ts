@@ -19,9 +19,11 @@ export class AdminLoopsComponent implements OnInit {
   searchTerm = '';
   // sortField: string = 'createdAt';
   sortDirection: 'asc' | 'desc' = 'desc';
-
+  sortField: string = 'uploadDate';
   currentPage = 1;
   itemsPerPage = 10;
+
+  selectedLoop: any = null;
 
   constructor(private http: HttpClient) {}
 
@@ -53,16 +55,55 @@ export class AdminLoopsComponent implements OnInit {
     this.http.delete(`${environment.apiUrl}/api/admin/loops/${loopId}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
-      next: () => this.loadLoops(),
+      next: () => {
+      this.loops = this.loops.filter(l => l._id !== loopId);
+      const maxPage = Math.max(1, Math.ceil(this.filteredLoops.length / this.itemsPerPage));
+      this.showToast('Loop sikeresen törölve', 'success');
+    },
+    error: (err) => {
+      console.error('Loop törlése sikertelen:', err);
+      this.errorMessage = 'Nem sikerült törölni a loopot.';
+      this.showToast('Hiba történt a törlés során', 'error');
+    }
+  });
+}
+
+   deleteLoopFromModal(loopId: string) {
+    if (!confirm('Biztosan törlöd ezt a loopot?')) return;
+
+    const token = localStorage.getItem('token');
+    this.http.delete(`${environment.apiUrl}/api/admin/loops/${loopId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {
+        // Modal bezárása és lista frissítése
+        this.closeModal();
+        this.loadLoops();
+        this.showToast('Loop sikeresen törölve', 'success');
+      },
       error: (err) => {
         console.error('Loop törlése sikertelen:', err);
         this.errorMessage = 'Nem sikerült törölni a loopot.';
+        this.showToast('Hiba történt a törlés során', 'error');
       }
     });
   }
 
   applyFilters() {
     this.currentPage = 1;
+  }
+
+  showToast(message: string, type: 'success' | 'error' = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-xl backdrop-blur-sm ${
+      type === 'success' ? 'bg-emerald-900/90 text-emerald-100 border border-emerald-700' : 'bg-rose-900/90 text-rose-100 border border-rose-700'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 3000);
   }
 
   // get filteredLoops() {
@@ -82,7 +123,6 @@ export class AdminLoopsComponent implements OnInit {
   });
 }
 
-sortField: string = 'uploadDate';
 
 get sortedLoops() {
   const sorted = [...this.filteredLoops];
@@ -171,26 +211,43 @@ get sortedLoops() {
     return [headers, ...rows].join('\n');
   }
 
-  selectedLoop: any = null;
+
+// openModal(loop: any) {
+//   const token = localStorage.getItem('token');
+//   this.http.get<any>(`${environment.apiUrl}/api/admin/loops/${loop._id}`, {
+//     headers: { Authorization: `Bearer ${token}` }
+//   }).subscribe({
+//     next: (res) => {
+//       this.selectedLoop = res.loop;
+//     },
+//     error: (err) => {
+//       console.error('Részletek betöltése sikertelen:', err);
+//       this.selectedLoop = loop; // fallback, ha nem jön be a részletes
+//     }
+//   });
+// }
 
 openModal(loop: any) {
-  const token = localStorage.getItem('token');
-  this.http.get<any>(`${environment.apiUrl}/api/admin/loops/${loop._id}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  }).subscribe({
-    next: (res) => {
-      this.selectedLoop = res.loop;
-    },
-    error: (err) => {
-      console.error('Részletek betöltése sikertelen:', err);
-      this.selectedLoop = loop; // fallback, ha nem jön be a részletes
-    }
-  });
-}
+    const token = localStorage.getItem('token');
+    this.http.get<any>(`${environment.apiUrl}/api/admin/loops/${loop._id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: (res) => {
+        this.selectedLoop = res.loop;
+        document.body.style.overflow = 'hidden';
+      },
+      error: (err) => {
+        console.error('Részletek betöltése sikertelen:', err);
+        this.selectedLoop = loop;
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  }
 
 
 closeModal() {
   this.selectedLoop = null;
+  document.body.style.overflow = 'auto';
 }
 
 // getAudioUrl(path: string): string {
@@ -208,5 +265,26 @@ getLoopLink(loopId: string): string {
 
 openInNewTab(loopId: string) {
   window.open(this.getLoopLink(loopId), '_blank');
+}
+
+
+totalLikes(): number {
+  return this.loops.reduce((sum, loop) => sum + (loop.likes || 0), 0);
+}
+
+totalDownloads(): number {
+  return this.loops.reduce((sum, loop) => sum + (loop.downloads || 0), 0);
+}
+
+formatDuration(seconds?: number): string {
+  if (!seconds || seconds <= 0) return "0:00";
+  const total = Math.floor(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+get Math() {
+  return Math;
 }
 }

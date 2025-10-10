@@ -1,53 +1,160 @@
-<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100 overflow-auto py-6">
+<div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 overflow-hidden">
+  <div class="container mx-auto px-4 py-6 max-w-4xl h-screen flex flex-col">
 
-  <div class="container mx-auto px-6 py-10 max-w-4xl">
-    <div class="bg-white rounded-3xl shadow-2xl p-6 border border-gray-300 flex flex-col h-[calc(100vh-100px)]">
-      <h2 class="text-3xl font-bold mb-6 text-indigo-600 flex items-center gap-2">
-        <i class="bi bi-chat-dots-fill text-purple-500 text-2xl"></i> Üzenetküldő
-      </h2>
+    <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-5 mb-6 flex items-center justify-between">
+
+      <div class="flex items-center gap-4 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+     *ngIf="userCache[receiverId] as partner"
+     [routerLink]="['/profile', partner.username]">
+        
+        <div class="w-12 h-12 rounded-full overflow-hidden border border-amber-400/40 shadow-md">
+          <img *ngIf="userCache[receiverId]?.profileImage"
+              [src]="'http://localhost:3000' + userCache[receiverId].profileImage"
+              alt="partner avatar"
+              class="w-full h-full object-cover" />
+          <div *ngIf="!userCache[receiverId]?.profileImage"
+              class="w-full h-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-base font-bold text-white">
+            {{ getInitialsFromName(userCache[receiverId]?.username || '') }}
+          </div>
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold text-white">
+            {{ userCache[receiverId]?.username || 'Ismeretlen felhasználó' }}
+          </h2>
+          <p class="text-sm text-slate-400">
+            Utoljára aktív: 
+            <span *ngIf="userCache[receiverId]?.lastActive"
+                  class="text-slate-300">{{ userCache[receiverId].lastActive | date:'HH:mm, MMM d' }}</span>
+            <span *ngIf="!userCache[receiverId]?.lastActive"
+                  class="text-slate-500">nem elérhető</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+        <span class="text-xs text-emerald-300 font-medium">Online</span>
+      </div>
+    </div>
+
+
+    <div class="flex-1 rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/60 to-slate-900/60 backdrop-blur-sm shadow-xl overflow-hidden flex flex-col">
 
       <div id="chat-box"
-           class="flex-1 border border-indigo-100 rounded-2xl overflow-y-auto px-5 py-4 bg-gradient-to-br from-white to-indigo-50 relative"
+           class="flex-1 overflow-y-auto px-6 py-4 space-y-4 custom-scrollbar"
            (scroll)="handleScroll($event)">
-        <div *ngFor="let message of messages; let i = index" class="mb-6">
-          <div [ngClass]="{
-                'text-right': message.senderId === currentUserId,
-                'text-left': message.senderId !== currentUserId
-              }">
-            <div class="inline-block px-5 py-3 rounded-2xl text-base font-medium shadow-md max-w-xl"
-                 [ngClass]="message.senderId === currentUserId
-                              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white ml-auto'
-                              : 'bg-white text-gray-800 border border-gray-200 mr-auto'
-                 ">
-              {{ message.content }}
+
+        <div class="text-center my-6">
+          <span class="text-xs text-slate-500 bg-slate-800/50 px-3 py-1 rounded-full backdrop-blur-sm">Ma</span>
+        </div>
+
+        <div *ngFor="let message of messages; let i = index"
+             class="flex"
+             [ngClass]="{
+               'justify-end': message.senderId === currentUserId,
+               'justify-start': message.senderId !== currentUserId
+             }">
+
+          <div *ngIf="message.senderId !== currentUserId" class="flex items-start gap-3 max-w-[80%]">
+
+            <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-slate-600">
+              <img *ngIf="userCache[message.senderId]?.profileImage"
+                   [src]="'http://localhost:3000' + userCache[message.senderId].profileImage"
+                   class="w-full h-full object-cover" />
+              <div *ngIf="!userCache[message.senderId]?.profileImage"
+                   class="w-full h-full bg-gradient-to-r from-slate-600 to-slate-700 flex items-center justify-center text-xs font-bold text-slate-200">
+                {{ getInitialsFromName(userCache[message.senderId]?.username || '') }}
+              </div>
             </div>
-            <div *ngIf="isLastOwnMessage(i)"
-                 class="text-xs mt-2"
-                 [ngClass]="message.senderId === currentUserId ? 'text-indigo-500 text-right' : 'text-gray-400 text-left'">
-              {{ message.read ? 'Látta' : 'Elküldve' }}
+
+            <div class="space-y-1">
+              <div class="bg-slate-700/60 backdrop-blur-sm rounded-2xl rounded-tl-none px-4 py-3 border border-slate-600/50">
+                <p class="text-slate-100 text-sm leading-relaxed">{{ message.content }}</p>
+              </div>
+              <div *ngIf="isLastOwnMessage(i)" class="flex items-center gap-2 text-xs text-slate-500 pl-12">
+                <span>{{ message.timestamp | date:'HH:mm' }}</span>
+                <span>•</span>
+                <span>{{ message.read ? 'Olvasva' : 'Kézbesítve' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="message.senderId === currentUserId"
+              class="max-w-[80%] ml-auto flex items-start">
+            <div class="flex items-start gap-3">
+              <!-- bubble (left of avatar) -->
+              <div class="space-y-1 text-right">
+                <div class="bg-gradient-to-r from-amber-600 to-orange-600 backdrop-blur-sm rounded-2xl rounded-tr-none px-4 py-3 shadow-lg">
+                  <p class="text-white text-sm leading-relaxed">{{ message.content }}</p>
+                </div>
+                <div *ngIf="isLastOwnMessage(i)"
+                    class="flex items-center gap-2 text-xs text-slate-500 justify-end">
+                  <span>{{ message.read ? 'Olvasva' : 'Kézbesítve' }}</span>
+                  <span>•</span>
+                  <span>{{ message.timestamp | date:'HH:mm' }}</span>
+                </div>
+              </div>
+
+              <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-amber-400/40">
+                <img *ngIf="me.profileImage"
+                    [src]="'http://localhost:3000' + me.profileImage"
+                    class="w-full h-full object-cover" />
+                <div *ngIf="!me.profileImage"
+                    class="w-full h-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-xs font-bold text-white">
+                  {{ getInitialsFromName(me.username || '') }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <button *ngIf="showScrollButton"
-                type="button"
-                (click)="scrollToBottom()"
-                class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white text-indigo-600 hover:bg-indigo-100 p-3 rounded-full shadow-lg z-50 transition-all">
-          <i class="bi bi-arrow-down text-xl"></i>
-        </button>
+        <div *ngIf="isTyping" class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-slate-600">
+            <img *ngIf="userCache[receiverId]?.profileImage"
+                 [src]="'http://localhost:3000' + userCache[receiverId].profileImage"
+                 class="w-full h-full object-cover" />
+            <div *ngIf="!userCache[receiverId]?.profileImage"
+                 class="w-full h-full bg-gradient-to-r from-slate-600 to-slate-700 flex items-center justify-center text-xs font-bold text-slate-200">
+              {{ getInitialsFromName(userCache[receiverId]?.username || '') }}
+            </div>
+          </div>
+          <div class="bg-slate-700/60 backdrop-blur-sm rounded-2xl rounded-tl-none px-4 py-3 border border-slate-600/50">
+            <div class="flex space-x-1">
+              <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+              <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay:.1s"></div>
+              <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay:.2s"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <form (ngSubmit)="sendMessage()" class="mt-6 flex items-center space-x-4">
-        <input [(ngModel)]="messageContent"
-               name="message"
-               type="text"
-               placeholder="Írj ide valamit..."
-               class="flex-grow border border-gray-300 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm placeholder-gray-400">
-        <button type="submit"
-                class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-6 py-3 rounded-full font-semibold shadow-md transition-all">
-          Küldés
-        </button>
-      </form>
+      <button *ngIf="showScrollButton"
+              (click)="scrollToBottom()"
+              class="absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-700/80 backdrop-blur-sm text-amber-400 hover:text-amber-300 hover:bg-slate-600/80 p-3 rounded-full shadow-lg z-50 transition-all duration-300 border border-slate-600/50">
+        <i class="bi bi-chevron-down text-lg"></i>
+      </button>
+
+      <div class="border-t border-slate-600/30 p-6 bg-slate-800/40 backdrop-blur-sm">
+        <form (ngSubmit)="sendMessage()" class="flex items-center gap-4">
+          <div class="flex-1 relative">
+            <input [(ngModel)]="messageContent" name="message" type="text" placeholder="Írj üzenetet..."
+                   class="w-full px-5 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-transparent backdrop-blur-sm transition-all duration-200 pr-12"
+                   (input)="onTyping()">
+            <button type="button"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-amber-400 transition-colors duration-200 p-1">
+              <i class="bi bi-emoji-smile text-lg"></i>
+            </button>
+          </div>
+
+          <button type="submit" [disabled]="!messageContent.trim()"
+                  class="group relative rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:from-amber-500 hover:to-orange-500 hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+            <span class="relative z-10 flex items-center gap-2">
+              <i class="bi bi-send-fill"></i> Küldés
+            </span>
+            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </div>

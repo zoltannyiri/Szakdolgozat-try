@@ -1,20 +1,46 @@
-<link href="https://fonts.googleapis.com/css?family=Schoolbell&v1" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-
-<div class="kep flex justify-center items-center h-screen bg-gray-50 relative">
-    <div class="relative w-9/10 h-4/5" style="top: -5vh;">
-        <video #videoPlayer class="shadow-x1 dark:shadow-gray-800 w-full h-full object-cover rounded-3xl" autoplay loop muted playsinline preload="auto">
-            <source src="assets/home-video.mp4" type="video/mp4"> 
-        </video>
-        <p class="firstText changing absolute left-0 text-3xl top-1/2 transform -translate-y-1/2 m-4 text-gray-400">
-            Looking for
-        </p>
-        
-        <p class=" changing font-bold absolute left-0 top-[calc(50%+1rem)] m-4 text-white">
-            <span class="secondText text-6xl">{{ displayedText }}</span>
-            <span class="secondText text-xl text-gray-400"> for</span>
-            <span class="thirdText italic text-8xl block">your Beats?</span>
-        </p>
+<div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 overflow-hidden">
+  <div class="h-screen w-full relative flex items-center">
+    
+    <div class="absolute inset-0 z-0">
+      <video #videoPlayer 
+             class="w-full h-full object-cover"
+             autoplay loop muted playsinline preload="auto">
+        <source src="assets/home-video.mp4" type="video/mp4"> 
+      </video>
+      <div class="absolute inset-0 bg-gradient-to-br from-[#0f172a]/70 to-[#1e293b]/50 backdrop-blur-[1px]"></div>
     </div>
+
+    <div class="relative z-10 w-full max-w-6xl mx-auto px-6">
+      <div class="flex flex-col justify-center h-full">
+        
+        <div class="max-w-2xl">
+          <p class="text-xl font-light text-slate-300 mb-3 tracking-wide">
+            Looking for
+          </p>
+          
+          <div class="space-y-2">
+            <div class="flex items-baseline gap-3">
+              <span class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                {{ displayedText }}
+              </span>
+              <span class="text-xl text-slate-400">for</span>
+            </div>
+            
+            <span class="text-6xl md:text-7xl font-bold italic bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent font-dancing-script block">
+              your Beats?
+            </span>
+          </div>
+
+          <div class="flex flex-wrap gap-4 mt-8">
+            <button class="group relative rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:from-amber-500 hover:to-orange-500 hover:shadow-xl hover:scale-105">
+              <span class="relative z-10 flex items-center gap-2">
+                <i class="bi bi-search"></i>
+                Explore Sounds
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

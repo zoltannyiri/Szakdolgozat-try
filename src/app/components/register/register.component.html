@@ -1,77 +1,133 @@
-<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
-  <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg">
-    <div class="text-center mb-6">
-      <img src="assets/logo-try2.png" alt="logo" class="h-12 mx-auto mb-2" />
-      <h2 class="text-2xl font-bold text-gray-800">Fiók létrehozása</h2>
-      <p class="text-sm text-gray-500">Kezdj el zenélni egy kattintással</p>
+<div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 flex items-center justify-center p-4">
+  <div class="w-full max-w-lg">
+    <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-8">
+
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <i class="bi bi-person-plus-fill text-white text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+          Fiók létrehozása
+        </h2>
+        <p class="text-sm text-slate-400 mt-2">Kezdj el zenélni egy kattintással</p>
+      </div>
+
+      <!-- Register Form -->
+      <form (submit)="onRegister(); $event.preventDefault()" class="space-y-6">
+        <div>
+          <label class="text-sm font-medium text-slate-300 block mb-2">
+            <i class="bi bi-person me-2 text-amber-400"></i>Felhasználónév
+          </label>
+          <input [(ngModel)]="registerData.username" name="username" type="text"
+            class="w-full px-4 py-3 rounded-lg border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+            placeholder="zenemester99" 
+            required />
+          <div *ngIf="errors?.username" class="text-rose-300 text-sm mt-2 flex items-center gap-1">
+            <i class="bi bi-exclamation-circle"></i>{{ errors.username }}
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="text-sm font-medium text-slate-300 block mb-2">
+            <i class="bi bi-envelope me-2 text-amber-400"></i>Email
+          </label>
+          <input [(ngModel)]="registerData.email" name="email" type="email"
+            class="w-full px-4 py-3 rounded-lg border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+            placeholder="zenemester99@example.com" 
+            required />
+          <div *ngIf="errors?.email" class="text-rose-300 text-sm mt-2 flex items-center gap-1">
+            <i class="bi bi-exclamation-circle"></i>{{ errors.email }}
+          </div>
+        </div>
+
+        <!-- Country -->
+        <div>
+          <label class="text-sm font-medium text-slate-300 block mb-2">
+            <i class="bi bi-globe me-2 text-amber-400"></i>Ország
+          </label>
+          <select [(ngModel)]="registerData.country" name="country"
+            class="w-full px-4 py-3 rounded-lg border border-slate-600 bg-slate-700/50 text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-transparent backdrop-blur-sm transition-all duration-200 appearance-none cursor-pointer"
+            required>
+            <option value="" class="text-slate-400">Válassz országot</option>
+            <option *ngFor="let country of countries" [value]="country" class="text-slate-800">{{ country }}</option>
+          </select>
+          <div class="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400">
+            <i class="bi bi-chevron-down"></i>
+          </div>
+          <div *ngIf="errors?.country" class="text-rose-300 text-sm mt-2 flex items-center gap-1">
+            <i class="bi bi-exclamation-circle"></i>{{ errors.country }}
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="text-sm font-medium text-slate-300 block mb-2">
+            <i class="bi bi-lock me-2 text-amber-400"></i>Jelszó
+          </label>
+          <input [(ngModel)]="registerData.password" name="password" type="password"
+            class="w-full px-4 py-3 rounded-lg border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+            placeholder="********" 
+            required />
+          <small class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+            <i class="bi bi-info-circle"></i>Legalább 6 karakter
+          </small>
+          <div *ngIf="errors?.password" class="text-rose-300 text-sm mt-2 flex items-center gap-1">
+            <i class="bi bi-exclamation-circle"></i>{{ errors.password }}
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div>
+          <label class="text-sm font-medium text-slate-300 block mb-2">
+            <i class="bi bi-lock-fill me-2 text-amber-400"></i>Jelszó újra
+          </label>
+          <input [(ngModel)]="registerData.confirmPassword" name="confirmPassword" type="password"
+            class="w-full px-4 py-3 rounded-lg border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+            placeholder="********" 
+            required />
+          <div *ngIf="passwordError" class="text-rose-300 text-sm mt-2 flex items-center gap-1">
+            <i class="bi bi-exclamation-circle"></i>{{ passwordError }}
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" 
+             class="rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-300 backdrop-blur-sm">
+          <i class="bi bi-exclamation-circle me-2"></i>{{ errorMessage }}
+        </div>
+
+        <div *ngIf="successMessage" 
+             class="rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-300 backdrop-blur-sm">
+          <i class="bi bi-check-circle me-2"></i>{{ successMessage }}
+        </div>
+
+        <button type="submit"
+          class="w-full group relative rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:from-amber-500 hover:to-orange-500 hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            <i class="bi bi-person-plus-fill"></i>
+            Regisztráció
+          </span>
+          <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
+        </button>
+
+        <div class="text-center pt-4 border-t border-slate-600/30">
+          <p class="text-sm text-slate-400">
+            Már van fiókod?
+            <a routerLink="/login" 
+               class="text-amber-400 hover:text-amber-300 font-medium transition-colors duration-200 hover:underline ml-1">
+              Jelentkezz be
+            </a>
+          </p>
+        </div>
+
+      </form>
     </div>
 
-    <form (submit)="onRegister(); $event.preventDefault()" class="space-y-5">
-      <!-- Felhasználónév -->
-      <div>
-        <label class="text-sm font-medium text-gray-700 block mb-1">Felhasználónév</label>
-        <input [(ngModel)]="registerData.username" name="username" type="text"
-          class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="zenemester99" required />
-        <div *ngIf="errors?.username" class="text-red-500 text-sm mt-1">{{ errors.username }}</div>
-      </div>
-
-      <!-- Email -->
-      <div>
-        <label class="text-sm font-medium text-gray-700 block mb-1">Email</label>
-        <input [(ngModel)]="registerData.email" name="email" type="email"
-          class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="zenemester99@example.com" required />
-        <div *ngIf="errors?.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</div>
-      </div>
-
-      <!-- Ország -->
-      <div>
-        <label class="text-sm font-medium text-gray-700 block mb-1">Ország</label>
-        <select [(ngModel)]="registerData.country" name="country"
-          class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
-          <option value="">Válassz országot</option>
-          <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
-        </select>
-        <div *ngIf="errors?.country" class="text-red-500 text-sm mt-1">{{ errors.country }}</div>
-      </div>
-
-      <!-- Jelszó -->
-      <div>
-        <label class="text-sm font-medium text-gray-700 block mb-1">Jelszó</label>
-        <input [(ngModel)]="registerData.password" name="password" type="password"
-          class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="********" required />
-        <small class="text-xs text-gray-500">Legalább 6 karakter</small>
-        <div *ngIf="errors?.password" class="text-red-500 text-sm mt-1">{{ errors.password }}</div>
-      </div>
-
-      <!-- Jelszó megerősítése -->
-      <div>
-        <label class="text-sm font-medium text-gray-700 block mb-1">Jelszó újra</label>
-        <input [(ngModel)]="registerData.confirmPassword" name="confirmPassword" type="password"
-          class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="********" required />
-        <div *ngIf="passwordError" class="text-red-500 text-sm mt-1">{{ passwordError }}</div>
-      </div>
-
-      <!-- Hibaüzenet -->
-      <div *ngIf="errorMessage" class="text-red-600 text-sm">
-        {{ errorMessage }}
-      </div>
-
-      <!-- Regisztráció gomb -->
-      <button
-        type="submit"
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-md transition">
-        Regisztráció
-      </button>
-
-      <!-- Bejelentkezés link -->
-      <div class="text-sm text-center text-gray-500 mt-4">
-        Már van fiókod?
-        <a routerLink="/login" class="text-indigo-600 hover:underline cursor-pointer">Jelentkezz be</a>
-      </div>
-    </form>
+    <div class="text-center mt-6">
+      <p class="text-xs text-slate-500 flex items-center justify-center gap-1">
+        <i class="bi bi-shield-check"></i>
+        Biztonságos regisztráció
+      </p>
+    </div>
   </div>
-</section>
+</div>

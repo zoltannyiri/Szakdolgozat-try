@@ -2,29 +2,36 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 
 @Component({
   selector: 'app-home',
-  imports: [],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements AfterViewInit, OnInit{
+export class HomeComponent implements AfterViewInit, OnInit {
   @ViewChild('videoPlayer') videoElement!: ElementRef<HTMLVideoElement>;
 
   currentTextIndex = 0;
-  headerText: string[] = ["hihats", "drumsets", "melodies", "loops"];
+  headerText: string[] = ["hihats", "drumsets", "melodies", "loops", "beats"];
   displayedText: string = "";
 
   ngOnInit(): void {
-    setTimeout(() => this.changeHeaderText(), 500);
+    setTimeout(() => this.changeHeaderText(), 800);
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      const video = this.videoElement.nativeElement;
-      video.muted = true;
+    const video = this.videoElement.nativeElement;
+    
+    video.muted = true;
+    video.playsInline = true;
+    
+    const playVideo = () => {
       video.play().catch(err => {
-        console.error("Autoplay failed:", err);
+        console.log("Autoplay prevented, waiting for user interaction");
       });
-    });
+    };
+    
+    playVideo();
+    
+    document.addEventListener('click', playVideo);
+    document.addEventListener('touchstart', playVideo);
   }
 
   private changeHeaderText(): void {
@@ -34,10 +41,10 @@ export class HomeComponent implements AfterViewInit, OnInit{
 
   private deleteHeaderText(): void {
     if (this.displayedText.length === 0) {
-      setTimeout(() => this.typeHeaderText(), 100);
+      setTimeout(() => this.typeHeaderText(), 150);
     } else {
       this.displayedText = this.displayedText.slice(0, -1);
-      setTimeout(() => this.deleteHeaderText(), 100);
+      setTimeout(() => this.deleteHeaderText(), 50);
     }
   }
 
@@ -50,6 +57,4 @@ export class HomeComponent implements AfterViewInit, OnInit{
       setTimeout(() => this.typeHeaderText(), 100);
     }
   }
-
-
 }

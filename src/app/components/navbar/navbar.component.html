@@ -1,257 +1,337 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
-
 <header class="sticky top-0 z-50">
-  <div class="backdrop-blur supports-[backdrop-filter]:bg-white/70 bg-white/95 border-b border-slate-200/60 shadow-[0_6px_20px_-10px_rgba(0,0,0,.25)]">
-    <div class="h-0.5 bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-500"></div>
+  <div class="h-0.5 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500"></div>
+  
+  <div class="bg-gradient-to-r from-slate-800/95 to-slate-900/95 backdrop-blur-xl border-b border-slate-600/30 shadow-2xl shadow-black/20">
+    <div class="mx-auto max-w-7xl px-4 md:px-6">
+      <div class="h-16 flex items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3">
+          <a [routerLink]="['/home']" class="group flex items-center gap-3 p-2 rounded-xl transition-all duration-300 hover:bg-slate-700/50">
+            <div class="relative">
+              <img src="assets/logo-try2.png" alt="LoopHub" class="h-8 w-8 rounded-lg ring-2 ring-amber-500/30 group-hover:ring-amber-400/50 transition-all group-hover:scale-110" />
+              <div class="absolute -inset-1 bg-amber-500/20 rounded-lg blur-sm group-hover:bg-amber-400/30 transition-all -z-10"></div>
+            </div>
+            <span class="hidden sm:inline text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+              LoopHub
+            </span>
+          </a>
+        </div>
 
-    <div class="mx-auto max-w-7xl px-3 md:px-6">
-      <div class="h-14 md:h-16 flex items-center gap-3">
-        <!-- Logo -->
-        <a [routerLink]="['/home']" class="shrink-0 flex items-center gap-2 group">
-          <img src="assets/logo-try2.png" alt="logo" class="h-9 w-9 rounded-lg ring-1 ring-slate-200 group-hover:rotate-3 transition" />
-          <span class="hidden sm:inline text-slate-800 font-semibold tracking-tight">LoopHub</span>
-        </a>
-
-        <!-- Desktop nav -->
-        <nav class="hidden md:flex items-center justify-center gap-1 flex-1">
+        <!-- Desktop -->
+        <nav class="hidden lg:flex items-center gap-1 flex-1 justify-center">
           <a [routerLink]="['/home']"
-             routerLinkActive="is-active"
-             class="nav-pill">Home</a>
-
-          <a [routerLink]="['/loops']"
-             routerLinkActive="is-active"
-             class="nav-pill">
-            <i class="bi bi-music-note mr-1"></i> Loops
+             routerLinkActive="nav-active"
+             class="nav-item">
+            <i class="bi bi-house-door"></i>
+            Home
           </a>
 
-          <a class="nav-pill cursor-pointer">Projects</a>
-          <a class="nav-pill cursor-pointer">About</a>
-          <a class="nav-pill cursor-pointer">Team</a>
+          <a [routerLink]="['/loops']"
+             routerLinkActive="nav-active"
+             class="nav-item">
+            <i class="bi bi-music-note-beamed"></i>
+            Loops
+          </a>
+
+          <a class="nav-item cursor-pointer">
+            <i class="bi bi-folder"></i>
+            Projects
+          </a>
+
+          <a class="nav-item cursor-pointer">
+            <i class="bi bi-info-circle"></i>
+            About
+          </a>
+
           <a *ngIf="isAdmin"
             [routerLink]="['/admin','dashboard']"
-            routerLinkActive="is-active"
-            class="nav-pill">
-            <i class="bi bi-shield-lock"></i> Admin
-            </a>
-
+            routerLinkActive="nav-active"
+            class="nav-item admin-nav">
+            <i class="bi bi-shield-check"></i>
+            Admin
+          </a>
         </nav>
 
-        <!-- Jobb oldal (auth / ikonok / avatar) -->
-        <div class="hidden md:flex items-center gap-2">
-          <!-- Ha nincs bejelentkezve -->
+        <div class="flex items-center gap-2">
+          
           <ng-container *ngIf="!(authService.isLoggedIn$ | async); else loggedInView">
-            <button class="btn-ghost" [routerLink]="['/login']">Login</button>
-            <button class="btn-primary" [routerLink]="['/register']">Sign Up</button>
+            <div class="flex items-center gap-3">
+              <button class="btn-secondary" [routerLink]="['/login']">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span class="hidden sm:inline">Login</span>
+              </button>
+              <button class="btn-primary" [routerLink]="['/register']">
+                <i class="bi bi-person-plus"></i>
+                <span class="hidden sm:inline">Sign Up</span>
+              </button>
+            </div>
           </ng-container>
 
-          <!-- Ha bejelentkezett -->
           <ng-template #loggedInView>
-            <div class="flex items-center gap-1 md:gap-2">
-              <!-- Chat -->
+            <div class="flex items-center gap-3">
+              
               <div class="relative">
-                <button (click)="toggleChatDropdown()" class="icon-btn" aria-label="Chats" [attr.aria-expanded]="showChatDropdown">
-                  <i class="bi bi-chat-dots text-xl"></i>
+                <button (click)="toggleChatDropdown()"
+                  class="icon-btn group"
+                  [ngClass]="{ 'bg-amber-500/20': showChatDropdown }"
+                  aria-label="Chats">
+                  <i class="bi bi-chat-dots text-lg text-slate-300 group-hover:text-amber-400"></i>
                   <span *ngIf="unreadMessagesCount > 0"
-                        class="badge">{{ unreadMessagesCount > 99 ? '99+' : unreadMessagesCount }}</span>
+                        class="absolute -top-1 -right-1 bg-rose-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-lg border border-slate-700">
+                    {{ unreadMessagesCount > 9 ? '9+' : unreadMessagesCount }}
+                  </span>
                 </button>
 
-                <!-- Chat dropdown -->
                 <div *ngIf="showChatDropdown"
-                     class="dropdown-panel w-80 right-0">
-                  <div class="panel-header">
-                    <span class="text-sm font-semibold text-gray-700">Csevegések</span>
-                    <button class="icon-x" (click)="toggleChatDropdown()"><i class="bi bi-x-lg"></i></button>
+                     class="absolute right-0 mt-2 w-80 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50">
+                  <div class="p-4 border-b border-slate-600/30 flex items-center justify-between">
+                    <h3 class="font-semibold text-slate-200 flex items-center gap-2">
+                      <i class="bi bi-chat-dots text-amber-400"></i>
+                      Csevegések
+                    </h3>
+                    <button (click)="toggleChatDropdown()" class="icon-btn-sm">
+                      <i class="bi bi-x-lg text-slate-400 hover:text-slate-200"></i>
+                    </button>
                   </div>
 
-                  <div *ngIf="recentChats.length === 0" class="p-5 text-sm text-gray-500 text-center">
-                    Nincsenek üzenetek
+                  <div *ngIf="recentChats.length === 0" class="p-6 text-center text-slate-400">
+                    <i class="bi bi-chat-square text-3xl mb-2 opacity-50"></i>
+                    <p class="text-sm">Nincsenek üzenetek</p>
                   </div>
 
                   <div *ngFor="let chat of recentChats"
-                       class="chat-item"
+                       class="chat-item group"
                        (click)="navigateToChat(chat.userId)">
-                    <div class="relative w-11 h-11 shrink-0">
-                      <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                    <div class="relative">
+                      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-semibold shadow-lg"
                            [ngClass]="chat.ui.avatarColor">
                         {{ chat.ui.initials }}
                       </div>
-                      <span class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></span>
+                      <span class="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-slate-800"></span>
                     </div>
 
                     <div class="flex-1 min-w-0">
                       <div class="flex justify-between items-center">
-                        <span class="font-medium text-gray-800 truncate">{{ chat.username }}</span>
-                        <span class="text-xs text-gray-400">{{ chat.timestamp | date:'shortTime' }}</span>
+                        <span class="font-medium text-slate-200 truncate">{{ chat.username }}</span>
+                        <span class="text-xs text-slate-500">{{ chat.timestamp | date:'HH:mm' }}</span>
                       </div>
-                      <div class="text-sm text-gray-500 truncate">{{ chat.lastMessage }}</div>
+                      <div class="text-sm text-slate-400 truncate group-hover:text-slate-300">{{ chat.lastMessage }}</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Értesítések -->
+              <!-- Notifications -->
               <div class="relative">
                 <button (click)="toggleNotifications()"
-                        class="icon-btn"
-                        aria-label="Notifications"
-                        [class.bg-gray-100]="showNotifications">
-                  <i class="bi bi-bell text-xl"></i>
+                  class="icon-btn group"
+                  [ngClass]="{ 'bg-amber-500/20': showNotifications }"
+                  aria-label="Notifications">
+                  <i class="bi bi-bell text-lg text-slate-300 group-hover:text-amber-400"></i>
                   <span *ngIf="unreadNotificationsCount > 0"
-                        class="badge">{{ unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount }}</span>
+                        class="absolute -top-1 -right-1 bg-rose-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-lg border border-slate-700">
+                    {{ unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount }}
+                  </span>
                 </button>
 
-                <div *ngIf="showNotifications" @fadeInDown class="dropdown-panel w-80 right-0 max-h-[70vh] overflow-y-auto notification-panel">
-                  <div class="panel-header sticky top-0">
-                    <h3 class="font-semibold text-gray-800">
-                      <i class="bi bi-bell-fill mr-2"></i> Értesítések
-                    </h3>
-                    <div class="flex gap-2">
-                      <button (click)="markAllAsRead()" class="text-xs text-blue-600 hover:text-blue-700">Összes olvasottá</button>
-                      <button class="icon-x" (click)="showNotifications = false"><i class="bi bi-x-lg"></i></button>
+                <div *ngIf="showNotifications" 
+                     @fadeInDown
+                     class="absolute right-0 mt-2 w-96 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50 max-h-96 overflow-y-auto">
+                  <div class="p-4 border-b border-slate-600/30 sticky top-0 bg-slate-800/95 backdrop-blur-sm">
+                    <div class="flex items-center justify-between">
+                      <h3 class="font-semibold text-slate-200 flex items-center gap-2">
+                        <i class="bi bi-bell-fill text-amber-400"></i>
+                        Értesítések
+                      </h3>
+                      <div class="flex items-center gap-2">
+                        <button (click)="markAllAsRead()" 
+                                class="text-xs text-amber-400 hover:text-amber-300 transition-colors">
+                          Összes olvasottá
+                        </button>
+                        <button class="icon-btn-sm" (click)="showNotifications = false">
+                          <i class="bi bi-x-lg text-slate-400 hover:text-slate-200"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
                   <ng-container *ngIf="notifications.length > 0; else emptyState">
                     <div *ngFor="let notification of notifications"
-                         class="notification-item p-4 border-b cursor-pointer"
-                         [class.unread-notification]="!notification.read"
-                         (click)="handleNotificationClick(notification)">
-                      <div class="flex items-start gap-3">
+                      class="notification-item group"
+                      [ngClass]="{ 'bg-slate-700/50': !notification.read }"
+                      (click)="handleNotificationClick(notification)">
+                      <div class="flex items-start gap-3 p-4">
                         <div class="flex-shrink-0 mt-1">
-                          <div class="h-8 w-8 rounded-full flex items-center justify-center"
+                          <div class="h-10 w-10 rounded-xl flex items-center justify-center backdrop-blur-sm border border-slate-600/30"
                                [ngClass]="getNotificationIconClass(notification.type)">
-                            <i [class]="getNotificationIcon(notification.type)"></i>
+                            <i [class]="getNotificationIcon(notification.type)" class="text-sm"></i>
                           </div>
                         </div>
-                        <div class="flex-1">
-                          <p class="text-sm font-medium">{{ notification.message }}</p>
-                          <p class="text-xs text-gray-500 mt-1">
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-slate-200">{{ notification.message }}</p>
+                          <p class="text-xs text-slate-500 mt-1">
                             {{ notification.createdAt | date:'yyyy.MM.dd. HH:mm' }}
                           </p>
                         </div>
+                        <div *ngIf="!notification.read" 
+                             class="w-2 h-2 rounded-full bg-amber-400 mt-2"></div>
                       </div>
                     </div>
                   </ng-container>
 
                   <ng-template #emptyState>
-                    <div class="p-6 text-center text-gray-500">
-                      <i class="bi bi-bell-slash text-3xl mb-2"></i>
-                      <p>Nincsenek új értesítések</p>
-                      <p class="text-xs text-gray-400 mt-1">Itt jelennek meg az új értesítések</p>
+                    <div class="p-8 text-center text-slate-400">
+                      <i class="bi bi-bell-slash text-3xl mb-3 opacity-50"></i>
+                      <p class="text-sm">Nincsenek új értesítések</p>
+                      <p class="text-xs text-slate-500 mt-1">Itt jelennek meg az új értesítések</p>
                     </div>
                   </ng-template>
                 </div>
               </div>
 
-              <!-- Avatar + menü -->
               <div class="relative">
-                <ng-container *ngIf="userData?.profileImage; else initialsAvatar">
-                  <img
-                    [src]="'http://localhost:3000' + userData.profileImage"
-                    alt="Profilkép"
-                    class="w-10 h-10 rounded-full object-cover border-2 border-white shadow ring-1 ring-slate-200 cursor-pointer hover:scale-[1.02] transition"
-                    (click)="toggleProfileMenu()"
-                  />
-                </ng-container>
-                <ng-template #initialsAvatar>
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer shadow ring-1 ring-slate-200"
-                       [ngClass]="getAvatarColor(userName)"
-                       (click)="toggleProfileMenu()">
-                    {{ getInitials(userName) }}
-                  </div>
-                </ng-template>
+                <button (click)="toggleProfileMenu()" 
+                        class="flex items-center gap-2 p-2 rounded-xl transition-all duration-300 hover:bg-slate-700/50 group">
+                  <ng-container *ngIf="userData?.profileImage; else initialsAvatar">
+                    <img
+                      [src]="'http://localhost:3000' + userData.profileImage"
+                      alt="Profilkép"
+                      class="w-8 h-8 rounded-lg object-cover border-2 border-amber-500/30 shadow-lg group-hover:border-amber-400/50 transition-all"
+                    />
+                  </ng-container>
+                  <ng-template #initialsAvatar>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-amber-500/30 group-hover:border-amber-400/50 transition-all"
+                         [ngClass]="getAvatarColor(userName)">
+                      {{ getInitials(userName) }}
+                    </div>
+                  </ng-template>
+                  <i class="bi bi-chevron-down text-slate-400 text-xs group-hover:text-amber-400 transition-colors"></i>
+                </button>
 
-                <div *ngIf="showProfileMenu" class="dropdown-panel right-0 w-56 mt-2 p-2" (click)="$event.stopPropagation()">
-                  <button class="menu-item" [routerLink]="['/profile']" (click)="showProfileMenu = false">
-                    <i class="bi bi-person-circle mr-2"></i> My Profile
+                <div *ngIf="showProfileMenu" 
+                     class="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50 p-2">
+                  <div class="p-3 border-b border-slate-600/30 mb-2">
+                    <p class="font-semibold text-slate-200 truncate">{{ userName || 'Felhasználó' }}</p>
+                    <p class="text-xs text-slate-400 truncate">{{ userData?.email || 'user@loophub.com' }}</p>
+                  </div>
+                  
+                  <button class="dropdown-item" [routerLink]="['/profile']" (click)="showProfileMenu = false">
+                    <i class="bi bi-person-circle"></i>
+                    My Profile
                   </button>
-                  <button class="menu-item">
-                    <i class="bi bi-music-note-list mr-2"></i> My Loops
+                  <button class="dropdown-item">
+                    <i class="bi bi-music-note-list"></i>
+                    My Loops
                   </button>
-                  <button class="menu-item">
-                    <i class="bi bi-chat-text mr-2"></i> My Comments
+                  <button class="dropdown-item">
+                    <i class="bi bi-chat-text"></i>
+                    My Comments
                   </button>
-                  <button class="menu-item" [routerLink]="['/favorites']">
-                    <i class="bi bi-chat-text mr-2"></i> Favorites
+                  <button class="dropdown-item" [routerLink]="['/favorites']">
+                    <i class="bi bi-heart"></i>
+                    Favorites
                   </button>
-                  <button class="menu-item">
-                    <i class="bi bi-gear mr-2"></i> Settings
+                  <button class="dropdown-item">
+                    <i class="bi bi-gear"></i>
+                    Settings
                   </button>
-                  <button *ngIf="isAdmin" class="menu-item" [routerLink]="['/admin','settings']" (click)="showProfileMenu = false">
-                    <i class="bi bi-sliders mr-2"></i> Admin Settings
-                  </button>
-                  <button class="menu-item text-red-600 hover:text-red-700" (click)="logout()">
-                    <i class="bi bi-box-arrow-right mr-2"></i> Log Out
-                  </button>
+                  
+                  <div class="border-t border-slate-600/30 mt-2 pt-2">
+                    <button *ngIf="isAdmin" 
+                            class="dropdown-item admin-item"
+                            [routerLink]="['/admin','settings']" 
+                            (click)="showProfileMenu = false">
+                      <i class="bi bi-sliders"></i>
+                      Admin Settings
+                    </button>
+                    <button class="dropdown-item logout-item" (click)="logout()">
+                      <i class="bi bi-box-arrow-right"></i>
+                      Log Out
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </ng-template>
-        </div>
 
-        <!-- Mobil hamburger -->
-        <div class="md:hidden ml-auto">
-          <button (click)="toggleMenu()" class="icon-btn menu-button" aria-label="Open menu">
-            <i class="bi bi-list text-2xl"></i>
+          <button (click)="toggleMenu()" 
+                  class="lg:hidden icon-btn group ml-2"
+                  aria-label="Open menu">
+            <i class="bi bi-list text-xl text-slate-300 group-hover:text-amber-400"></i>
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Mobil overlay -->
-  <div *ngIf="menuOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden" (click)="toggleMenu()"></div>
+  <div *ngIf="menuOpen" 
+       class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" 
+       (click)="toggleMenu()"></div>
 
-  <!-- Mobil slide-over -->
   <aside *ngIf="menuOpen"
-         class="fixed inset-y-0 right-0 w-72 bg-white z-50 shadow-2xl border-l border-slate-200 transform transition-transform duration-300 ease-out md:hidden"
-         [ngClass]="{'translate-x-0': menuOpen, 'translate-x-full': !menuOpen}">
-    <div class="flex items-center justify-between px-4 h-14 border-b">
-      <div class="flex items-center gap-2">
-        <img src="assets/logo-try2.png" class="h-8 w-8 rounded-md ring-1 ring-slate-200" alt="logo" />
-        <span class="font-semibold text-slate-800">Menü</span>
+         class="fixed inset-y-0 right-0 w-80 bg-slate-800/95 backdrop-blur-xl border-l border-slate-600/30 shadow-2xl z-50 transform transition-transform duration-300 ease-out lg:hidden"
+         [class.translate-x-0]="menuOpen"
+         [class.translate-x-full]="!menuOpen">
+    
+    <div class="flex items-center justify-between p-4 border-b border-slate-600/30">
+      <div class="flex items-center gap-3">
+        <img src="assets/logo-try2.png" class="h-8 w-8 rounded-lg ring-2 ring-amber-500/30" alt="LoopHub" />
+        <span class="font-bold text-slate-200">Menü</span>
       </div>
-      <button (click)="toggleMenu()" class="icon-btn" aria-label="Close menu">
-        <i class="bi bi-x-lg"></i>
+      <button (click)="toggleMenu()" class="icon-btn group">
+        <i class="bi bi-x-lg text-slate-400 group-hover:text-amber-400"></i>
       </button>
     </div>
 
-    <!-- Profil rész (ha bejelentkezve) -->
-    <div *ngIf="authService.isLoggedIn$ | async" class="px-4 py-3 border-b">
+    <div *ngIf="authService.isLoggedIn$ | async" class="p-4 border-b border-slate-600/30">
       <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold shadow"
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-lg border-2 border-amber-500/30"
              [ngClass]="getAvatarColor(userName)">
           {{ getInitials(userName) }}
         </div>
-        <div class="min-w-0">
-          <div class="font-semibold truncate">{{ userName || 'Felhasználó' }}</div>
-          <div class="text-xs text-slate-500">Bejelentkezve</div>
+        <div class="min-w-0 flex-1">
+          <div class="font-semibold text-slate-200 truncate">{{ userName || 'Felhasználó' }}</div>
+          <div class="text-xs text-slate-400">Bejelentkezve</div>
         </div>
       </div>
     </div>
 
-    <!-- Menü elemek -->
-    <nav class="px-3 py-3 space-y-1">
-      <a class="mobile-item" [routerLink]="['/home']" (click)="toggleMenu()">Home</a>
-      <a class="mobile-item" [routerLink]="['/loops']" (click)="toggleMenu()">
-        <i class="bi bi-music-note mr-1"></i> Loops
+    <nav class="p-4 space-y-2">
+      <a class="mobile-item" [routerLink]="['/home']" (click)="toggleMenu()">
+        <i class="bi bi-house-door"></i>
+        Home
       </a>
-      <a class="mobile-item">Projects</a>
-      <a class="mobile-item">About</a>
-      <a class="mobile-item">Team</a>
+      <a class="mobile-item" [routerLink]="['/loops']" (click)="toggleMenu()">
+        <i class="bi bi-music-note-beamed"></i>
+        Loops
+      </a>
+      <a class="mobile-item">
+        <i class="bi bi-folder"></i>
+        Projects
+      </a>
+      <a class="mobile-item">
+        <i class="bi bi-info-circle"></i>
+        About
+      </a>
       <a *ngIf="isAdmin"
-        class="mobile-item"
+        class="mobile-item admin-mobile"
         [routerLink]="['/admin','dashboard']"
         (click)="toggleMenu()">
-        <i class="bi bi-shield-lock"></i> Admin
-    </a>
-
+        <i class="bi bi-shield-check"></i>
+        Admin
+      </a>
     </nav>
 
-    <!-- Auth gombok -->
-    <div *ngIf="!(authService.isLoggedIn$ | async)" class="px-3 py-3 border-t space-y-2">
-      <button class="btn-primary w-full" [routerLink]="['/login']" (click)="toggleMenu()">Login</button>
-      <button class="btn-ghost w-full" [routerLink]="['/register']" (click)="toggleMenu()">Sign Up</button>
+    <div *ngIf="!(authService.isLoggedIn$ | async)" class="p-4 border-t border-slate-600/30 space-y-3">
+      <button class="btn-primary w-full" [routerLink]="['/login']" (click)="toggleMenu()">
+        <i class="bi bi-box-arrow-in-right"></i>
+        Login
+      </button>
+      <button class="btn-secondary w-full" [routerLink]="['/register']" (click)="toggleMenu()">
+        <i class="bi bi-person-plus"></i>
+        Sign Up
+      </button>
     </div>
   </aside>
 </header>

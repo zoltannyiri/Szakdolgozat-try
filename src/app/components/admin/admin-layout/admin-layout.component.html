@@ -1,62 +1,112 @@
-<div class="min-h-screen flex">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-gray-900 text-white p-6 shadow-lg">
-    <div class="text-2xl font-semibold tracking-wide mb-8 flex items-center gap-2">
-      <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2"
-        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M3 7h18M3 12h18M3 17h18"></path>
-      </svg>
-      Admin Panel
+<div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] flex">
+  <aside class="sidebar w-72 bg-gradient-to-b from-slate-800/90 to-slate-900/90 text-slate-100 p-6 border-r border-slate-700/30 backdrop-blur-md">
+    <!-- Brand -->
+    <div class="flex items-center gap-3 mb-8 p-4 rounded-xl bg-slate-800/50 border border-slate-700/30">
+      <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
+        <i class="bi bi-music-note-beamed text-white text-lg"></i>
+      </div>
+      <div class="min-w-0">
+        <div class="text-xl font-semibold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">LoopAdmin</div>
+        <div class="text-xs text-slate-400">Moderáció &amp; Kezelés</div>
+      </div>
     </div>
 
-    <nav class="flex flex-col space-y-2">
-      <a routerLink="/admin/dashboard" class="flex items-center gap-3 px-4 py-2 rounded hover:bg-indigo-500 hover:text-white transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6m-6 4h6v6h-6z"></path>
-        </svg>
-        Dashboard
+    <nav class="space-y-2">
+      <!-- Dashboard -->
+      <a
+        routerLink="/admin/dashboard"
+        routerLinkActive="is-active"
+        class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors"
+      >
+        <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
+          <i class="bi bi-speedometer2 text-slate-300"></i>
+        </div>
+        <div class="min-w-0">
+          <span class="label block text-slate-200 font-medium">Dashboard</span>
+          <span class="sub text-xs text-slate-500">Áttekintés</span>
+        </div>
       </a>
-      <a routerLink="/admin/users" class="flex items-center gap-3 px-4 py-2 rounded hover:bg-indigo-500 hover:text-white transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M15 11a4 4 0 10-8 0 4 4 0 008 0z"></path>
-        </svg>
-        Users
+
+      <!-- Users -->
+      <a
+        routerLink="/admin/users"
+        routerLinkActive="is-active"
+        class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors"
+      >
+        <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
+          <i class="bi bi-people text-slate-300"></i>
+        </div>
+        <div class="min-w-0">
+          <span class="label block text-slate-200 font-medium">Felhasználók</span>
+          <span class="sub text-xs text-slate-500">Kezelés</span>
+        </div>
       </a>
-      <a routerLink="/admin/loops" class="flex items-center gap-3 px-4 py-2 rounded hover:bg-indigo-500 hover:text-white transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 19V6l12-2v13M9 6l-6 2v13l6-2m0-13v13"></path>
-        </svg>
-        Loops
+
+      <!-- Loops -->
+      <a
+        routerLink="/admin/loops"
+        routerLinkActive="is-active"
+        class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors"
+      >
+        <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
+          <i class="bi bi-music-note-beamed text-slate-300"></i>
+        </div>
+        <div class="min-w-0">
+          <span class="label block text-slate-200 font-medium">Loopok</span>
+          <span class="sub text-xs text-slate-500">Audio tartalom</span>
+        </div>
       </a>
-      <a routerLink="/admin/comments" class="flex items-center gap-3 px-4 py-2 rounded hover:bg-indigo-500 hover:text-white transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2M7 8h10M7 8a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0v2m0-2v-2"></path>
-        </svg>
-        Comments
+
+      <!-- Comments -->
+      <a
+        routerLink="/admin/comments"
+        routerLinkActive="is-active"
+        class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors"
+      >
+        <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
+          <i class="bi bi-chat-dots text-slate-300"></i>
+        </div>
+        <div class="min-w-0">
+          <span class="label block text-slate-200 font-medium">Kommentek</span>
+          <span class="sub text-xs text-slate-500">Moderáció</span>
+        </div>
       </a>
-      <a routerLink="/admin/reports"
-        class="flex items-center gap-3 px-4 py-2 rounded hover:bg-indigo-500 hover:text-white transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 7h18M3 12h18M3 17h18"></path>
-        </svg>
-        Reports
+
+      <!-- Reports -->
+      <a
+        routerLink="/admin/reports"
+        routerLinkActive="is-active"
+        class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors"
+      >
+        <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
+          <i class="bi bi-flag text-slate-300"></i>
+        </div>
+        <div class="min-w-0">
+          <span class="label block text-slate-200 font-medium">Bejelentések</span>
+          <span class="sub text-xs text-slate-500">Kezelés</span>
+        </div>
       </a>
     </nav>
+
+    <!-- Bottom -->
+    <div class="mt-auto pt-6">
+      <div class="rounded-xl border border-slate-700/30 bg-slate-800/40 p-4 mb-4">
+        <div class="text-sm text-slate-400 mb-2">Gyors stat</div>
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="rounded-lg bg-slate-700/40 p-3">
+            <div class="text-lg font-semibold text-amber-400">24</div>
+            <div class="text-xs text-slate-400">Új report</div>
+          </div>
+          <div class="rounded-lg bg-slate-700/40 p-3">
+            <div class="text-lg font-semibold text-emerald-400">156</div>
+            <div class="text-xs text-slate-400">Aktív user</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </aside>
 
- 
-  <main class="flex-1 p-6 bg-gray-100">
+  <main class="flex-1 p-6 overflow-auto">
     <router-outlet></router-outlet>
   </main>
 </div>
