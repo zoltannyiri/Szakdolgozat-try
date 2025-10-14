@@ -1,0 +1,85 @@
+:host {
+  display: block;
+}
+
+.waveform-container {
+  position: relative;
+  height: 64px;
+  background: #1e293b;
+}
+
+.waveform-bars {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  align-items: flex-end;
+  display: flex;
+}
+
+.waveform-bar {
+  flex: 1;
+  min-width: 2px;
+  transition: height 0.1s ease, background 0.2s ease;
+}
+
+.waveform-progress {
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
+.progress-bar {
+  position: relative;
+  height: 4px;
+  cursor: pointer;
+}
+
+.progress {
+  height: 100%;
+  transition: width 0.1s linear;
+}
+
+input[type="range"] {
+  height: 4px;
+  background: #334155;
+  border-radius: 2px;
+  
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #f59e0b;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #0f172a;
+  }
+  
+  &::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #f59e0b;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #0f172a;
+  }
+}
+
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

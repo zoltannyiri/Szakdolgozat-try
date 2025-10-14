@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ElementRef, OnDestroy } from '@angular/core';
 import { FavoriteService } from '../../services/favorite.service';
 import { LoopService } from '../../services/loop.service';
 import { AuthService } from '../../services/auth.service';
@@ -8,6 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReportsService } from '../../services/reports.service';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-favorites',
@@ -16,7 +18,7 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.scss']
 })
-export class FavoritesComponent implements OnInit {
+export class FavoritesComponent implements OnInit, OnDestroy {
   @ViewChildren('audioPlayer') audioPlayers!: QueryList<ElementRef<HTMLAudioElement>>;
 
   favoriteLoops: ILoop[] = [];
@@ -58,6 +60,8 @@ export class FavoritesComponent implements OnInit {
   scales = ["major","minor","dorian","phrygian","lydian","mixolydian","locrian"];
   instruments = ["Kick","Snare","Hihat","Clap","Cymbal","Percussion","Bass","Synth","Guitar","Vocal","FX"];
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private favoriteService: FavoriteService,
     public loopService: LoopService,
@@ -71,25 +75,32 @@ export class FavoritesComponent implements OnInit {
     this.loadFavorites();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadFavorites(): void {
     this.isLoading = true;
-    this.favoriteService.getUserFavorites().subscribe({
-      next: (res: any) => {
-        const raw = res?.favorites ?? [];
-        this.favoriteLoops = raw.filter((l: any) => l && typeof l === 'object' && l._id);
-        // audio
-        this.favoriteLoops.forEach(l => {
-          this.volumes[l._id] = 0.7;
-          this.generateWaveform(l._id);
-        });
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading favorites:', err);
-        this.favoriteLoops = [];
-        this.isLoading = false;
-      }
-    });
+    this.favoriteService.getUserFavorites()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: any) => {
+          const raw = res?.favorites ?? [];
+          this.favoriteLoops = raw.filter((l: any) => l && typeof l === 'object' && l._id);
+          // audio
+          this.favoriteLoops.forEach(l => {
+            this.volumes[l._id] = 0.7;
+            this.generateWaveform(l._id);
+          });
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading favorites:', err);
+          this.favoriteLoops = [];
+          this.isLoading = false;
+        }
+      });
   }
 
   // URL
