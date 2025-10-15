@@ -223,12 +223,45 @@
         <!-- MY NETWORKS -->
         <div *ngIf="activeMainTab==='profile'" class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-5 shadow-xl backdrop-blur-sm">
           <h3 class="text-lg font-semibold mb-2 text-amber-400">My Networks</h3>
-          <p class="text-sm text-slate-300 mb-4">Connect your social media and music platforms</p>
-          <button class="rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
+
+          <div class="flex flex-wrap gap-2 mb-4" *ngIf="userData?.socials">
+            <a *ngIf="userData.socials.facebook"   [href]="userData.socials.facebook"   target="_blank" rel="noopener"
+              class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-facebook"></i> Facebook
+            </a>
+            <a *ngIf="userData.socials.instagram"  [href]="userData.socials.instagram"  target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-instagram"></i> Instagram
+            </a>
+            <a *ngIf="userData.socials.youtube"    [href]="userData.socials.youtube"    target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-youtube"></i> YouTube
+            </a>
+            <a *ngIf="userData.socials.soundcloud" [href]="userData.socials.soundcloud" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-soundwave"></i> SoundCloud
+            </a>
+            <a *ngIf="userData.socials.spotify"    [href]="userData.socials.spotify"    target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-spotify"></i> Spotify
+            </a>
+            <a *ngIf="userData.socials.tiktok"     [href]="userData.socials.tiktok"     target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-tiktok"></i> TikTok
+            </a>
+            <a *ngIf="userData.socials.x"          [href]="userData.socials.x"          target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-twitter-x"></i> X
+            </a>
+            <a *ngIf="userData.socials.website"    [href]="userData.socials.website"    target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-globe"></i> Website
+            </a>
+            <a *ngIf="userData.socials.email"      [href]="userData.socials.email"      target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
+              <i class="bi bi-envelope"></i> Email
+            </a>
+          </div>
+
+          <button *ngIf="isCurrentUser"
+                  class="rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
                   (click)="openSettings()">
             <i class="bi bi-plus-circle mr-1"></i> Add your network links
           </button>
         </div>
+
 
         <!-- LOOPS TAB -->
         <div *ngIf="activeMainTab==='loops'"
@@ -712,16 +745,16 @@
   <div *ngIf="isSettingsOpen"
      class="fixed inset-0 z-[70] grid place-items-center bg-black/70 p-4 backdrop-blur-sm"
      (click)="closeSettings($event)">
-  <div class="w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-700/50 bg-gradient-to-b from-[#1a1d2b] to-[#1e2130] shadow-xl"
-       (click)="$event.stopPropagation()">
+  <div class="w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border border-slate-700/50 bg-gradient-to-b from-[#1a1d2b] to-[#1e2130] shadow-xl"
+     (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
-        <h3 class="text-lg font-semibold text-slate-100"><i class="bi bi-gear-wide-connected mr-2"></i> Beállítások</h3>
+        <h3 class="text-lg font-semibold !text-amber-400"><i class="bi bi-gear-wide-connected mr-2 "></i> Beállítások</h3>
         <button (click)="isSettingsOpen=false" class="rounded p-2 hover:bg-slate-800">
-          <i class="bi bi-x-lg"></i>
+          <i class="bi bi-x-lg !text-amber-400"></i>
         </button>
       </div>
 
-      <div class="grid grid-cols-12">
+      <div class="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
         <!-- side nav -->
         <aside class="col-span-12 border-r border-slate-800 bg-slate-925/50 p-4 sm:col-span-4">
           <nav class="space-y-2">
@@ -739,13 +772,14 @@
         </aside>
 
         <!-- content -->
-        <div class="col-span-12 p-6 sm:col-span-8">
+        <div class="col-span-12 p-6 sm:col-span-8 overflow-y-auto min-h-0 [webkit-overflow-scrolling:touch]">
+
           <!-- PROFILE TAB -->
           <div *ngIf="settingsTab==='profile'" class="space-y-6">
             <!-- Nicknév -->
             <div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-              <h4 class="mb-3 text-sm font-semibold text-slate-100">
-                <i class="bi bi-at mr-1 text-fuchsia-300"></i> Nicknév módosítása
+              <h4 class="mb-3 text-sm font-semibold !text-amber-400">
+                <i class="bi bi-at mr-1 !text-amber-400"></i> Nicknév módosítása
               </h4>
               <div class="flex flex-col gap-3 sm:flex-row">
                 <input [(ngModel)]="usernameForm.newUsername"
@@ -764,8 +798,8 @@
 
             <!-- Általános adatok -->
             <div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-              <h4 class="mb-3 text-sm font-semibold text-slate-100">
-                <i class="bi bi-person-lines-fill mr-1 text-cyan-300"></i> Általános adatok
+              <h4 class="mb-3 text-sm font-semibold !text-amber-400">
+                <i class="bi bi-person-lines-fill mr-1 text-amber-400"></i> Általános adatok
               </h4>
               <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <input [(ngModel)]="editForm.firstName" class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-400/40" placeholder="Keresztnév" />
@@ -779,20 +813,52 @@
                   {{ saving.general ? 'Mentés…' : 'Mentés' }}
                 </button>
                 <button (click)="resetGeneral()" [disabled]="saving.general"
-                        class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 hover:bg-slate-700 disabled:opacity-60">
+                        class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-white hover:bg-slate-700 disabled:opacity-60">
                   Mégse
                 </button>
               </div>
               <p *ngIf="msg.general" class="mt-2 text-sm text-emerald-300">{{ msg.general }}</p>
               <p *ngIf="err.general" class="mt-2 text-sm text-rose-300">{{ err.general }}</p>
+              
             </div>
+            <!-- Social links -->
+<div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
+  <h4 class="mb-3 text-sm font-semibold !text-amber-400">
+    <i class="bi bi-link-45deg mr-1 text-amber-400"></i> Közösségi elérhetőségek
+  </h4>
+
+  <div class="grid grid-cols-1 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <input [(ngModel)]="socials.facebook"   placeholder="Facebook URL"   class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+      <input [(ngModel)]="socials.instagram"  placeholder="Instagram URL"  class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+      <input [(ngModel)]="socials.youtube"    placeholder="YouTube URL"    class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+      <input [(ngModel)]="socials.soundcloud" placeholder="SoundCloud URL" class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+      <input [(ngModel)]="socials.spotify"    placeholder="Spotify URL"    class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+      <input [(ngModel)]="socials.tiktok"     placeholder="TikTok URL"     class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+      <input [(ngModel)]="socials.x"          placeholder="X / Twitter URL" class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+      <input [(ngModel)]="socials.website"    placeholder="Saját weboldal" class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+      <input [(ngModel)]="socials.email"      placeholder="E-mail (vagy mailto:...)" class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
+    </div>
+
+    <div class="mt-3 flex gap-2">
+      <button (click)="saveSocials()" [disabled]="savingSocials"
+              class="rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2 text-sm font-medium hover:from-amber-500 hover:to-orange-500 disabled:opacity-60">
+        {{ savingSocials ? 'Mentés…' : 'Linkek mentése' }}
+      </button>
+    </div>
+
+    <p *ngIf="msgSocials" class="text-sm text-emerald-300">{{ msgSocials }}</p>
+    <p *ngIf="errSocials" class="text-sm text-rose-300">{{ errSocials }}</p>
+  </div>
+</div>
+
           </div>
 
           <!-- ACCOUNT TAB -->
           <div *ngIf="settingsTab==='account'" class="space-y-6">
             <!-- Email -->
             <div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-              <h4 class="mb-3 text-sm font-semibold text-slate-100">
+              <h4 class="mb-3 text-sm font-semibold !text-amber-300">
                 <i class="bi bi-envelope-at mr-1 text-amber-300"></i> E-mail csere
               </h4>
 
@@ -838,7 +904,7 @@
 
             <!-- Jelszó csere -->
             <div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-              <h4 class="mb-3 text-sm font-semibold text-slate-100">
+              <h4 class="mb-3 text-sm font-semibold !text-emerald-300">
                 <i class="bi bi-shield-lock-fill mr-1 text-emerald-300"></i> Jelszó csere
               </h4>
 

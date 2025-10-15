@@ -33,6 +33,17 @@ export interface IUser extends Document {
 
 
   // googleId: { type: String, index: true },
+  socials?: {
+    facebook?: string;
+    instagram?: string;
+    youtube?: string;
+    soundcloud?: string;
+    spotify?: string;
+    tiktok?: string;
+    x?: string;           // Twitter/X
+    website?: string;
+    email?: string;       // mailto: vagy sima email string
+  };
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -74,6 +85,19 @@ const UserSchema: Schema = new Schema<IUser>({
   // új lokika: kredit rendszer a letöltés korlátozására
   credits: { type: Number, default: 0 },
   downloadsTotal: { type: Number, default: 0 },
+
+
+  socials: {
+    facebook:   { type: String, default: '' },
+    instagram:  { type: String, default: '' },
+    youtube:    { type: String, default: '' },
+    soundcloud: { type: String, default: '' },
+    spotify:    { type: String, default: '' },
+    tiktok:     { type: String, default: '' },
+    x:          { type: String, default: '' },
+    website:    { type: String, default: '' },
+    email:      { type: String, default: '' }
+  }
 });
 
 export default mongoose.model<IUser>("User", UserSchema);

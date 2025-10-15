@@ -65,6 +65,13 @@ export class ProfileComponent implements OnInit {
   userComments: any[] = [];
   commentsLoading = false;
 
+
+  // socials
+  socials = {
+  facebook: '', instagram: '', youtube: '', soundcloud: '',
+  spotify: '', tiktok: '', x: '', website: '', email: ''
+};
+
   constructor(
     private authService: AuthService,
     private http: HttpClient,
@@ -99,12 +106,52 @@ export class ProfileComponent implements OnInit {
     this.aboutMe = user?.aboutMe || '';
     this.fillGeneralForm();
 
+    this.socials = {
+      facebook:   user?.socials?.facebook   || '',
+      instagram:  user?.socials?.instagram  || '',
+      youtube:    user?.socials?.youtube    || '',
+      soundcloud: user?.socials?.soundcloud || '',
+      spotify:    user?.socials?.spotify    || '',
+      tiktok:     user?.socials?.tiktok     || '',
+      x:          user?.socials?.x          || '',
+      website:    user?.socials?.website    || '',
+      email:      user?.socials?.email      || ''
+    };
+
     // user loopok betöltése
     this.fetchUserLoops();
 
     // user kommentek betöltése
     this.fetchUserComments();
   }
+
+  // socials
+  savingSocials = false;
+  msgSocials = '';
+  errSocials = '';
+
+  saveSocials() {
+    this.msgSocials = '';
+    this.errSocials = '';
+    this.savingSocials = true;
+
+    // opcionális kliens oldali minimál validáció
+    const payload = { socials: { ...this.socials } };
+
+    this.securePatch(`${environment.apiUrl}/api/profile/socials`, payload).subscribe({
+      next: (res: any) => {
+        this.userData = res?.user || this.userData;
+        this.msgSocials = 'Linkek mentve ✅';
+        this.showToast('Közösségi linkek frissítve', 'success');
+      },
+      error: (e:any) => {
+        this.errSocials = e?.error?.message || 'Mentés sikertelen';
+        this.showToast(this.errSocials, 'error');
+      },
+      complete: () => this.savingSocials = false
+    });
+  }
+
 
   fetchUserLoops() {
     if (!this.userData?._id) return;

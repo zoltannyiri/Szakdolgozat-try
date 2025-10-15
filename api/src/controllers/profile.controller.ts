@@ -5,6 +5,7 @@ import User from "../models/user.model";
 // import { sendVerificationEmail } from "../utils/emailSender";
 import { CustomRequest } from "../middlewares/auth.middleware";
 import { issueVerification } from "../utils/verify"; 
+import { Request, Response } from "express";
 
 export const getProfile: RequestHandler = async (req, res) => {
   try {
@@ -165,3 +166,46 @@ export const changeUsername: RequestHandler = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
+//socials
+const ALLOWED_SOCIAL_KEYS = [
+  "facebook","instagram","youtube","soundcloud","spotify",
+  "tiktok","x","website","email"
+] as const;
+type SocialKey = typeof ALLOWED_SOCIAL_KEYS[number];
+
+function normalizeUrlOrEmail(key: SocialKey, value: string): string {
+  if (!value) return "";
+  const v = value.trim();
+  if (key === "email") {
+    if (v.startsWith("mailto:")) return v;
+    return v.includes("@") ? `mailto:${v}` : v;
+  }
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://${v}`;
+}
+
+export async function updateSocials(req: Request, res: Response) {
+  try {
+    const uid = (req as CustomRequest).user?.userId;   // <<< EZT használd
+    if (!uid) return res.status(401).json({ message: "Unauthorized" });
+
+    const incoming = req.body?.socials || {};
+    const updates: Record<string, string> = {};
+
+    for (const k of ALLOWED_SOCIAL_KEYS) {
+      if (k in incoming) {
+        updates[`socials.${k}`] = normalizeUrlOrEmail(k, String(incoming[k] || ""));
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(uid, { $set: updates }, { new: true })
+      .select("-password"); // opcionális, hogy ne küldd vissza
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+    return res.json({ success: true, user });
+  } catch (e: any) {
+    return res.status(500).json({ message: e?.message || "Server error" });
+  }
+}

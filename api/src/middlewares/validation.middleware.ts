@@ -198,6 +198,31 @@ export const validateLogin = (req: Request, res: Response, next: NextFunction) =
 };
 
 
+export function validateSocials(req: Request, res: Response, next: NextFunction) {
+  const socials = req.body?.socials;
+  if (!socials || typeof socials !== "object") {
+    return res.status(400).json({ message: "Invalid socials payload" });
+  }
+
+  const allowed = new Set([
+    "facebook","instagram","youtube","soundcloud","spotify",
+    "tiktok","x","website","email"
+  ]);
+
+  for (const [key, val] of Object.entries(socials)) {
+    if (!allowed.has(key)) {
+      return res.status(400).json({ message: `Unsupported key: ${key}` });
+    }
+    if (val != null && typeof val !== "string") {
+      return res.status(400).json({ message: `Value for ${key} must be a string` });
+    }
+    if (typeof val === "string" && val.length > 300) {
+      return res.status(400).json({ message: `Value for ${key} is too long` });
+    }
+  }
+  next();
+}
+
 //commented at 04. 27
 // import { Request, Response, NextFunction } from "express";
 // import * as yup from "yup";
