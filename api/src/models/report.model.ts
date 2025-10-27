@@ -11,29 +11,35 @@ const ReportSchema = new Schema(
       required: true,
       index: true
     },
-
-
-    targetId: { type: Schema.Types.ObjectId, required: true, index: true },
-
-
-    reporter:   { type: Schema.Types.ObjectId, ref: 'User' },
-    reporterId: { type: Schema.Types.ObjectId, ref: 'User' },
-
-
-    targetOwnerId: { type: Schema.Types.ObjectId, ref: 'User' },
-
-
-    message: { type: String, required: true, trim: true, maxlength: 2000 },
-
-
+    targetId: { 
+      type: Schema.Types.ObjectId, 
+      required: true, 
+      index: true 
+    },
+    reporter:   { 
+      type: Schema.Types.ObjectId, 
+      ref: 'User' 
+    },
+    reporterId: { 
+      type: Schema.Types.ObjectId, 
+      ref: 'User' 
+    },
+    targetOwnerId: { 
+      type: Schema.Types.ObjectId, 
+      ref: 'User' 
+    },
+    message: { 
+      type: String, 
+      required: true, 
+      trim: true, 
+      maxlength: 2000 
+    },
     status: {
       type: String,
       enum: ['pending', 'resolved', 'rejected'],
       default: 'pending',
       index: true
     },
-
-
     meta: {
       commentText: { type: String },
       loopId:      { type: Schema.Types.ObjectId, ref: 'Loop' },

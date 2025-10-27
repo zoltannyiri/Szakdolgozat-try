@@ -318,7 +318,7 @@ export const downloadLoop = [
 // Loop lista
 export const getLoops = async (req: Request, res: Response) => {
   try {
-    const { bpm, minBpm, maxBpm, key, scale, instrument, tags, uploader } = req.query;
+    const { bpm, minBpm, maxBpm, key, scale, instrument, tags, uploader, sortBy, q } = req.query;
 
     // lapozás
     const page = Math.max(1, parseInt((req.query.page as string) || '1', 10));

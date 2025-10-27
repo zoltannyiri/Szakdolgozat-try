@@ -1,6 +1,7 @@
 import express, { Request } from 'express';
 import { authenticateToken, CustomRequest } from '../middlewares/auth.middleware';
 import { ChatModel } from '../models/chat.model';
+import { checkVerified } from '../middlewares/verify.middleware';
 import User from '../models/user.model';
 import { send } from 'process';
 
@@ -8,7 +9,7 @@ import { send } from 'process';
 
 const router = express.Router();
 
-router.get('/messages', authenticateToken, async (req: Request & { user?: any }, res) => {
+router.get('/messages', authenticateToken, checkVerified, async (req: Request & { user?: any }, res) => {
   const currentUserId = req.user.userId;
   const otherId = req.query.receiverId as string;
   if (!otherId) return res.status(400).json({ message: 'receiverId szükséges' });
@@ -43,7 +44,7 @@ router.get('/messages', authenticateToken, async (req: Request & { user?: any },
 
 
 // ÚJ: Üzenetek olvasottra állítása
-router.put('/messages/mark-read/:fromUserId', authenticateToken, async (req: CustomRequest, res) => {
+router.put('/messages/mark-read/:fromUserId', authenticateToken, checkVerified, async (req: CustomRequest, res) => {
   const currentUserId = req.user.userId;
   const fromUserId = req.params.fromUserId;
 
@@ -61,7 +62,7 @@ router.put('/messages/mark-read/:fromUserId', authenticateToken, async (req: Cus
 });
 
 
-router.get('/chats/summary', authenticateToken, async (req: Request & { user?: any }, res) => {
+router.get('/chats/summary', authenticateToken, checkVerified, async (req: Request & { user?: any }, res) => {
   const currentUserId = req.user.userId;
 
   try {

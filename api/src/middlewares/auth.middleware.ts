@@ -28,17 +28,13 @@ export const authenticateToken = (req: CustomRequest, res: Response, next: NextF
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     if (!token) return res.status(401).json({ message: "No token provided, authorization denied" });
-
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as jwt.JwtPayload;
-        
-        // Ellenőrizd, hogy a decoded objektum tartalmazza-e a role-t
         console.log("[auth.middleware] Decoded token:", decoded);
-        
         req.user = {
             userId: decoded.userId,
             email: decoded.email,
-            role: decoded.role // Győződj meg róla, hogy ez szerepel a tokenben
+            role: decoded.role
         };
 
         console.log("[auth.middleware] User set in request:", req.user);

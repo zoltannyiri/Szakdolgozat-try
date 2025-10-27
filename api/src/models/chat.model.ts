@@ -8,10 +8,22 @@ export interface IChatMessage extends Document {
 }
 
 const ChatMessageSchema = new Schema<IChatMessage>({
-  senderId: { type: String, required: true },
-  receiverId: { type: String, required: true },
-  content: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now }
+  senderId: { 
+    type: String, 
+    required: true 
+  },
+  receiverId: 
+  { type: String, 
+    required: true 
+  },
+  content: { 
+    type: String, 
+    required: true 
+  },
+  timestamp: { 
+    type: Date, 
+    default: Date.now
+  }
 });
 
 export const ChatModel = mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);

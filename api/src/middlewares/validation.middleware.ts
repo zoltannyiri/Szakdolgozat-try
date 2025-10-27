@@ -26,37 +26,36 @@ const userValidationSchema = yup.object({
 });
 
 // Loop metaadatok validációs sémája
-const loopMetadataSchema = yup.object({
-  bpm: yup.number()
-    .required("BPM is required")
-    .min(40, "BPM must be at least 40")
-    .max(300, "BPM cannot exceed 300"),
-  
-  key: yup.string()
-    .required("Key is required")
-    .oneOf([
-      'C', 'C#', 'D', 'D#', 'E', 'F', 
-      'F#', 'G', 'G#', 'A', 'A#', 'B'
-    ], "Invalid key"),
-  
-  scale: yup.string()
-    .required("Scale is required")
-    .oneOf([
-      'Major', 'Minor', 'Harmonic Minor', 'Melodic Minor',
-      'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Locrian'
-    ], "Invalid scale"),
-  
-  instrument: yup.string()
-    .required("Instrument is required")
-    .max(50, "Instrument name cannot be longer than 50 characters"),
-  
-  tags: yup.array()
-    .of(yup.string().max(20, "Tag cannot be longer than 20 characters"))
-    .max(10, "Maximum 10 tags allowed"),
-  
-  customName: yup.string()
-    .optional()
-    .max(50, "Custom name cannot be longer than 50 characters")
+export const loopMetadataSchema = yup.object({
+  bpm: yup
+    .number()
+    .required('BPM is required')
+    .min(40, 'BPM must be at least 40')
+    .max(300, 'BPM cannot exceed 300'),
+
+  key: yup
+    .string()
+    .required('Key is required')
+    .max(4, 'Key too long'),
+
+  genre: yup
+    .string()
+    .required('Genre is required')
+    .max(50, 'Genre too long'),
+
+  category: yup
+    .string()
+    .required('Category is required')
+    .max(50, 'Category too long'),
+
+  tags: yup
+    .array()
+    .of(yup.string().max(20, 'Tag too long'))
+    .max(10, 'Max 10 tags'),
+
+  customName: yup
+    .string()
+    .max(50, 'Custom name too long')
 });
 
 // Felhasználó adatok validációja

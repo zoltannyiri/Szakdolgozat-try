@@ -49,17 +49,17 @@
            (click)="$event.stopPropagation()">
         <div class="mb-6 flex items-center justify-between">
           <h3 class="text-xl font-semibold text-slate-100">
-            <i class="bi bi-cloud-arrow-up-fill mr-2 text-amber-400"></i> Upload Loop
+            <i class="bi bi-cloud-arrow-up-fill mr-2 text-amber-400"></i> Loop feltöltése
           </h3>
           <button (click)="toggleUploadModal()" class="rounded-full p-2 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200 transition-all"><i class="bi bi-x-lg text-lg"></i></button>
         </div>
 
         <div class="space-y-6">
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-300">Select WAV file (max 20MB)</label>
+            <label class="mb-2 block text-sm font-medium text-slate-300">Válassz egy WAV fájlt (max 20MB)</label>
             <label class="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-600/50 bg-slate-700/30 p-8 text-center transition hover:border-amber-400/50 hover:bg-slate-700/50 backdrop-blur-sm">
               <i class="bi bi-cloud-arrow-up text-4xl text-slate-400"></i>
-              <p class="mt-2 text-sm text-slate-400">Click to browse or drag file here</p>
+              <p class="mt-2 text-sm text-slate-400">Tallózd vagy húzd be ide</p>
               <input type="file" accept=".wav,.aiff" (change)="onFileSelected($event)" class="absolute inset-0 opacity-0" />
             </label>
             <p *ngIf="selectedFile" class="mt-2 text-sm text-slate-300">{{ selectedFile.name }}</p>
@@ -69,45 +69,45 @@
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label class="mb-2 block text-sm font-medium text-slate-300">BPM</label>
-              <input type="number" [(ngModel)]="metadata.bpm" min="40" max="300" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
+              <input type="number" [(ngModel)]="metadata.bpm" min="30" max="600" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-slate-300">Key</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">Kulcs</label>
               <select [(ngModel)]="metadata.key" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
-                <option value disabled selected>Select key</option>
+                <option value disabled selected>Válassz...</option>
                 <option *ngFor="let k of keys" [value]="k">{{ k }}</option>
               </select>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-slate-300">Scale</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">Kategória</label>
               <select [(ngModel)]="metadata.scale" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
                 <option *ngFor="let scale of scales" [value]="scale">{{ scale }}</option>
               </select>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-slate-300">Instrument</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">Hangszer</label>
               <select [(ngModel)]="metadata.instrument" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
-                <option value disabled selected>Select instrument</option>
+                <option value disabled selected>Válassz...</option>
                 <option *ngFor="let instrument of instruments" [value]="instrument">{{ instrument }}</option>
               </select>
             </div>
           </div>
 
           <div *ngIf="selectedFile">
-            <label class="mb-2 block text-sm font-medium text-slate-300">Loop name (optional)</label>
+            <label class="mb-2 block text-sm font-medium text-slate-300">Loop neve</label>
             <input type="text" [(ngModel)]="metadata.customName" placeholder="Custom name (optional)" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
           </div>
 
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-300">Tags (comma separated)</label>
+            <label class="mb-2 block text-sm font-medium text-slate-300">Tagek</label>
             <input type="text" [(ngModel)]="metadata.tags" placeholder="hiphop, trap, dark" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
           </div>
 
           <div class="flex justify-end gap-3">
             <button (click)="toggleUploadModal()" class="inline-flex items-center gap-2 rounded-full border border-slate-600/50 bg-slate-700/50 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-600/50 backdrop-blur-sm">Cancel</button>
             <button (click)="uploadFile()" [disabled]="!selectedFile || isUploading" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-2.5 text-sm font-semibold text-white transition-all hover:from-amber-500 hover:to-orange-500 disabled:opacity-50">
-              <span *ngIf="!isUploading">Upload Loop</span>
-              <span *ngIf="isUploading" class="flex items-center gap-2"><i class="bi bi-arrow-repeat animate-spin"></i>Uploading...</span>
+              <span *ngIf="!isUploading">Loop feltöltése</span>
+              <span *ngIf="isUploading" class="flex items-center gap-2"><i class="bi bi-arrow-repeat animate-spin"></i>Feltöltés...</span>
             </button>
           </div>
         </div>
@@ -121,56 +121,56 @@
       <div class="relative w-full max-w-2xl rounded-2xl border border-slate-700/50 bg-gradient-to-b from-slate-800 to-slate-900 p-6 shadow-xl"
            (click)="$event.stopPropagation()">
         <div class="mb-6 flex items-center justify-between">
-          <h3 class="text-xl font-semibold text-slate-100"><i class="bi bi-sliders mr-2 text-amber-400"></i> Advanced Search</h3>
+          <h3 class="text-xl font-semibold text-slate-100"><i class="bi bi-sliders mr-2 text-amber-400"></i> Keresési szűrő</h3>
           <button (click)="toggleAdvancedSearch()" class="rounded-full p-2 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200 transition-all"><i class="bi bi-x-lg text-lg"></i></button>
         </div>
 
         <form (ngSubmit)="applyAdvancedSearch()" class="space-y-6">
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label class="mb-2 block text-sm font-medium text-slate-300">BPM Range</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">BPM</label>
               <div class="flex gap-4">
                 <input type="number" [(ngModel)]="filters.minBpm" name="minBpm" placeholder="Min" min="40" max="300" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
                 <input type="number" [(ngModel)]="filters.maxBpm" name="maxBpm" placeholder="Max" min="40" max="300" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
               </div>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-slate-300">Key</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">Kulcs</label>
               <select [(ngModel)]="filters.key" name="key" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
-                <option value>Any key</option>
+                <option value>Válassz...</option>
                 <option *ngFor="let k of keys" [value]="k">{{ k }}</option>
               </select>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-slate-300">Scale</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">Kategória</label>
               <select [(ngModel)]="filters.scale" name="scale" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
-                <option value>Any scale</option>
+                <option value>Válassz...</option>
                 <option *ngFor="let scale of scales" [value]="scale">{{ scale }}</option>
               </select>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-slate-300">Instrument</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">Hangszer</label>
               <select [(ngModel)]="filters.instrument" name="instrument" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
-                <option value>Any instrument</option>
+                <option value>Válassz...</option>
                 <option *ngFor="let instrument of instruments" [value]="instrument">{{ instrument }}</option>
               </select>
             </div>
             <div class="sm:col-span-2">
-              <label class="mb-2 block text-sm font-medium text-slate-300">Tags</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">Tagek</label>
               <input type="text" [(ngModel)]="filters.tags" name="tags" placeholder="hiphop, trap, dark" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
             </div>
             <div class="sm:col-span-2">
-              <label class="mb-2 block text-sm font-medium text-slate-300">Sort By</label>
+              <label class="mb-2 block text-sm font-medium text-slate-300">Rendezés</label>
               <select [(ngModel)]="filters.sortBy" name="sortBy" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
-                <option value="recent">Most Recent</option>
-                <option value="downloads">Most Downloads</option>
-                <option value="likes">Most Likes</option>
+                <option value="recent">Legújabb</option>
+                <option value="downloads">Legtöbb Letöltés</option>
+                <option value="likes">Legtöbb KedvelésS</option>
               </select>
             </div>
           </div>
           <div class="flex justify-end">
             <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-amber-500 hover:to-orange-500 hover:shadow-amber-500/25">
-              Apply Filters
+              Szűrés
             </button>
           </div>
         </form>
@@ -485,7 +485,7 @@
             </div>
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-300">Tags (comma separated)</label>
+            <label class="mb-1 block text-sm font-medium text-slate-300">Tagek</label>
             <input type="text" [(ngModel)]="editForm.tags" placeholder="hiphop, trap, dark" 
                    class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
           </div>

@@ -58,6 +58,7 @@ export class LoopsComponent implements OnInit, OnDestroy {
   
   // Filters
   filters = {
+    q: '',
     minBpm: null as number | null,
     maxBpm: null as number | null,
     key: '',
@@ -109,7 +110,7 @@ export class LoopsComponent implements OnInit, OnDestroy {
 
   // Constants
   keys = ["A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
-  scales = ["major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
+  scales = ["Rap", "major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
   instruments = ["Kick", "Snare", "Hihat", "Clap", "Cymbal", "Percussion", "Bass", "Synth", "Guitar", "Vocal", "FX"];
 
   constructor(
@@ -163,40 +164,130 @@ export class LoopsComponent implements OnInit, OnDestroy {
 //     });
 // }
 
+// loadLoops(): void {
+//   this.isLoading = true;
+
+//   const loops$ = this.loopService
+//   .getLoops(this.filters, this.page, this.pageSize)
+//   .pipe(takeUntil(this.destroy$));
+
+//   const favs$  = this.authService.isLoggedIn()
+//     ? this.favoriteService.getFavoriteIds().pipe(takeUntil(this.destroy$))
+//     : of({ success: true, ids: [] as string[] });
+
+//   forkJoin([loops$, favs$]).subscribe({
+//   next: ([loopsRes, favRes]) => {
+//     const favSet = new Set((favRes?.ids) ?? []);
+//     const loops = (loopsRes?.items ?? []) as ILoop[];
+
+//     const items = (loopsRes?.items ?? []) as ILoop[];
+//       this.total = Number(loopsRes?.total ?? items.length);
+//       this.page  = Number(loopsRes?.page ?? this.page);
+//       this.pageSize = Number(loopsRes?.pageSize ?? this.pageSize);
+
+//     this.loops = loops;
+
+//     loops.forEach((loop: ILoop) => {
+//       this.volumes[loop._id] = 0.7;
+//       this.favoriteStatus[loop._id] = favSet.has(loop._id);
+//       this.generateWaveform(loop._id);
+//     });
+
+//     this.isLoading = false;
+//   },
+//   error: () => { this.isLoading = false; }
+// });
+// }
+
+
+
+// loop betöltési ideje TIMER
+// async measureAudioLoad(loopId: string) {
+//   const audioUrl = this.getSafeAudioUrl(
+//     this.loops.find(l => l._id === loopId)?.path
+//   );
+//   if (!audioUrl) return;
+
+//   const start = performance.now();
+
+//   // maga a hangfájl letöltése (Google Drive → böngésző)
+//   const response = await fetch(audioUrl);
+//   const audioData = await response.arrayBuffer();
+
+//   const elapsed = performance.now() - start;
+//   console.log(
+//     `[perf] Loop (${loopId}) hangfájl betöltési ideje: ${elapsed.toFixed(2)} ms`
+//   );
+
+//   // opcionális: további feldolgozás (pl. lejátszáshoz decode-olás)
+//   const audioCtx = new AudioContext();
+//   await audioCtx.decodeAudioData(audioData);
+//   audioCtx.close();
+// }
+
+
+
+
 loadLoops(): void {
   this.isLoading = true;
 
+  // START: időmérés indul
+  this.pageLoadStart = performance.now();
+
   const loops$ = this.loopService
-  .getLoops(this.filters, this.page, this.pageSize)
-  .pipe(takeUntil(this.destroy$));
+    .getLoops(this.filters, this.page, this.pageSize)
+    .pipe(takeUntil(this.destroy$));
 
   const favs$  = this.authService.isLoggedIn()
     ? this.favoriteService.getFavoriteIds().pipe(takeUntil(this.destroy$))
     : of({ success: true, ids: [] as string[] });
 
   forkJoin([loops$, favs$]).subscribe({
-  next: ([loopsRes, favRes]) => {
-    const favSet = new Set((favRes?.ids) ?? []);
-    const loops = (loopsRes?.items ?? []) as ILoop[];
+    next: ([loopsRes, favRes]) => {
+      const favSet = new Set((favRes?.ids) ?? []);
+      const loops = (loopsRes?.items ?? []) as ILoop[];
 
-    const items = (loopsRes?.items ?? []) as ILoop[];
+      const items = (loopsRes?.items ?? []) as ILoop[];
       this.total = Number(loopsRes?.total ?? items.length);
       this.page  = Number(loopsRes?.page ?? this.page);
       this.pageSize = Number(loopsRes?.pageSize ?? this.pageSize);
 
-    this.loops = loops;
+      this.loops = loops;
 
-    loops.forEach((loop: ILoop) => {
-      this.volumes[loop._id] = 0.7;
-      this.favoriteStatus[loop._id] = favSet.has(loop._id);
-      this.generateWaveform(loop._id);
-    });
+      loops.forEach((loop: ILoop) => {
+        this.volumes[loop._id] = 0.7;
+        this.favoriteStatus[loop._id] = favSet.has(loop._id);
+        this.generateWaveform(loop._id);
+      });
 
-    this.isLoading = false;
-  },
-  error: () => { this.isLoading = false; }
-});
+      this.isLoading = false;
+      const elapsedMs = performance.now() - this.pageLoadStart;
+      this.listLoadTimes.push(elapsedMs);
+
+      console.log(
+        `[perf] loops list betöltve ${loops.length} elemmel: ${elapsedMs.toFixed(2)} ms`
+      );
+
+      if (this.listLoadTimes.length % 5 === 0) {
+        const stats = this.getListLoadStats();
+        console.log('[perf] lista stat eddig:', {
+          mintavetelek_szama: stats.count,
+          atlag_ms: stats.avgMs.toFixed(2),
+          median_ms: stats.medianMs.toFixed(2),
+          p90_ms: stats.p90Ms.toFixed(2)
+        });
+      }
+    },
+    error: () => { 
+      this.isLoading = false;
+      const elapsedMs = performance.now() - this.pageLoadStart;
+      console.warn(
+        `[perf] loops list ERROR után idő: ${elapsedMs.toFixed(2)} ms`
+      );
+    }
+  });
 }
+
 loadFavoritesOnce(): void {
   if (!this.authService.isLoggedIn()) return;
 
@@ -213,6 +304,70 @@ loadFavoritesOnce(): void {
 }
 
 
+// teljesítménymérés - lista betöltés
+private listLoadTimes: number[] = [];
+private pageLoadStart = 0;
+
+// helper stat a szakdogához
+getListLoadStats() {
+  if (this.listLoadTimes.length === 0) {
+    return { count: 0, avgMs: 0, medianMs: 0, p90Ms: 0 };
+  }
+
+  const arr = [...this.listLoadTimes].sort((a,b)=>a-b);
+  const sum = this.listLoadTimes.reduce((acc,v)=>acc+v,0);
+
+  const avgMs = sum / this.listLoadTimes.length;
+  const mid = Math.floor(arr.length/2);
+  const medianMs = arr.length % 2 === 0
+    ? (arr[mid-1] + arr[mid]) / 2
+    : arr[mid];
+  const p90Idx = Math.floor(arr.length * 0.9);
+  const p90Ms = arr[Math.min(p90Idx, arr.length-1)];
+
+  return {
+    count: this.listLoadTimes.length,
+    avgMs,
+    medianMs,
+    p90Ms
+  };
+}
+
+
+// teljesítménymérés (waveform betöltési idők ms-ban)
+private loadTimes: number[] = [];
+
+// opcionális: stat helper, hogy tudd debugolni dolgozat miatt
+getLoadStats() {
+  if (this.loadTimes.length === 0) {
+    return {
+      count: 0,
+      avgMs: 0,
+      medianMs: 0,
+      p90Ms: 0
+    };
+  }
+
+  const sorted = [...this.loadTimes].sort((a, b) => a - b);
+  const sum = this.loadTimes.reduce((acc, v) => acc + v, 0);
+
+  const avgMs = sum / this.loadTimes.length;
+
+  const mid = Math.floor(sorted.length / 2);
+  const medianMs = sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
+
+  const p90Index = Math.floor(sorted.length * 0.9);
+  const p90Ms = sorted[Math.min(p90Index, sorted.length - 1)];
+
+  return {
+    count: this.loadTimes.length,
+    avgMs,
+    medianMs,
+    p90Ms
+  };
+}
 
   
   // loadLoops(): void {
@@ -441,7 +596,7 @@ loadFavoritesOnce(): void {
       // }
 
       if (!(hasValidMime && hasValidExt)) {
-      this.fileError = "Only WAV or AIFF files are allowed.";
+      this.fileError = "Csak WAV/AIFF kiterjesztésű fájl tölthető fel!";
       this.selectedFile = null;
       return;
     }
@@ -468,7 +623,7 @@ loadFavoritesOnce(): void {
   this.authService.isUserVerified().subscribe({
     next: (isVerified) => {
       if (!isVerified) {
-        this.fileError = "You need to verify your email before uploading";
+        this.fileError = "Erősítsd meg az email címed, hogy feltölthess!";
         return;
       }
       
@@ -662,6 +817,9 @@ loadFavoritesOnce(): void {
         const avg = sum / (end - start);
         waveform.push(Math.min(100, Math.floor(avg * 200)));
       }
+//       this.loops.forEach(loop => {
+//   this.measureAudioLoad(loop._id);
+// });
       
       this.waveforms[loopId] = waveform;
     } catch (error) {

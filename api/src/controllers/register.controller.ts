@@ -50,8 +50,6 @@ router.post("/register", validateUser, async (req: Request, res: Response) => {
             role: "user",
             date: new Date(),
             country,
-            // verificationToken,
-            // verificationTokenExpires,
             isVerified: false,
             credits: cfg.initialCreditsForNewUser ?? 0
         });

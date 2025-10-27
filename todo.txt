@@ -62,3 +62,11 @@ ha egy loopra 10 likeot kap: 1 KREDIT
 egy loopjának minden 10. letöltésénél kap: 1 KREDIT
 
 működik: upload után 2 kredit, letöltés után -1 kredit, gmail login után kapunk 2 kreditet, verify után 2 kredit
+
+
+
+
+
+
+
+SZAKDOGA UTÁN CSINÁLD MEG!: loop uploadnál category megfelelő adatok, feltöltésnél minimum maximum bpm beállítva de legyen visszajelzés is

@@ -57,13 +57,13 @@ export const upload = multer({
       'audio/wav', 'audio/x-wav',
       'audio/aiff', 'audio/x-aiff'
     ].includes(file.mimetype);
-    ok ? cb(null, true) : cb(new Error('Only WAV/AIFF files are allowed!'));
+    ok ? cb(null, true) : cb(new Error('Csak WAV/AIFF kiterjesztésű fájl tölthető fel!'));
   }
 });
 
 // Metaadatok validációs séma
 export const loopMetadataSchema = yup.object().shape({
-    bpm: yup.number().required().positive().integer(),
+    bpm: yup.number().required().positive().integer().min(30).max(600),
     key: yup.string().required(),
     scale: yup.string().required().oneOf(["major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"]),
     tags: yup.array().of(yup.string()),

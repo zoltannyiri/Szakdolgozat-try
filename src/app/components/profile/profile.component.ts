@@ -65,6 +65,10 @@ export class ProfileComponent implements OnInit {
   userComments: any[] = [];
   commentsLoading = false;
 
+  currentUserIsVerified = false;
+  currentUserIsBanned = false;
+  currentUserBanMessage = '';
+
 
   // socials
   socials = {
@@ -82,48 +86,104 @@ export class ProfileComponent implements OnInit {
     private commentSvc: CommentService
   ) { }
 
+  // ngOnInit(): void {
+  //   this.route.paramMap.subscribe(params => {
+  //     const username = params.get('username');
+  //     if (username) {
+  //       this.secureGet(`${environment.apiUrl}/api/profile/${username}`).subscribe({
+  //         next: (response: any) => this.hydrateUser(response.user),
+  //         error: () => this.errorMessage = 'Could not load profile data'
+  //       });
+  //     } else {
+  //       this.secureGet(`${environment.apiUrl}/api/profile`).subscribe({
+  //         next: (response: any) => this.hydrateUser(response.user, true),
+  //         error: () => this.errorMessage = 'Could not load profile data'
+  //       });
+  //     }
+  //   });
+  // }
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const username = params.get('username');
-      if (username) {
-        this.secureGet(`${environment.apiUrl}/api/profile/${username}`).subscribe({
-          next: (response: any) => this.hydrateUser(response.user),
-          error: () => this.errorMessage = 'Could not load profile data'
-        });
-      } else {
-        this.secureGet(`${environment.apiUrl}/api/profile`).subscribe({
-          next: (response: any) => this.hydrateUser(response.user, true),
-          error: () => this.errorMessage = 'Could not load profile data'
-        });
-      }
-    });
+  this.route.paramMap.subscribe(params => {
+    const username = params.get('username');
+
+    if (username) {
+      // 1) Megnyitott profil (idegen)
+      this.secureGet(`${environment.apiUrl}/api/profile/${username}`).subscribe({
+        next: (response: any) => this.hydrateUser(response.user, false),
+        error: () => this.errorMessage = 'Could not load profile data'
+      });
+
+      // 2) Saját adatok is kellenek, hogy tudjuk: verified? banned?
+      this.secureGet(`${environment.apiUrl}/api/profile`).subscribe({
+        next: (meResp: any) => this.setCurrentUserState(meResp.user),
+        error: () => {
+          // ha nem vagy belépve vagy hiba van, akkor nem töltjük
+        }
+      });
+
+    } else {
+      // Saját profil oldalam
+      this.secureGet(`${environment.apiUrl}/api/profile`).subscribe({
+        next: (response: any) => {
+          this.hydrateUser(response.user, true);
+          // hydrateUser(true) már hívni fogja setCurrentUserState-et (lásd lent)
+        },
+        error: () => this.errorMessage = 'Could not load profile data'
+      });
+    }
+  });
+}
+
+
+private setCurrentUserState(me: any) {
+  // verified flag normálisan (ha lenne olyan mező, hogy verified, azt is fallbackelhetjük)
+  this.currentUserIsVerified = !!(me?.isVerified ?? me?.verified ?? false);
+
+  // ban státusz kiszámítása
+  const bannedUntil = me?.bannedUntil ? new Date(me.bannedUntil) : null;
+  const stillBanned = bannedUntil && bannedUntil.getTime() > Date.now();
+
+  this.currentUserIsBanned = !!stillBanned;
+
+  if (stillBanned) {
+    const forever = bannedUntil.getUTCFullYear() >= 9999;
+    this.currentUserBanMessage = forever
+      ? 'A fiókod véglegesen tiltva. A privát üzenetküldés nem engedélyezett.'
+      : `A fiókod ${bannedUntil.toLocaleString('hu-HU')} időpontig tiltva. A privát üzenetküldés nem engedélyezett.`;
+  } else {
+    this.currentUserBanMessage = '';
   }
+}
+
+
 
   private hydrateUser(user: any, self = false) {
-    this.userData = user;
-    this.isCurrentUser = self || this.authService.getUserId() === user?._id;
-    this.originalAboutMe = user?.aboutMe || '';
-    this.aboutMe = user?.aboutMe || '';
-    this.fillGeneralForm();
+  this.userData = user;
+  this.isCurrentUser = self || this.authService.getUserId() === user?._id;
+  this.originalAboutMe = user?.aboutMe || '';
+  this.aboutMe = user?.aboutMe || '';
+  this.fillGeneralForm();
 
-    this.socials = {
-      facebook:   user?.socials?.facebook   || '',
-      instagram:  user?.socials?.instagram  || '',
-      youtube:    user?.socials?.youtube    || '',
-      soundcloud: user?.socials?.soundcloud || '',
-      spotify:    user?.socials?.spotify    || '',
-      tiktok:     user?.socials?.tiktok     || '',
-      x:          user?.socials?.x          || '',
-      website:    user?.socials?.website    || '',
-      email:      user?.socials?.email      || ''
-    };
-
-    // user loopok betöltése
-    this.fetchUserLoops();
-
-    // user kommentek betöltése
-    this.fetchUserComments();
+  if (self) {
+    this.setCurrentUserState(user);
   }
+
+  this.socials = {
+    facebook:   user?.socials?.facebook   || '',
+    instagram:  user?.socials?.instagram  || '',
+    youtube:    user?.socials?.youtube    || '',
+    soundcloud: user?.socials?.soundcloud || '',
+    spotify:    user?.socials?.spotify    || '',
+    tiktok:     user?.socials?.tiktok     || '',
+    x:          user?.socials?.x          || '',
+    website:    user?.socials?.website    || '',
+    email:      user?.socials?.email      || ''
+  };
+
+  this.fetchUserLoops();
+  this.fetchUserComments();
+}
+
 
   // socials
   savingSocials = false;
@@ -209,11 +269,57 @@ export class ProfileComponent implements OnInit {
     navigator.clipboard.writeText(text).then(() => this.showToast('Másolva ✅', 'success'));
   }
 
+  // startChatWithUser() {
+  //   if (this.userData?._id) {
+  //     this.router.navigate(['/chat'], { queryParams: { userId: this.userData._id } });
+  //   }
+  // }
+
   startChatWithUser() {
-    if (this.userData?._id) {
-      this.router.navigate(['/chat'], { queryParams: { userId: this.userData._id } });
-    }
+  // 1) nincs token -> loginra küldjük
+  if (!this.authService.getToken()) {
+    this.showToast('A privát üzenethez jelentkezz be', 'error');
+    this.router.navigate(
+      ['/login'], 
+      { queryParams: { redirect: this.router.url } }
+    );
+    return;
   }
+
+  // 2) bannolt felhasználó
+  if (this.currentUserIsBanned) {
+    this.showToast(
+      this.currentUserBanMessage || 'A fiókod jelenleg tiltva, az üzenetküldés nem engedélyezett.',
+      'error',
+      5000 // kicsit tovább maradhat
+    );
+    return;
+  }
+
+  // 3) nincs verifikálva
+  if (!this.currentUserIsVerified) {
+    this.showToast(
+      'A privát üzenetküldéshez meg kell erősítened a fiókodat.',
+      'error'
+    );
+    return;
+  }
+
+  // 4) magaddal nem chatelek
+  if (this.isCurrentUser) {
+    this.showToast('Ez te vagy 😅', 'error');
+    return;
+  }
+
+  // 5) minden ok -> mehet
+  if (this.userData?._id) {
+    this.router.navigate(
+      ['/chat'], 
+      { queryParams: { userId: this.userData._id } }
+    );
+  }
+}
+
 
   startEditing() { this.isEditing = true; }
   cancelEditing() { this.aboutMe = this.originalAboutMe; this.isEditing = false; }
