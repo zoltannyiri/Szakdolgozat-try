@@ -1,47 +1,72 @@
-<div class="mx-auto max-w-3xl p-4">
-    <h1 class="text-2xl font-semibold mb-4">Admin Settings – Credits</h1>
+<div class="mx-auto max-w-3xl p-4 text-slate-100">
+  <h1 class="text-2xl font-semibold mb-6 text-slate-100">
+    Kreditek módosítása
+  </h1>
 
-    <div class="grid gap-4">
-        <label class="block">
-            <span class="text-sm text-slate-600">Initial credits for new
-                user</span>
-            <input type="number" class="form-input"
-                [(ngModel)]="form.initialCreditsForNewUser" />
-        </label>
+  <div class="grid gap-6">
+    <label class="block">
+      <span class="text-sm text-slate-300">Kezdő kreditek új felhasználónak</span>
+      <input
+        type="number"
+        class="w-full rounded-lg border border-slate-400 bg-slate-900/40 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="form.initialCreditsForNewUser"
+      />
+    </label>
 
-        <label class="block">
-            <span class="text-sm text-slate-600">Bonus on verify</span>
-            <input type="number" class="form-input"
-                [(ngModel)]="form.bonusOnVerify" />
-        </label>
+    <label class="block">
+      <span class="text-sm text-slate-300">E-mail megerősítésért járó bónusz</span>
+      <input
+        type="number"
+        class="w-full rounded-lg border border-slate-400 bg-slate-900/40 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="form.bonusOnVerify"
+      />
+    </label>
 
-        <label class="block">
-            <span class="text-sm text-slate-600">Credits per approved upload (to
-                uploader)</span>
-            <input type="number" class="form-input"
-                [(ngModel)]="form.creditsPerApprovedUpload" />
-        </label>
+    <label class="block">
+      <span class="text-sm text-slate-300">Jóváhagyott feltöltésért járó kredit (feltöltőnek)</span>
+      <input
+        type="number"
+        class="w-full rounded-lg border border-slate-400 bg-slate-900/40 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="form.creditsPerApprovedUpload"
+      />
+    </label>
 
-        <label class="block">
-            <span class="text-sm text-slate-600">Download cost (paid by
-                downloader)</span>
-            <input type="number" class="form-input"
-                [(ngModel)]="form.downloadCost" />
-        </label>
+    <label class="block">
+      <span class="text-sm text-slate-300">Letöltés költsége (levonás a letöltőtől)</span>
+      <input
+        type="number"
+        class="w-full rounded-lg border border-slate-400 bg-slate-900/40 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="form.downloadCost"
+      />
+    </label>
 
-        <label class="block">
-            <span class="text-sm text-slate-600">Reward per download to
-                uploader</span>
-            <input type="number" class="form-input"
-                [(ngModel)]="form.rewardPerDownloadToUploader" />
-        </label>
+    <label class="block">
+      <span class="text-sm text-slate-300">Letöltés utáni jutalom (feltöltőnek)</span>
+      <input
+        type="number"
+        class="w-full rounded-lg border border-slate-400 bg-slate-900/40 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="form.rewardPerDownloadToUploader"
+      />
+    </label>
 
-        <div class="flex gap-2 mt-2">
-            <button class="btn-primary" (click)="save()"
-                [disabled]="saving">Save</button>
-            <button class="btn-ghost" (click)="load()"
-                [disabled]="loading">Reset</button>
-            <span *ngIf="saved" class="text-green-600 text-sm">Saved.</span>
-        </div>
+    <div class="flex gap-2 mt-4">
+      <button
+        class="rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        (click)="save()"
+        [disabled]="saving"
+      >
+        Mentés
+      </button>
+
+      <!-- <button
+        class="rounded-lg border border-slate-500 bg-transparent text-slate-200 px-4 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        (click)="load()"
+        [disabled]="loading"
+      >
+        Alaphelyzet
+      </button> -->
+
+      <span *ngIf="saved" class="text-green-400 text-sm self-center">Elmentve.</span>
     </div>
+  </div>
 </div>

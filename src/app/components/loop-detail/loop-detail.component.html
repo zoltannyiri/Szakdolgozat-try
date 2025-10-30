@@ -39,10 +39,10 @@
             {{ loop?.uploadDate | date:'yyyy.MM.dd. HH:mm' }}
           </span>
 
-          <span *ngIf="loop?.key" class="inline-flex items-center gap-2 rounded-lg bg-slate-800/50 px-3 py-1.5">
+          <!-- <span *ngIf="loop?.key" class="inline-flex items-center gap-2 rounded-lg bg-slate-800/50 px-3 py-1.5">
             <i class="bi bi-music-note text-emerald-400"></i>
             {{ loop?.key }} {{ loop?.scale }}
-          </span>
+          </span> -->
         </div>
 
         <!-- TAGEK -->
@@ -83,11 +83,11 @@
     <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div *ngIf="loop?.instrument" class="flex items-center p-4 rounded-xl bg-slate-700/40 border border-slate-600/30">
         <div class="flex-shrink-0 p-2 bg-amber-500/20 rounded-lg mr-4"><i class="bi bi-music-note-beamed text-amber-400 text-lg"></i></div>
-        <div><p class="text-xs text-slate-400 mb-1">Instrument</p><p class="text-sm font-medium text-slate-200">{{ loop.instrument }}</p></div>
+        <div><p class="text-xs text-slate-400 mb-1">Hangszer</p><p class="text-sm font-medium text-slate-200">{{ loop.instrument }}</p></div>
       </div>
       <div *ngIf="loop?.key" class="flex items-center p-4 rounded-xl bg-slate-700/40 border border-slate-600/30">
         <div class="flex-shrink-0 p-2 bg-blue-500/20 rounded-lg mr-4"><i class="bi bi-music-note-list text-blue-400 text-lg"></i></div>
-        <div><p class="text-xs text-slate-400 mb-1">Key & Scale</p><p class="text-sm font-medium text-slate-200">{{ loop.key }} {{ loop.scale }}</p></div>
+        <div><p class="text-xs text-slate-400 mb-1">Kulcs és műfaj</p><p class="text-sm font-medium text-slate-200">{{ loop.key }} {{ loop.scale }}</p></div>
       </div>
     </div>
 
@@ -162,10 +162,10 @@
           <div class="p-6 border-b border-slate-600/30">
             <div class="flex justify-between items-center">
               <h2 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-                Comments
+                Kommentek
               </h2>
               <span class="text-sm font-medium bg-slate-700/60 text-slate-300 px-3 py-1 rounded-full border border-slate-600/30">
-                {{ comments.length }} {{ comments.length === 1 ? 'comment' : 'comments' }}
+                {{ comments.length }} {{ comments.length === 1 ? 'komment' : 'kommentek' }}
               </span>
             </div>
           </div>
@@ -174,11 +174,11 @@
             <div *ngIf="comments.length === 0"
                  class="text-center py-12 bg-slate-700/40 rounded-xl border-2 border-dashed border-slate-600/50 backdrop-blur-sm">
               <i class="bi bi-chat-dots text-5xl text-slate-500 mb-4"></i>
-              <h3 class="text-lg font-semibold text-slate-300 mb-2">No comments yet</h3>
-              <p class="text-slate-400 mb-6">Be the first to comment on this loop</p>
+              <h3 class="text-lg font-semibold text-slate-300 mb-2">Nincsenek még kommentek</h3>
+              <p class="text-slate-400 mb-6">Légy Te az első, aki kommentel</p>
               <button *ngIf="!isLoggedIn" (click)="handleLogin()"
                       class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all">
-                <i class="bi bi-box-arrow-in-right"></i> Sign in to comment
+                <i class="bi bi-box-arrow-in-right"></i> Jelentkezz be, hogy kommentelhess!
               </button>
             </div>
 
@@ -222,7 +222,7 @@
                         <button (click)="adminDeleteComment(comment._id)"
                                 [disabled]="isDeletingCommentId === comment._id"
                                 class="ml-2 text-xs px-2 py-1 rounded bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-60 transition">
-                          {{ isDeletingCommentId === comment._id ? 'Deleting...' : 'Delete' }}
+                          {{ isDeletingCommentId === comment._id ? 'Törlés...' : 'Törlés' }}
                         </button>
                       </ng-template>
                     </div>
@@ -236,39 +236,39 @@
 
             <!-- Comment -->
             <div *ngIf="isLoggedIn" class="mt-8 pt-6 border-t border-slate-600/30">
-              <h3 class="text-lg font-medium text-amber-400 mb-4">Add Comment</h3>
+              <h3 class="text-lg font-medium text-amber-400 mb-4">Írd le a véleményed</h3>
               <textarea [(ngModel)]="newComment" 
-                        placeholder="Write your comment here..."
+                        placeholder="Ide írd a kommented..."
                         class="w-full p-4 border border-slate-600/50 bg-slate-700/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400/30 text-slate-100 placeholder-slate-400 backdrop-blur-sm transition duration-200"
                         rows="4" 
                         maxlength="500"></textarea>
 
               <div class="flex justify-between items-center mt-3">
                 <div class="text-sm text-slate-400">
-                  {{ newComment.length }} / 500 characters
+                  {{ newComment.length }} / 500 karakter
                 </div>
                 <button (click)="addComment()" 
                         [disabled]="isAddingComment || !newComment.trim() || newComment.length > 500"
                         class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-5 py-2.5 text-sm font-medium hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                   <i *ngIf="!isAddingComment" class="bi bi-send"></i>
                   <i *ngIf="isAddingComment" class="bi bi-arrow-repeat animate-spin"></i>
-                  {{ isAddingComment ? 'Sending...' : 'Send Comment' }}
+                  {{ isAddingComment ? 'Küldés folyamatban...' : 'Küldés' }}
                 </button>
               </div>
             </div>
 
             <!-- Login -->
-            <div *ngIf="!isLoggedIn" class="mt-8 pt-6 border-t border-slate-600/30">
+            <!-- <div *ngIf="!isLoggedIn" class="mt-8 pt-6 border-t border-slate-600/30">
               <div class="bg-slate-700/40 p-5 rounded-xl text-center border border-slate-600/30 backdrop-blur-sm">
                 <i class="bi bi-chat-square-text text-3xl text-amber-400 mb-3"></i>
-                <h3 class="text-lg font-medium text-slate-200 mb-2">Sign in required</h3>
-                <p class="text-slate-400 mb-4">You need to be signed in to comment on loops</p>
+                <h3 class="text-lg font-medium text-slate-200 mb-2">Kérlek jelentkezz be</h3>
+                <p class="text-slate-400 mb-4">Jelentkezz be, hogy kommentelhess!</p>
                 <button (click)="handleLogin()"
                         class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-5 py-2.5 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all">
-                  <i class="bi bi-box-arrow-in-right"></i> Sign In
+                  <i class="bi bi-box-arrow-in-right"></i> Bejelentkezés
                 </button>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -358,18 +358,18 @@
   <div class="relative w-full max-w-md rounded-2xl border border-slate-700/50 bg-gradient-to-b from-slate-800 to-slate-900 p-6 shadow-xl"
        (click)="$event.stopPropagation()">
     <div class="mb-4 flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-slate-100">Report Loop</h3>
+      <h3 class="text-lg font-semibold text-slate-100">Loop jelentése</h3>
       <button (click)="isLoopReportOpen=false"
               class="rounded-full p-2 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200 transition-all">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
 
-    <p class="mb-3 text-sm text-slate-400">Please briefly describe the issue with this loop.</p>
+    <p class="mb-3 text-sm text-slate-400">Kérjük, röviden írja le a problémát ezzel a looppal kapcsolatban.</p>
     <textarea [(ngModel)]="loopReportReason"
               rows="5" maxlength="1000"
               class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-rose-400/50 focus:ring-2 focus:ring-rose-400/20 backdrop-blur-sm"
-              placeholder="Details..."></textarea>
+              placeholder="Részletek..."></textarea>
 
     <div *ngIf="loopReportError" class="mt-2 text-sm text-rose-400">{{ loopReportError }}</div>
     <div *ngIf="loopReportSuccess" class="mt-2 text-sm text-emerald-400">{{ loopReportSuccess }}</div>
@@ -377,12 +377,12 @@
     <div class="mt-4 flex justify-end gap-2">
       <button (click)="isLoopReportOpen=false"
               class="inline-flex items-center gap-2 rounded-full border border-slate-600/50 bg-slate-700/50 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-600/50 backdrop-blur-sm">
-        Cancel
+        Mégse
       </button>
       <button (click)="submitLoopReport()"
               [disabled]="isReportingLoop || !loopReportReason.trim()"
               class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:from-rose-500 hover:to-red-500 disabled:opacity-50">
-        {{ isReportingLoop ? 'Sending...' : 'Submit Report' }}
+        {{ isReportingLoop ? 'Küldés folyamatban...' : 'Jelentés küldése' }}
       </button>
     </div>
   </div>
@@ -396,18 +396,18 @@
   <div class="relative w-full max-w-md rounded-2xl border border-slate-700/50 bg-gradient-to-b from-slate-800 to-slate-900 p-6 shadow-xl"
        (click)="$event.stopPropagation()">
     <div class="mb-4 flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-slate-100">Report Comment</h3>
+      <h3 class="text-lg font-semibold  !text-white">Komment jelentése</h3>
       <button (click)="isReportModalOpen=false"
               class="rounded-full p-2 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200 transition-all">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
 
-    <p class="mb-3 text-sm text-slate-400">What’s wrong with this comment?</p>
+    <p class="mb-3 text-sm text-slate-400">Mi a baj ezzel a kommenttel?</p>
     <textarea [(ngModel)]="reportReason"
               rows="5" maxlength="1000"
               class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-rose-400/50 focus:ring-2 focus:ring-rose-400/20 backdrop-blur-sm"
-              placeholder="Details..."></textarea>
+              placeholder="Részletek..."></textarea>
 
     <div *ngIf="reportError" class="mt-2 text-sm text-rose-400">{{ reportError }}</div>
     <div *ngIf="reportSuccess" class="mt-2 text-sm text-emerald-400">{{ reportSuccess }}</div>
@@ -415,12 +415,12 @@
     <div class="mt-4 flex justify-end gap-2">
       <button (click)="isReportModalOpen=false"
               class="inline-flex items-center gap-2 rounded-full border border-slate-600/50 bg-slate-700/50 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-600/50 backdrop-blur-sm">
-        Cancel
+        Mégse
       </button>
       <button (click)="submitReport()"
               [disabled]="isReporting || !reportReason.trim()"
               class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:from-rose-500 hover:to-red-500 disabled:opacity-50">
-        {{ isReporting ? 'Sending...' : 'Submit Report' }}
+        {{ isReporting ? 'Küldés folyamatban...' : 'Küldés' }}
       </button>
     </div>
   </div>

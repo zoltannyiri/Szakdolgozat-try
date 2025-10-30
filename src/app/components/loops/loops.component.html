@@ -411,25 +411,25 @@
       <div class="relative w-full max-w-md rounded-2xl border border-slate-700/50 bg-gradient-to-b from-slate-800 to-slate-900 p-6 shadow-xl"
            (click)="$event.stopPropagation()">
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-slate-100">Report Loop</h3>
+          <h3 class="text-lg font-semibold text-slate-100">Loop jelentése</h3>
           <button (click)="isLoopReportModalOpen=false" class="rounded-full p-2 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200 transition-all">
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
-        <p class="mb-3 text-sm text-slate-400">Please briefly describe the issue with this loop.</p>
+        <p class="mb-3 text-sm text-slate-400">Kérlek, fejtsd ki a jelentés okát</p>
         <textarea [(ngModel)]="loopReportReason" rows="5" maxlength="1000" 
                   class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-rose-400/50 focus:ring-2 focus:ring-rose-400/20 backdrop-blur-sm"
-                  placeholder="Details..."></textarea>
+                  placeholder="Részletek..."></textarea>
         <div *ngIf="loopReportError" class="mt-2 text-sm text-rose-400">{{ loopReportError }}</div>
         <div *ngIf="loopReportSuccess" class="mt-2 text-sm text-emerald-400">{{ loopReportSuccess }}</div>
         <div class="mt-4 flex justify-end gap-2">
           <button (click)="isLoopReportModalOpen=false" 
                   class="inline-flex items-center gap-2 rounded-full border border-slate-600/50 bg-slate-700/50 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-600/50 backdrop-blur-sm">
-            Cancel
+            Mégse
           </button>
           <button (click)="submitLoopReport()" [disabled]="isReportingLoop || !loopReportReason.trim()"
                   class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:from-rose-500 hover:to-red-500 disabled:opacity-50">
-            {{ isReportingLoop ? 'Sending...' : 'Submit Report' }}
+            {{ isReportingLoop ? 'Küldés...' : 'Jelentés küldése' }}
           </button>
         </div>
       </div>
@@ -442,14 +442,14 @@
       <div class="relative w-full max-w-lg rounded-2xl border border-slate-700/50 bg-gradient-to-b from-slate-800 to-slate-900 p-6 shadow-xl"
            (click)="$event.stopPropagation()">
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-slate-100">Edit Loop</h3>
+          <h3 class="text-lg font-semibold text-slate-100">Szerkesztés</h3>
           <button (click)="isEditModalOpen=false" class="rounded-full p-2 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200 transition-all">
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
         <div class="space-y-4">
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-300">Name</label>
+            <label class="mb-1 block text-sm font-medium text-slate-300">Loop neve</label>
             <input type="text" [(ngModel)]="editForm.name" 
                    class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
           </div>
@@ -460,7 +460,7 @@
                      class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-300">Key</label>
+              <label class="mb-1 block text-sm font-medium text-slate-300">Kulcs</label>
               <select [(ngModel)]="editForm.key" 
                       class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
                 <option value="">—</option>
@@ -468,7 +468,7 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-300">Scale</label>
+              <label class="mb-1 block text-sm font-medium text-slate-300">Kategória</label>
               <select [(ngModel)]="editForm.scale" 
                       class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
                 <option value="">—</option>
@@ -476,7 +476,7 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-300">Instrument</label>
+              <label class="mb-1 block text-sm font-medium text-slate-300">Hangszer</label>
               <select [(ngModel)]="editForm.instrument" 
                       class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
                 <option value="">—</option>
@@ -494,11 +494,11 @@
         <div class="mt-6 flex justify-end gap-2">
           <button (click)="isEditModalOpen=false" 
                   class="inline-flex items-center gap-2 rounded-full border border-slate-600/50 bg-slate-700/50 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-600/50 backdrop-blur-sm">
-            Cancel
+            Mégse
           </button>
           <button (click)="saveLoopEdit()" [disabled]="isSavingEdit"
                   class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:from-amber-500 hover:to-orange-500 disabled:opacity-50">
-            {{ isSavingEdit ? 'Saving...' : 'Save Changes' }}
+            {{ isSavingEdit ? 'Változtatások mentése...' : 'Mentés' }}
           </button>
         </div>
       </div>

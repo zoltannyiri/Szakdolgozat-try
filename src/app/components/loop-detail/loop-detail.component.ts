@@ -11,6 +11,8 @@ import { FavoriteService } from '../../services/favorite.service';
 import { ILoop } from '../../../../api/src/models/loop.model';
 import { ReportsService } from '../../services/reports.service';
 import { HttpClient } from '@angular/common/http';
+import { WaveformService } from '../../services/waveform.service';
+
 
 @Component({
   selector: 'app-loop-detail',
@@ -88,18 +90,32 @@ export class LoopDetailComponent implements OnInit {
   scales = ["major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
   instruments = ["Kick", "Snare", "Hihat", "Clap", "Cymbal", "Percussion", "Bass", "Synth", "Guitar", "Vocal", "FX"];
 
+  // constructor(
+  //   private location: Location,
+  //   private route: ActivatedRoute,
+  //   private router: Router,
+  //   private loopService: LoopService,
+  //   private commentService: CommentService,
+  //   private userService: UserService,
+  //   public authService: AuthService,
+  //   private favoriteService: FavoriteService,
+  //   private reportsSvc: ReportsService,
+  //   private http: HttpClient
+  // ) {}
   constructor(
-    private location: Location,
-    private route: ActivatedRoute,
-    private router: Router,
-    private loopService: LoopService,
-    private commentService: CommentService,
-    private userService: UserService,
-    public authService: AuthService,
-    private favoriteService: FavoriteService,
-    private reportsSvc: ReportsService,
-    private http: HttpClient
-  ) {}
+  private location: Location,
+  private route: ActivatedRoute,
+  private router: Router,
+  private loopService: LoopService,
+  private commentService: CommentService,
+  private userService: UserService,
+  public authService: AuthService,
+  private favoriteService: FavoriteService,
+  private reportsSvc: ReportsService,
+  private http: HttpClient,
+  private waveformService: WaveformService
+) {}
+
 
   ngOnInit(): void {
     this.checkAuthStatus();
@@ -401,63 +417,73 @@ export class LoopDetailComponent implements OnInit {
   //     }
   //   }
   // }
-  async generateWaveform(): Promise<void> {
-  if (!this.loop?.path) return;
+//   async generateWaveform(): Promise<void> {
+//   if (!this.loop?.path) return;
   
-  try {
-    const audioUrl = this.getAudioUrl(this.loop.path);
-    if (!audioUrl) return;
+//   try {
+//     const audioUrl = this.getAudioUrl(this.loop.path);
+//     if (!audioUrl) return;
 
 
-    const response = await fetch(audioUrl);
-    const arrayBuffer = await response.arrayBuffer();
+//     const response = await fetch(audioUrl);
+//     const arrayBuffer = await response.arrayBuffer();
     
  
-    const audioContext = new AudioContext();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+//     const audioContext = new AudioContext();
+//     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
  
-    const channelData = audioBuffer.getChannelData(0);
-    const samples = channelData.length;
+//     const channelData = audioBuffer.getChannelData(0);
+//     const samples = channelData.length;
     
 
-    const waveform = [];
-    const samplesPerPixel = Math.floor(samples / 200);
+//     const waveform = [];
+//     const samplesPerPixel = Math.floor(samples / 200);
     
 
-    for (let i = 0; i < 200; i++) {
-      const start = Math.floor(i * samplesPerPixel);
-      const end = Math.min(start + samplesPerPixel, samples);
+//     for (let i = 0; i < 200; i++) {
+//       const start = Math.floor(i * samplesPerPixel);
+//       const end = Math.min(start + samplesPerPixel, samples);
       
-      let sum = 0;
-      let peak = 0;
+//       let sum = 0;
+//       let peak = 0;
       
-      for (let j = start; j < end; j++) {
-        const value = Math.abs(channelData[j]);
-        sum += value * value; // RMS calculation
-        if (value > peak) peak = value;
-      }
+//       for (let j = start; j < end; j++) {
+//         const value = Math.abs(channelData[j]);
+//         sum += value * value; // RMS calculation
+//         if (value > peak) peak = value;
+//       }
       
     
-      const rms = Math.sqrt(sum / (end - start));
+//       const rms = Math.sqrt(sum / (end - start));
       
       
-      const combinedValue = (peak * 0.7 + rms * 0.3) * 1.5;
+//       const combinedValue = (peak * 0.7 + rms * 0.3) * 1.5;
       
 
-      const scaledValue = Math.min(100, Math.floor(combinedValue * 150));
-      waveform.push(scaledValue);
-    }
+//       const scaledValue = Math.min(100, Math.floor(combinedValue * 150));
+//       waveform.push(scaledValue);
+//     }
     
-    this.waveform = waveform;
+//     this.waveform = waveform;
     
     
-    await audioContext.close();
-  } catch (error) {
-    console.error('Waveform generation error:', error);
+//     await audioContext.close();
+//   } catch (error) {
+//     console.error('Waveform generation error:', error);
     
-    this.waveform = Array.from({length: 200}, () => Math.floor(Math.random() * 30) + 10);
-  }
+//     this.waveform = Array.from({length: 200}, () => Math.floor(Math.random() * 30) + 10);
+//   }
+// }
+async generateWaveform(): Promise<void> {
+  if (!this.loop?._id || !this.loop?.path) return;
+
+  const audioUrl = this.getAudioUrl(this.loop.path);
+  if (!audioUrl) return;
+
+  this.waveform = await this.waveformService.getOrCreate(this.loop._id, audioUrl);
 }
+
+
 
 
 // hibakezelés

@@ -13,7 +13,7 @@ const oauth2 = new google.auth.OAuth2(
 router.get("/auth", (_req, res) => {
   const url = oauth2.generateAuthUrl({
     access_type: "offline",
-    prompt: "consent", // kell, hogy kapj refresh tokent
+    prompt: "consent", 
     scope: ["https://www.googleapis.com/auth/drive.file"],
   });
   return res.redirect(url);

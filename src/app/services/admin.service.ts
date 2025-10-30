@@ -16,13 +16,9 @@ export interface CreditConfigDto {
 export class AdminService {
     private base = `${environment.apiUrl}/api/admin`;
     constructor(private http: HttpClient) { }
-
-
     getCreditConfig() {
         return this.http.get<{ success: boolean; data: CreditConfigDto }>(`${this.base}/credit-config`);
     }
-
-
     updateCreditConfig(payload: Partial<CreditConfigDto>) {
         return this.http.patch<{ success: boolean; data: CreditConfigDto }>(`${this.base}/credit-config`, payload);
     }

@@ -6,7 +6,7 @@
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
           <h1 class="text-4xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-            🎵 Loop Management
+            Loopkezelés
           </h1>
         </div>
         
@@ -20,11 +20,11 @@
           </div>
           
           <!-- EXPORT BUTTON -->
-          <button (click)="exportToCSV()"
+          <!-- <button (click)="exportToCSV()"
             class="flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl">
             <i class="bi bi-download"></i>
             Export CSV
-          </button>
+          </button> -->
         </div>
       </div>
 
@@ -68,7 +68,7 @@
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('filename')">
                 <div class="flex items-center gap-2">
-                  <span>📝 Cím</span>
+                  <span>Cím</span>
                   <i *ngIf="sortField === 'filename'" 
                      [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
                   <i *ngIf="sortField !== 'filename'" 
@@ -80,7 +80,7 @@
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('uploader')">
                 <div class="flex items-center gap-2">
-                  <span>👤 Feltöltő</span>
+                  <span>Feltöltő</span>
                   <i *ngIf="sortField === 'uploader'" 
                      [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
                   <i *ngIf="sortField !== 'uploader'" 
@@ -92,7 +92,7 @@
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('uploadDate')">
                 <div class="flex items-center gap-2">
-                  <span>📅 Dátum</span>
+                  <span>Dátum</span>
                   <i *ngIf="sortField === 'uploadDate'" 
                      [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
                   <i *ngIf="sortField !== 'uploadDate'" 
@@ -104,7 +104,7 @@
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('likes')">
                 <div class="flex items-center gap-2">
-                  <span>👍 Like-ok</span>
+                  <span>Likeok</span>
                   <i *ngIf="sortField === 'likes'" 
                      [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
                   <i *ngIf="sortField !== 'likes'" 
@@ -116,7 +116,7 @@
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('downloads')">
                 <div class="flex items-center gap-2">
-                  <span>⬇️ Letöltések</span>
+                  <span>Letöltések</span>
                   <i *ngIf="sortField === 'downloads'" 
                      [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
                   <i *ngIf="sortField !== 'downloads'" 
@@ -126,7 +126,7 @@
               
               <!-- MŰVELETEK -->
               <th class="px-6 py-4 text-left font-semibold text-slate-300">
-                ⚙️ Műveletek
+                Műveletek
               </th>
             </tr>
           </thead>

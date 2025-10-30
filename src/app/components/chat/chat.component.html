@@ -21,13 +21,13 @@
           <h2 class="text-xl font-semibold text-white">
             {{ userCache[receiverId]?.username || 'Ismeretlen felhasználó' }}
           </h2>
-          <p class="text-sm text-slate-400">
+          <!-- <p class="text-sm text-slate-400">
             Utoljára aktív: 
             <span *ngIf="userCache[receiverId]?.lastActive"
                   class="text-slate-300">{{ userCache[receiverId].lastActive | date:'HH:mm, MMM d' }}</span>
             <span *ngIf="!userCache[receiverId]?.lastActive"
                   class="text-slate-500">nem elérhető</span>
-          </p>
+          </p> -->
         </div>
       </div>
 

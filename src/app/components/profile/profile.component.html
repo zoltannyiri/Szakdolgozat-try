@@ -15,7 +15,7 @@
               <!-- verified badge -->
               <span *ngIf="userData?.isVerified"
                     class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-gradient-to-r from-emerald-500/20 to-green-500/20 px-2.5 py-1 text-xs font-medium text-emerald-300 shadow-sm">
-                <i class="bi bi-patch-check-fill"></i> Verified
+                <i class="bi bi-patch-check-fill"></i> Megerősített felhasználó
               </span>
             </div>
 
@@ -27,13 +27,13 @@
 
               <span class="inline-flex items-center gap-2 rounded-lg bg-slate-700/40 px-3 py-1.5 backdrop-blur-sm">
                 <i class="bi bi-calendar-event text-orange-400"></i>
-                Joined : {{ userData?.date | date:'d MMM yyyy' }}
+                Csatlakozott : {{ userData?.date | date:'d MMM yyyy' }}
               </span>
 
               <span class="inline-flex items-center gap-2 rounded-lg bg-slate-700/40 px-3 py-1.5 backdrop-blur-sm">
                 <i class="bi bi-activity"
                    [ngClass]="{ 'text-emerald-400': isActive, 'text-amber-400': !isActive }"></i>
-                Last Online : {{ userData?.lastLogin | date:'d MMM yyyy, HH:mm' }}
+                Utoljára elérhető : {{ userData?.lastLogin | date:'d MMM yyyy, HH:mm' }}
               </span>
             </div>
           </div>
@@ -57,21 +57,23 @@
               <!-- Edit button -->
               <label *ngIf="isCurrentUser" for="avatarUpload"
                      class="absolute -bottom-2 right-0 cursor-pointer rounded-full border border-white/20 bg-gradient-to-r from-slate-700 to-slate-800 px-3 py-1 text-xs font-medium backdrop-blur transition-all hover:from-amber-600 hover:to-orange-600">
-                <i class="bi bi-camera-fill mr-1"></i> Edit
+                <i class="bi bi-camera-fill mr-1"></i> Szerkesztés
               </label>
               <input id="avatarUpload" type="file" accept="image/*" class="hidden" (change)="onAvatarSelected($event)" />
             </div>
+            
             
             <!-- AVATAR alatti beállítás gomb -->
             <div class="mt-3 flex justify-end" *ngIf="isCurrentUser">
               <button (click)="openSettings()"
                       class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-slate-700 to-slate-800 border border-slate-600 px-4 py-2 text-sm font-medium transition-all hover:from-amber-600 hover:to-orange-600 hover:shadow-lg">
                 <i class="bi bi-sliders"></i>
-                Settings
+                Beállítások
               </button>
             </div>
 
           </div>
+          
         </div>
       </div>
 
@@ -85,7 +87,7 @@
                   [class.border-transparent]="activeMainTab!=='profile'"
                   [class.hover:text-amber-300]="activeMainTab!=='profile'"
                   (click)="activeMainTab='profile'">
-            <i class="bi bi-person-circle mr-2"></i>Profile
+            <i class="bi bi-person-circle mr-2"></i>Profil adatok
           </button>
           <button class="py-4 text-sm font-medium border-b-2 transition-all duration-200"
                   [class.text-amber-400]="activeMainTab==='loops'"
@@ -94,9 +96,9 @@
                   [class.border-transparent]="activeMainTab!=='loops'"
                   [class.hover:text-amber-300]="activeMainTab!=='loops'"
                   (click)="activeMainTab='loops'">
-            <i class="bi bi-music-note-beamed mr-2"></i>Loops
+            <i class="bi bi-music-note-beamed mr-2"></i>Loopok
           </button>
-          <button class="py-4 text-sm font-medium border-b-2 transition-all duration-200"
+          <!-- <button class="py-4 text-sm font-medium border-b-2 transition-all duration-200"
                   [class.text-amber-400]="activeMainTab==='acapellas'"
                   [class.border-amber-400]="activeMainTab==='acapellas'"
                   [class.text-slate-400]="activeMainTab!=='acapellas'"
@@ -104,8 +106,8 @@
                   [class.hover:text-amber-300]="activeMainTab!=='acapellas'"
                   (click)="activeMainTab='acapellas'">
             <i class="bi bi-mic-fill mr-2"></i>Acapellas
-          </button>
-          <button class="py-4 text-sm font-medium border-b-2 transition-all duration-200"
+          </button> -->
+          <!-- <button class="py-4 text-sm font-medium border-b-2 transition-all duration-200"
                   [class.text-amber-400]="activeMainTab==='tracks'"
                   [class.border-amber-400]="activeMainTab==='tracks'"
                   [class.text-slate-400]="activeMainTab!=='tracks'"
@@ -113,7 +115,7 @@
                   [class.hover:text-amber-300]="activeMainTab!=='tracks'"
                   (click)="activeMainTab='tracks'">
             <i class="bi bi-file-earmark-music-fill mr-2"></i>Tracks
-          </button>
+          </button> -->
           <button class="py-4 text-sm font-medium border-b-2 transition-all duration-200"
                   [class.text-amber-400]="activeMainTab==='comments'"
                   [class.border-amber-400]="activeMainTab==='comments'"
@@ -121,7 +123,7 @@
                   [class.border-transparent]="activeMainTab!=='comments'"
                   [class.hover:text-amber-300]="activeMainTab!=='comments'"
                   (click)="activeMainTab='comments'">
-            <i class="bi bi-chat-dots-fill mr-2"></i>Comments
+            <i class="bi bi-chat-dots-fill mr-2"></i>Kommentek
           </button>
         </nav>
       </div>
@@ -143,9 +145,9 @@
                       [class.text-slate-300]="profileSub!=='about'"
                       [class.hover:text-amber-300]="profileSub!=='about'"
                       (click)="profileSub='about'">
-                <i class="bi bi-info-circle mr-1"></i>About Me
+                <i class="bi bi-info-circle mr-1"></i>Rólam
               </button>
-              <button class="rounded-lg px-3 py-1.5 font-medium transition-all duration-200"
+              <!-- <button class="rounded-lg px-3 py-1.5 font-medium transition-all duration-200"
                       [class.bg-slate-700]="profileSub==='blocked'"
                       [class.text-amber-400]="profileSub==='blocked'"
                       [class.text-slate-300]="profileSub!=='blocked'"
@@ -168,19 +170,19 @@
                       [class.hover:text-amber-300]="profileSub!=='followed'"
                       (click)="profileSub='followed'">
                 <i class="bi bi-people-fill mr-1"></i>Followed
-              </button>
+              </button> -->
             </div>
 
             <button *ngIf="isCurrentUser && profileSub==='about' && !isEditing"
                     (click)="startEditing()"
                     class="rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-3 py-1.5 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all">
-              <i class="bi bi-pencil-square mr-1"></i>Edit
+              <i class="bi bi-pencil-square mr-1"></i>Szerkesztés
             </button>
           </div>
 
           <!-- About Me panel -->
           <div *ngIf="profileSub==='about'" class="p-4">
-            <h3 class="mb-2 text-lg font-semibold text-amber-400">About Me</h3>
+            <h3 class="mb-2 text-lg font-semibold text-amber-400">Rólam</h3>
 
             <div *ngIf="!isEditing; else aboutEdit"
                  class="whitespace-pre-wrap text-sm text-slate-300 min-h-[4rem] bg-slate-700/40 rounded-lg p-4 backdrop-blur-sm">
@@ -193,11 +195,11 @@
               <div class="mt-3 flex gap-2">
                 <button (click)="saveGeneral()" [disabled]="saving.general"
                         class="rounded-lg bg-gradient-to-r from-emerald-600 to-green-600 px-4 py-2 text-sm font-medium hover:from-emerald-500 hover:to-green-500 transition-all disabled:opacity-60">
-                  {{ saving.general ? 'Saving…' : 'Save Changes' }}
+                  {{ saving.general ? 'Mentés...' : 'Mentés' }}
                 </button>
                 <button (click)="cancelEditing()" [disabled]="saving.general"
                         class="rounded-lg border border-slate-600 bg-slate-700/50 px-4 py-2 text-sm font-medium hover:bg-slate-600/50 transition-all disabled:opacity-60">
-                  Cancel
+                  Mégse
                 </button>
               </div>
               <p *ngIf="msg.general" class="mt-2 text-sm text-emerald-300">{{ msg.general }}</p>
@@ -222,7 +224,7 @@
 
         <!-- MY NETWORKS -->
         <div *ngIf="activeMainTab==='profile'" class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-5 shadow-xl backdrop-blur-sm">
-          <h3 class="text-lg font-semibold mb-2 text-amber-400">My Networks</h3>
+          <h3 class="text-lg font-semibold mb-2 text-amber-400">Közösségi oldalak</h3>
 
           <div class="flex flex-wrap gap-2 mb-4" *ngIf="userData?.socials">
             <a *ngIf="userData.socials.facebook"   [href]="userData.socials.facebook"   target="_blank" rel="noopener"
@@ -248,7 +250,7 @@
               <i class="bi bi-twitter-x"></i> X
             </a>
             <a *ngIf="userData.socials.website"    [href]="userData.socials.website"    target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
-              <i class="bi bi-globe"></i> Website
+              <i class="bi bi-globe"></i> Weboldal
             </a>
             <a *ngIf="userData.socials.email"      [href]="userData.socials.email"      target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-slate-700/50 px-3 py-1.5 text-sm hover:bg-slate-700/70">
               <i class="bi bi-envelope"></i> Email
@@ -258,7 +260,7 @@
           <button *ngIf="isCurrentUser"
                   class="rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
                   (click)="openSettings()">
-            <i class="bi bi-plus-circle mr-1"></i> Add your network links
+            <i class="bi bi-plus-circle mr-1"></i> Kapcsold össze fiókod
           </button>
         </div>
 
@@ -270,12 +272,12 @@
           <!-- Header with stats and upload button -->
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-              <h3 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ userData?.username }}'s Loops</h3>
-              <p class="text-sm text-slate-300 mt-1">Collection of audio loops</p>
+              <h3 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ userData?.username }} loopjai</h3>
+              <p class="text-sm text-slate-300 mt-1">Loopok gyűjteménye</p>
             </div>
 
             <div class="flex items-center gap-3">
-              <div class="hidden sm:flex items-center gap-4 text-sm text-slate-300">
+              <!-- <div class="hidden sm:flex items-center gap-4 text-sm text-slate-300">
                 <span class="flex items-center gap-1">
                   <i class="bi bi-music-note-beamed text-amber-400"></i>
                   <span class="font-semibold">{{ userLoops.length }}</span> loops
@@ -288,13 +290,13 @@
                   <i class="bi bi-heart text-rose-400"></i>
                   <span class="font-semibold">{{ totalLikes() }}</span> likes
                 </span>
-              </div>
+              </div> -->
 
               <button *ngIf="isCurrentUser"
                       class="flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
                       (click)="uploadNewLoop()">
                 <i class="bi bi-plus-lg"></i>
-                Upload Loop
+                Loop feltöltése
               </button>
             </div>
           </div>
@@ -302,7 +304,7 @@
           <!-- Loading -->
           <div *ngIf="loopsLoading" class="flex flex-col items-center justify-center py-12 text-slate-400">
             <i class="bi bi-arrow-repeat animate-spin text-4xl mb-3"></i>
-            <p>Loading your loops...</p>
+            <p>Loopok betöltése...</p>
           </div>
 
           <!-- Empty -->
@@ -326,17 +328,17 @@
             <div class="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center p-3 bg-slate-700/40 rounded-lg backdrop-blur-sm">
               <div class="flex items-center gap-2 text-sm text-slate-300">
                 <i class="bi bi-funnel text-amber-400"></i>
-                <span>Filter:</span>
+                <span>Szűrő:</span>
                 <select class="bg-slate-700/50 border border-slate-600 rounded-md px-2 py-1 text-slate-200 text-sm focus:outline-none focus:ring-1 focus:ring-amber-400/30">
-                  <option>All loops</option>
-                  <option>Most popular</option>
-                  <option>Recent</option>
+                  <option>Minden loop</option>
+                  <option>Leghíresebb</option>
+                  <option>Legújabb</option>
                 </select>
               </div>
 
               <div class="relative">
                 <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" placeholder="Search loops..."
+                <input type="text" placeholder="Keresés..."
                        class="pl-9 pr-3 py-1.5 bg-slate-700/50 border border-slate-600 rounded-md text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400/30">
               </div>
             </div>
@@ -384,7 +386,7 @@
 
                     <a [routerLink]="['/loop-detail/', loop._id]"
                        class="shrink-0 rounded-lg bg-slate-600/50 px-3 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
-                      View
+                      Megtekintés
                     </a>
                   </div>
 
@@ -455,19 +457,19 @@
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-                {{ userData?.username }}'s Comments
+                {{ userData?.username }} kommentjei
               </h3>
-              <p class="text-sm text-slate-300 mt-1">Your activity on loops</p>
+              <p class="text-sm text-slate-300 mt-1">Loopok alatti kommentjeid</p>
             </div>
             <div class="text-sm text-slate-400">
-              Total: <span class="text-slate-200 font-semibold">{{ userComments.length }}</span>
+              Összesen: <span class="text-slate-200 font-semibold">{{ userComments.length }}</span>
             </div>
           </div>
 
           <!-- Loading -->
           <div *ngIf="commentsLoading" class="flex flex-col items-center justify-center py-12 text-slate-400">
             <i class="bi bi-arrow-repeat animate-spin text-4xl mb-3"></i>
-            <p>Loading your comments...</p>
+            <p>Kommentek betöltése...</p>
           </div>
 
           <!-- Empty -->
@@ -476,8 +478,8 @@
             <div class="w-20 h-20 rounded-full bg-slate-700/40 flex items-center justify-center mb-4 backdrop-blur-sm">
               <i class="bi bi-chat-dots text-4xl text-slate-400"></i>
             </div>
-            <h4 class="text-lg font-semibold text-slate-200 mb-2">No comments yet</h4>
-            <p class="text-sm text-slate-300 max-w-md">Start by commenting on some loops</p>
+            <h4 class="text-lg font-semibold text-slate-200 mb-2">Nincsenek még kommentek</h4>
+            <p class="text-sm text-slate-300 max-w-md">Kommentelj valahová</p>
           </div>
 
           <!-- List -->
@@ -511,7 +513,7 @@
 
                 <a [routerLink]="['/loop-detail/', c?.loop?._id]"
                   class="shrink-0 rounded-lg bg-slate-600/50 px-3 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
-                  View loop
+                  Megtekintés
                 </a>
               </div>
             </div>
@@ -524,39 +526,39 @@
       <aside class="space-y-6">
         <!-- Loop Stats -->
         <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-5 shadow-xl backdrop-blur-sm">
-          <h4 class="mb-4 text-base font-semibold text-amber-400"><i class="bi bi-bar-chart me-2"></i>Loop Stats</h4>
+          <h4 class="mb-4 text-base font-semibold text-amber-400"><i class="bi bi-bar-chart me-2"></i>Loop adatok</h4>
 
           <div class="grid grid-cols-2 gap-3">
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
               <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ statUploads }}</div>
-              <div class="text-[12px] text-slate-400 mt-1">Uploads</div>
+              <div class="text-[12px] text-slate-400 mt-1">Feltöltések</div>
             </div>
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
               <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ statDownloads }}</div>
-              <div class="text-[12px] text-slate-400 mt-1">Downloads</div>
+              <div class="text-[12px] text-slate-400 mt-1">Letöltések</div>
             </div>
-            <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
+            <!-- <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
               <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ stat('downloaded') }}</div>
-              <div class="text-[12px] text-slate-400 mt-1">Downloaded</div>
-            </div>
+              <div class="text-[12px] text-slate-400 mt-1">Letöltve</div>
+            </div> -->
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
               <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ statCommentsOut }}</div>
-              <div class="text-[12px] text-slate-400 mt-1">Comments out</div>
+              <div class="text-[12px] text-slate-400 mt-1">Kommentek</div>
             </div>
-            <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
+            <!-- <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
               <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ statLikesIn }}</div>
               <div class="text-[12px] text-slate-400 mt-1">Favourites In</div>
             </div>
             <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-center transition-all hover:bg-slate-700/60 backdrop-blur-sm">
               <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ stat('favouritesOut') }}</div>
               <div class="text-[12px] text-slate-400 mt-1">Favourites Out</div>
-            </div>
+            </div> -->
           </div>
         </div>
 
         <!-- Quick info -->
         <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-5 shadow-xl backdrop-blur-sm">
-          <h4 class="mb-3 text-sm font-semibold text-amber-400">Quick info</h4>
+          <h4 class="mb-3 text-sm font-semibold text-amber-400">Információk</h4>
           <ul class="space-y-3 text-sm text-slate-300">
             <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-700/40 backdrop-blur-sm">
               <div class="w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center">
@@ -581,19 +583,19 @@
 
         <!-- Action buttons -->
         <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-5 shadow-xl backdrop-blur-sm">
-          <h4 class="mb-3 text-sm font-semibold text-amber-400">Actions</h4>
+          <h4 class="mb-3 text-sm font-semibold text-amber-400">Műveletek</h4>
           <div class="space-y-2">
             <button (click)="startChatWithUser()" 
                     class="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-2.5 text-sm font-medium hover:from-amber-600 hover:to-orange-600 transition-all">
-              <i class="bi bi-chat-dots-fill"></i> Send Message
+              <i class="bi bi-chat-dots-fill"></i> Üzenetküldés
             </button>
             <button *ngIf="!isCurrentUser" (click)="openProfileReportModal()" 
                     class="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-rose-700 to-red-700 px-4 py-2.5 text-sm font-medium hover:from-rose-600 hover:to-red-600 transition-all">
-              <i class="bi bi-flag-fill"></i> Report Profile
+              <i class="bi bi-flag-fill"></i> Profil jelentése
             </button>
             <button *ngIf="isAdmin && !isCurrentUser" (click)="openBanModal()" 
                     class="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-red-700 to-red-800 px-4 py-2.5 text-sm font-medium hover:from-red-600 hover:to-red-700 transition-all">
-              <i class="bi bi-shield-lock"></i> Admin Actions
+              <i class="bi bi-shield-lock"></i> Szankcionálás
             </button>
           </div>
         </div>
