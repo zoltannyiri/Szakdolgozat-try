@@ -444,13 +444,13 @@ export const unlikeLoop = [
 
       const loop = await Loop.findById(id);
       if (!loop) {
-        return res.status(404).json({ message: "Loop not found" });
+        return res.status(404).json({ message: "Loop nem található" });
       }
 
       // Ellenőrizzük, hogy a felhasználó likeolta-e
       const userIndex = loop.likedBy.findIndex(likedUserId => likedUserId.equals(userId));
       if (userIndex === -1) {
-        return res.status(400).json({ message: "You haven't liked this loop yet" });
+        return res.status(400).json({ message: "Még nem likeoltad ezt a loopot" });
       }
 
       // Like eltávolítása
