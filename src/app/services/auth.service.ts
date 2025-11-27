@@ -30,7 +30,7 @@ export class AuthService {
 
   resendVerification() {
     const token = this.getToken();
-    if (!token) throw new Error('Not authenticated');
+    if (!token) throw new Error('Nincs bejelentkezve');
     let userId: string | null = null;
     try { const d: any = jwtDecode(token); userId = d?.userId || null; } catch {}
     return this.http.post(`${environment.apiUrl}/api/auth/verify/resend`, { userId });
@@ -169,7 +169,7 @@ isUserVerified(): Observable<boolean> {
 
   getUserProfile() {
     const token = localStorage.getItem('token');
-    if (!token) return throwError(() => new Error('No token available'));
+    if (!token) return throwError(() => new Error('A munkamenet érvénytelen vagy lejárt'));
 
     return this.http.get(`${environment.apiUrl}/api/profile`, {
       headers: { Authorization: `Bearer ${token}` }
