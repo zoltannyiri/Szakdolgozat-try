@@ -505,10 +505,23 @@ app.use('/api', verifyRoutes);
 // feltöltés
 // app.use("/api", loopRoutes);
 // Loop routes közvetlenül a server.ts-ben
-app.use("/api", loopRoutes);  // "/api/upload", "/api/loops" stb. lesz az útvonal
+const allowedOrigins = [
+  'http://localhost:4200', 
+  'https://szakdolgozat-frontend-pi.vercel.app',   
+  'https://szakdolgozat-frontend.vercel.app'   
+];
+app.use("/api", loopRoutes); 
 
 app.use(cors({
-  origin: 'http://localhost:4200',
+  // origin: 'http://localhost:4200',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS: Rejected request from origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
