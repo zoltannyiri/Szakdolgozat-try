@@ -4,7 +4,6 @@ import { environment } from '../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { upload } from '../../../api/src/middlewares/upload.middleware';
 
 // Szűrő interfész típusdefiníció
 interface LoopFilters {
