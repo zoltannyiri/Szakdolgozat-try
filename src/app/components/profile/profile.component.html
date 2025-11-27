@@ -44,7 +44,7 @@
               <div class="h-32 w-32 overflow-hidden rounded-full ring-4 ring-slate-800 shadow-xl">
                 <div class="absolute inset-0 rounded-full ring-[3px] ring-amber-400/60 animate-pulse"></div>
                 <ng-container *ngIf="userData?.profileImage; else initials">
-                  <img [src]="'http://localhost:3000' + userData.profileImage"
+                  <img [src]="apiUrl + userData.profileImage"
                        alt="Profilkép" class="h-full w-full object-cover transition-transform duration-500 hover:scale-110" />
                 </ng-container>
                 <ng-template #initials>

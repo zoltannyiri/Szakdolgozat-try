@@ -195,7 +195,7 @@
                         class="flex items-center gap-2 p-2 rounded-xl transition-all duration-300 hover:bg-slate-700/50 group profile-btn-trigger">
                   <ng-container *ngIf="userData?.profileImage; else initialsAvatar">
                     <img
-                      [src]="'http://localhost:3000' + userData.profileImage"
+                      [src]="apiUrl + userData.profileImage"
                       alt="Profilkép"
                       class="w-8 h-8 rounded-lg object-cover border-2 border-amber-500/30 shadow-lg group-hover:border-amber-400/50 transition-all"
                     />

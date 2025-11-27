@@ -196,7 +196,7 @@ getLoopById(id: string): Observable<any> {
   // Loop letöltése
   downloadLoop(loopId: string): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/api/loops/download/${loopId}`, {
-      responseType: 'blob',
+      // responseType: 'blob',
       headers: {
         'Authorization': `Bearer ${this.authService.getToken()}`
       },

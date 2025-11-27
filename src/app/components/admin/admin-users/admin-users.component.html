@@ -88,7 +88,7 @@
                   <div class="relative">
                     <div class="h-10 w-10 overflow-hidden rounded-full ring-2 ring-slate-600">
                       <ng-container *ngIf="user.profileImage; else initials">
-                        <img [src]="'http://localhost:3000' + user.profileImage"
+                        <img [src]="apiUrl + user.profileImage"
                              alt="Profilkép" class="h-full w-full object-cover" />
                       </ng-container>
                       <ng-template #initials>

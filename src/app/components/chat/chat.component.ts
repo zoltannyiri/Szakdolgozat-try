@@ -22,6 +22,7 @@ interface UserPublic {
   styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent implements OnInit, OnDestroy {
+  apiUrl = environment.apiUrl;
   socket!: Socket;
   receiverId!: string;
   senderId!: string;
@@ -85,7 +86,8 @@ ngOnInit(): void {
   }
 
   connectSocket(): void {
-    this.socket = io('http://localhost:3000');
+    // this.socket = io('http://localhost:3000');
+    this.socket = io(environment.apiUrl);
     this.socket.emit('joinRoom', this.senderId);
 
     this.socket.on('receiveMessage', (message: any) => {

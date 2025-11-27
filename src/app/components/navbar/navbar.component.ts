@@ -35,7 +35,7 @@ export class NavbarComponent {
   // toggleProfileMenu() {
   //   throw new Error('Method not implemented.');
   // }
-
+  apiUrl = environment.apiUrl;
   menuOpen = false;
   showProfileMenu = false;
   isLoggedIn = false;
@@ -116,7 +116,8 @@ export class NavbarComponent {
   }
 
   ngOnInit() {
-    this.socket = io('http://localhost:3000');
+    // this.socket = io('http://localhost:3000');
+    this.socket = io(environment.apiUrl);
 
     this.authService.isLoggedIn$.subscribe((loggedIn) => {
       this.isLoggedIn = loggedIn;

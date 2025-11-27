@@ -15,6 +15,7 @@ type ToastVariant = 'default' | 'success' | 'error';
   styleUrl: './admin-users.component.scss'
 })
 export class AdminUsersComponent implements OnInit{
+  apiUrl = environment.apiUrl;
   users: any[] = [];
   errorMessage = '';
 

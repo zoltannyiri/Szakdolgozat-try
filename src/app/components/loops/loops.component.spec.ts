@@ -21,7 +21,8 @@ const mockPaged = {
 
 function makeLoopService() {
   return {
-    apiUrl: 'http://localhost:3000',
+    // apiUrl: 'http://localhost:3000',
+    apiUrl: 'https://szakdolgozat-backend-tg59.onrender.com',
     getLoops: jest.fn().mockReturnValue(of(mockPaged)),
     likeLoop: jest.fn().mockReturnValue(of({ success: true, likes: 1 })),
     unlikeLoop: jest.fn().mockReturnValue(of({ success: true, likes: 0 })),

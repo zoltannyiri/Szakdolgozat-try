@@ -19,6 +19,7 @@ type ToastVariant = 'default' | 'success' | 'error';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
+  apiUrl = environment.apiUrl;
   environmentApi = environment.apiUrl;
 
 

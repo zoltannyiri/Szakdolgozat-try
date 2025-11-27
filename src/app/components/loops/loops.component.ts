@@ -409,45 +409,27 @@ export class LoopsComponent implements OnInit, OnDestroy {
   getSafeAudioUrl(path: string | undefined): string {
     if (!path) return '';
 
+    if (path.includes('localhost:3000')) {
+        const relativePath = path.replace('http://localhost:3000', '').replace('https://localhost:3000', '');
+        return `${this.loopService.apiUrl}${relativePath.startsWith('/') ? '' : '/'}${relativePath}`;
+    }
 
-
-
-
-
-    //új
+    // 2. Google Drive linkek kezelése
     const driveIdMatch = path.match(/[?&]id=([A-Za-z0-9_\-]+)/);
-
-
-
-    // Ha már teljes URL, akkor visszaadjuk azt
-    // commented at 09.19.
-    // if (path.startsWith('http://') || path.startsWith('https://')) {
-    //   return path;
-    // }
-    // idáig
-
-
-    //új:
-
     if (path.includes('drive.google.com') && driveIdMatch) {
       const fileId = driveIdMatch[1];
       return `${this.loopService.apiUrl}/api/files/${fileId}`;
     }
 
+    // 3. Ha már teljes (és nem localhostos) URL, akkor mehet
     if (path.startsWith('http://') || path.startsWith('https://')) {
       return path;
     }
 
-
-
-
-
-
-
-
-    // teljes url
-    // return `${this.loopService.apiUrl}/${path.replace(/^\/?uploads\//, 'uploads/')}`;
-    return `${this.loopService.apiUrl}/${path.replace(/^\/?uploads\//, 'uploads/')}`;
+    // 4. Relatív útvonal kezelése
+    // Biztosítjuk, hogy az apiUrl után legyen perjel, de duplázódás ne legyen
+    const cleanPath = path.replace(/^\/?uploads\//, 'uploads/');
+    return `${this.loopService.apiUrl}/${cleanPath}`;
   }
 
   searchLoops(): void {
@@ -933,8 +915,29 @@ export class LoopsComponent implements OnInit, OnDestroy {
     try {
       const isVerified = await this.authService.isUserVerified().toPromise();
       console.log('User verified status:', isVerified); // [15]
+      // KOMMENTELVE RENDER.COM MIATT
+      // this.loopService.downloadLoop(loop._id).subscribe({
+        
+      //   next: (blob: Blob) => {
+      //     console.log('Received blob:', { // [16]
+      //       size: blob.size,
+      //       type: blob.type
+      //     });
 
+      //     const url = window.URL.createObjectURL(blob);
+      //     const a = document.createElement('a');
+      //     a.href = url;
+      //     a.download = loop.filename || `loop_${loop._id}`;
+      //     document.body.appendChild(a);
+      //     a.click();
+
+      //     window.URL.revokeObjectURL(url);
+      //     document.body.removeChild(a);
+
+      //     console.log('Download completed successfully'); // [17]
+      //   },
       this.loopService.downloadLoop(loop._id).subscribe({
+        
         next: (blob: Blob) => {
           console.log('Received blob:', { // [16]
             size: blob.size,

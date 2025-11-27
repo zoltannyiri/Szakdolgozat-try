@@ -269,61 +269,92 @@ export const uploadLoop = async (req: CustomRequest, res: Response) => {
 
 
 //módosítva: 2025. 04. 27
+// KOMMENTELVE A RENDER.COM MIATT!
+// export const downloadLoop = [
+//   async (req: CustomRequest, res: Response) => {
+//     try {
+//       const { id } = req.params;
+//       const currentUserId = req.user?.userId; // A letöltő ID-ja
+
+//       const loop = await Loop.findById(id);
+//       if (!loop) {
+//         return res.status(404).json({ success: false, message: "Loop not found" });
+//       }
+
+//       // Letöltésszámláló növelése (ez mindenképp megtörténik)
+//       await Loop.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
+
+//       // --- JUTALOM LOGIKA MÓDOSÍTÁSA ---
+      
+//       // Ellenőrizzük, hogy a letöltő NEM a tulajdonos
+//       const isOwner = currentUserId && loop.uploader.toString() === currentUserId;
+
+//       // Csak akkor adunk kreditet, ha NEM a sajátját tölti le
+//       if (!isOwner) {
+//           const cfg = await getCreditConfig();
+//           const reward = Math.max(0, cfg.rewardPerDownloadToUploader || 0);
+          
+//           if (reward > 0 && loop.uploader) {
+//             await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: reward } }).exec();
+//           }
+//       }
+      
+//       // --- FÁJL KÜLDÉSE (változatlan) ---
+
+//       if (/^https?:\/\//i.test(loop.path)) {
+//         // return res.redirect(loop.path);
+//         return res.json({ success: true, downloadUrl: loop.path });
+//       }
+
+//       // Lokális fájlok keresése
+//       // const absolutePath = path.join(__dirname, '..', loop.path);
+//       // if (!fs.existsSync(absolutePath)) {
+//       //   return res.status(404).json({ success: false, message: "File not found on server" });
+//       // }
+
+//       res.setHeader('Content-Disposition', `attachment; filename="${loop.filename}"`);
+//       res.setHeader('Content-Type', 'audio/wav');
+//       // return res.sendFile(absolutePath, (err) => {
+//       //   if (err && !res.headersSent) {
+//       //     res.status(500).json({ success: false, message: "Error sending file" });
+//       //   }
+//       // });
+//     } catch (error) {
+//       console.error('Download error:', error);
+//       res.status(500).json({ success: false, message: "Server error" });
+//     }
+//   }
+// ];
 export const downloadLoop = [
   async (req: CustomRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const currentUserId = req.user?.userId; // A letöltő ID-ja
+      const currentUserId = req.user?.userId;
 
       const loop = await Loop.findById(id);
       if (!loop) {
         return res.status(404).json({ success: false, message: "Loop not found" });
       }
-
-      // Letöltésszámláló növelése (ez mindenképp megtörténik)
       await Loop.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
-
-      // --- JUTALOM LOGIKA MÓDOSÍTÁSA ---
-      
-      // Ellenőrizzük, hogy a letöltő NEM a tulajdonos
       const isOwner = currentUserId && loop.uploader.toString() === currentUserId;
-
-      // Csak akkor adunk kreditet, ha NEM a sajátját tölti le
       if (!isOwner) {
           const cfg = await getCreditConfig();
           const reward = Math.max(0, cfg.rewardPerDownloadToUploader || 0);
-          
           if (reward > 0 && loop.uploader) {
             await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: reward } }).exec();
           }
       }
-      
-      // --- FÁJL KÜLDÉSE (változatlan) ---
-
-      if (/^https?:\/\//i.test(loop.path)) {
-        return res.redirect(loop.path);
-      }
-
-      // Lokális fájlok keresése
-      const absolutePath = path.join(__dirname, '..', loop.path);
-      if (!fs.existsSync(absolutePath)) {
-        return res.status(404).json({ success: false, message: "File not found on server" });
-      }
-
-      res.setHeader('Content-Disposition', `attachment; filename="${loop.filename}"`);
-      res.setHeader('Content-Type', 'audio/wav');
-      return res.sendFile(absolutePath, (err) => {
-        if (err && !res.headersSent) {
-          res.status(500).json({ success: false, message: "Error sending file" });
-        }
+      return res.json({ 
+          success: true, 
+          downloadUrl: loop.path 
       });
+
     } catch (error) {
       console.error('Download error:', error);
       res.status(500).json({ success: false, message: "Server error" });
     }
   }
 ];
-
 
 // Loop lista
 export const getLoops = async (req: Request, res: Response) => {
