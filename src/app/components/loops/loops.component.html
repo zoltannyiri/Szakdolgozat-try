@@ -9,7 +9,7 @@
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <i class="bi bi-search text-slate-400"></i>
           </div>
-          <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="searchLoops()" placeholder="Search loops..."
+          <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="searchLoops()" placeholder="Keresés"
                  class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 py-3 pl-10 pr-4 text-slate-100 placeholder-slate-400 transition-all focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
         </div>
 
@@ -17,12 +17,12 @@
           <button (click)="toggleUploadModal()"
                   class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-amber-500 hover:to-orange-500 hover:shadow-amber-500/25">
             <i class="bi bi-cloud-arrow-up-fill"></i>
-            Upload Loop
+            Loop feltöltése
           </button>
           <button (click)="toggleAdvancedSearch()"
                   class="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-5 py-3 text-sm font-medium text-amber-300 transition-all hover:bg-amber-500/20 hover:border-amber-400/50 backdrop-blur-sm">
             <i class="bi bi-sliders"></i>
-            Filters
+            Szűrők
           </button>
         </div>
       </div>
@@ -56,7 +56,7 @@
 
         <div class="space-y-6">
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-300">Válassz egy WAV fájlt (max 20MB)</label>
+            <label class="mb-2 block text-sm font-medium text-slate-300">Válassz egy WAV vagy AIFF fájlt (max 20MB)</label>
             <label class="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-600/50 bg-slate-700/30 p-8 text-center transition hover:border-amber-400/50 hover:bg-slate-700/50 backdrop-blur-sm">
               <i class="bi bi-cloud-arrow-up text-4xl text-slate-400"></i>
               <p class="mt-2 text-sm text-slate-400">Tallózd vagy húzd be ide</p>
@@ -104,7 +104,7 @@
           </div>
 
           <div class="flex justify-end gap-3">
-            <button (click)="toggleUploadModal()" class="inline-flex items-center gap-2 rounded-full border border-slate-600/50 bg-slate-700/50 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-600/50 backdrop-blur-sm">Cancel</button>
+            <button (click)="toggleUploadModal()" class="inline-flex items-center gap-2 rounded-full border border-slate-600/50 bg-slate-700/50 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-600/50 backdrop-blur-sm">Mégse</button>
             <button (click)="uploadFile()" [disabled]="!selectedFile || isUploading" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-2.5 text-sm font-semibold text-white transition-all hover:from-amber-500 hover:to-orange-500 disabled:opacity-50">
               <span *ngIf="!isUploading">Loop feltöltése</span>
               <span *ngIf="isUploading" class="flex items-center gap-2"><i class="bi bi-arrow-repeat animate-spin"></i>Feltöltés...</span>
@@ -130,8 +130,11 @@
             <div>
               <label class="mb-2 block text-sm font-medium text-slate-300">BPM</label>
               <div class="flex gap-4">
-                <input type="number" [(ngModel)]="filters.minBpm" name="minBpm" placeholder="Min" min="40" max="300" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
-                <input type="number" [(ngModel)]="filters.maxBpm" name="maxBpm" placeholder="Max" min="40" max="300" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
+                <input type="number" [(ngModel)]="filters.minBpm" name="minBpm" placeholder="Min" min="30" max="600"
+                  class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
+
+                <input type="number" [(ngModel)]="filters.maxBpm" name="maxBpm" placeholder="Max" min="30" max="600"
+                  class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 placeholder-slate-400 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
               </div>
             </div>
             <div>
@@ -163,8 +166,8 @@
               <label class="mb-2 block text-sm font-medium text-slate-300">Rendezés</label>
               <select [(ngModel)]="filters.sortBy" name="sortBy" class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm">
                 <option value="recent">Legújabb</option>
-                <option value="downloads">Legtöbb Letöltés</option>
-                <option value="likes">Legtöbb KedvelésS</option>
+                <option value="downloads">Legtöbb letöltés<li></li>etöltés</option>
+                <option value="likes">Legtöbb kedvelés</option>
               </select>
             </div>
           </div>
@@ -183,7 +186,7 @@
       <div *ngIf="isLoading" class="flex items-center justify-center py-12">
         <div class="flex flex-col items-center text-slate-400">
           <i class="bi bi-arrow-repeat animate-spin text-4xl mb-3 text-amber-400"></i>
-          <p>Loading loops...</p>
+          <p>Betöltés...</p>
         </div>
       </div>
 
@@ -192,8 +195,8 @@
         <div class="mx-auto mb-4 h-20 w-20 rounded-2xl bg-slate-700/40 flex items-center justify-center backdrop-blur-sm">
           <i class="bi bi-music-note-beamed text-4xl text-slate-400"></i>
         </div>
-        <h3 class="mb-2 text-lg font-semibold text-slate-200">No loops found</h3>
-        <p class="text-sm text-slate-400">Try adjusting your search criteria</p>
+        <h3 class="mb-2 text-lg font-semibold text-slate-200">Nincs a szűrésnek megfelelő loop</h3>
+        <p class="text-sm text-slate-400">Változtass a szűrés értékein</p>
       </div>
 
       <!-- LOOP CARDS -->
@@ -367,8 +370,8 @@
         <!-- PAGINATION -->
         <div *ngIf="!isLoading && total > pageSize" class="mt-8 flex flex-col items-center gap-4">
           <div class="text-sm text-slate-400">
-            Showing <span class="text-slate-200 font-medium">{{ fromIndex }}</span>–<span class="text-slate-200 font-medium">{{ toIndex }}</span>
-            of <span class="text-slate-200 font-medium">{{ total }}</span>
+            <span class="text-slate-200 font-medium">{{ fromIndex }}</span>–<span class="text-slate-200 font-medium">{{ toIndex }}</span>
+          , összesen: <span class="text-slate-200 font-medium">{{ total }}</span>
           </div>
 
           <div class="flex items-center gap-2">
@@ -377,7 +380,7 @@
               (click)="prevPage()"
               [disabled]="page === 1"
               class="rounded-full border border-slate-600/50 bg-slate-800/50 px-4 py-2 text-sm text-slate-200 disabled:opacity-40 hover:bg-slate-700/50 transition">
-              ‹ Prev
+              ‹ Előző
             </button>
 
             <!-- Page numbers -->
@@ -396,7 +399,7 @@
               (click)="nextPage()"
               [disabled]="page === totalPages"
               class="rounded-full border border-slate-600/50 bg-slate-800/50 px-4 py-2 text-sm text-slate-200 disabled:opacity-40 hover:bg-slate-700/50 transition">
-              Next ›
+              Következő ›
             </button>
           </div>
         </div>
@@ -456,7 +459,7 @@
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label class="mb-1 block text-sm font-medium text-slate-300">BPM</label>
-              <input type="number" [(ngModel)]="editForm.bpm" min="40" max="300" 
+              <input type="number" [(ngModel)]="editForm.bpm" min="30" max="600" 
                      class="w-full rounded-xl border border-slate-600/50 bg-slate-700/50 p-3 text-slate-100 focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 backdrop-blur-sm"/>
             </div>
             <div>

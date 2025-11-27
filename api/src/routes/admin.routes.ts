@@ -2,7 +2,7 @@ import express from 'express';
 import { authenticateToken } from '../middlewares/auth.middleware';
 import { requireAdmin } from '../middlewares/admin.middleware';
 import User from '../models/user.model';
-import { getAdminStats, getWeeklyRegistrations, getWeeklyUploads, listLoopsAdmin } from '../controllers/admin.controller';
+import { getAdminStats, getWeeklyRegistrations, getWeeklyUploads, listLoopsAdmin, updateUserRole } from '../controllers/admin.controller';
 import Loop from '../models/loop.model';
 
 import { getAllUsers, deleteUserById } from '../controllers/admin.controller';
@@ -15,6 +15,7 @@ import { updateLoopAdmin } from '../controllers/loop.controller';
 import { banUser, unbanUser } from '../controllers/ban.controller';
 import { getCreditSettings, updateCreditSettings } from '../controllers/admin.controller';
 import { approveLoopAdmin, rejectLoopAdmin } from '../controllers/admin.controller';
+import { getAllCommentsAdmin, getCommentDetailsAdmin } from '../controllers/comment.controller';
 
 
 const router = express.Router();
@@ -64,6 +65,12 @@ router.patch('/loops/:id/reject', authenticateToken, requireAdmin, rejectLoopAdm
 
 router.get('/credit-config', authenticateToken, requireAdmin, getCreditSettings);
 router.patch('/credit-config', authenticateToken, requireAdmin, updateCreditSettings);
+
+router.get('/comments', authenticateToken, requireAdmin, getAllCommentsAdmin);
+router.get('/comments/:id', authenticateToken, requireAdmin, getCommentDetailsAdmin);
+router.delete('/comments/:id', authenticateToken, requireAdmin, deleteCommentAdmin);
+
+router.patch('/users/:id/role', authenticateToken, requireAdmin, updateUserRole);
 
 // IDEIGLENES TESZT MIATT:
 router.get('/loops/status-summary', authenticateToken, requireAdmin, async (req, res) => {

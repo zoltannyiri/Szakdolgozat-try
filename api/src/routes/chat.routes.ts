@@ -27,11 +27,11 @@ router.get('/messages', authenticateToken, checkVerified, async (req: Request & 
     ));
 
     const users = await User.find({ _id: { $in: ids } })
-      .select('username profileImage')
+      .select('username profileImage lastLogin')
       .lean();
 
     const usersById = users.reduce((acc: any, u: any) => {
-      acc[u._id.toString()] = { username: u.username, profileImage: u.profileImage || null };
+      acc[u._id.toString()] = { username: u.username, profileImage: u.profileImage || null, lastActive: u.lastLogin || null };
       return acc;
     }, {});
 

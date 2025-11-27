@@ -1,15 +1,17 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
+  imports: [RouterLink]
 })
 export class HomeComponent implements AfterViewInit, OnInit {
   @ViewChild('videoPlayer') videoElement!: ElementRef<HTMLVideoElement>;
 
   currentTextIndex = 0;
-  headerText: string[] = ["hihats", "drumsets", "melodies", "loops", "beats"];
+  headerText: string[] = ["hihateket", "drumseteket", "dallamokat", "loopokat"];
   displayedText: string = "";
 
   ngOnInit(): void {

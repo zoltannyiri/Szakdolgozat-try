@@ -71,7 +71,7 @@ export class ProfileComponent implements OnInit {
 
 
   // socials
-  socials = {
+  socials: any = {
   facebook: '', instagram: '', youtube: '', soundcloud: '',
   spotify: '', tiktok: '', x: '', website: '', email: ''
 };
@@ -110,7 +110,7 @@ export class ProfileComponent implements OnInit {
       // 1) Megnyitott profil (idegen)
       this.secureGet(`${environment.apiUrl}/api/profile/${username}`).subscribe({
         next: (response: any) => this.hydrateUser(response.user, false),
-        error: () => this.errorMessage = 'Could not load profile data'
+        error: () => this.errorMessage = 'Nem sikerült betölteni a profil adatokat'
       });
 
       // 2) Saját adatok is kellenek, hogy tudjuk: verified? banned?
@@ -128,7 +128,7 @@ export class ProfileComponent implements OnInit {
           this.hydrateUser(response.user, true);
           // hydrateUser(true) már hívni fogja setCurrentUserState-et (lásd lent)
         },
-        error: () => this.errorMessage = 'Could not load profile data'
+        error: () => this.errorMessage = 'Nem sikerült betölteni a profil adatokat'
       });
     }
   });
@@ -725,14 +725,53 @@ private setCurrentUserState(me: any) {
     return this.userComments?.length || 0;
   }
 
+  allUserComments: any[] = [];
+  commentsPage = 1;      
+  commentsPageSize = 6;
+
   // user kommentjei
   fetchUserComments() {
     if (!this.userData?._id) return;
     this.commentsLoading = true;
     this.commentSvc.getCommentsByUser(this.userData._id).subscribe({
-      next: (res) => this.userComments = res?.items || [],
+      next: (res) => {
+        this.allUserComments = res?.items || [];
+        this.commentsPage = 1;
+        this.updateVisibleComments();
+      },
       error: () => this.showToast('Kommentek betöltése sikertelen', 'error'),
       complete: () => this.commentsLoading = false
     });
+  }
+  updateVisibleComments() {
+    const startIndex = (this.commentsPage - 1) * this.commentsPageSize;
+    const endIndex = startIndex + this.commentsPageSize;
+    this.userComments = this.allUserComments.slice(startIndex, endIndex);
+  }
+  nextCommentsPage() {
+    if (this.commentsPage < this.commentsTotalPages) {
+      this.commentsPage++;
+      this.updateVisibleComments();
+    }
+  }
+
+  prevCommentsPage() {
+    if (this.commentsPage > 1) {
+      this.commentsPage--;
+      this.updateVisibleComments();
+    }
+  }
+
+  goToCommentsPage(page: number) {
+    this.commentsPage = page;
+    this.updateVisibleComments();
+  }
+  get commentsPageNumbers(): number[] {
+    const total = this.commentsTotalPages;
+    return Array(total).fill(0).map((x, i) => i + 1);
+  }
+
+  get commentsTotalPages(): number {
+    return Math.ceil(this.allUserComments.length / this.commentsPageSize);
   }
 }

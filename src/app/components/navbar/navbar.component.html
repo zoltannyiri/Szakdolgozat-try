@@ -24,17 +24,17 @@
              routerLinkActive="nav-active"
              class="nav-item">
             <i class="bi bi-house-door"></i>
-            Home
+            Főoldal
           </a>
 
           <a [routerLink]="['/loops']"
              routerLinkActive="nav-active"
              class="nav-item">
             <i class="bi bi-music-note-beamed"></i>
-            Loops
+            Loopok
           </a>
 
-          <a class="nav-item cursor-pointer">
+          <!-- <a class="nav-item cursor-pointer">
             <i class="bi bi-folder"></i>
             Projects
           </a>
@@ -42,7 +42,7 @@
           <a class="nav-item cursor-pointer">
             <i class="bi bi-info-circle"></i>
             About
-          </a>
+          </a> -->
 
           <a *ngIf="isAdmin"
             [routerLink]="['/admin','dashboard']"
@@ -59,11 +59,11 @@
             <div class="flex items-center gap-3">
               <button class="btn-secondary" [routerLink]="['/login']">
                 <i class="bi bi-box-arrow-in-right"></i>
-                <span class="hidden sm:inline">Login</span>
+                <span class="hidden sm:inline">Bejelentkezés</span>
               </button>
               <button class="btn-primary" [routerLink]="['/register']">
                 <i class="bi bi-person-plus"></i>
-                <span class="hidden sm:inline">Sign Up</span>
+                <span class="hidden sm:inline">Regisztráció</span>
               </button>
             </div>
           </ng-container>
@@ -73,7 +73,7 @@
               
               <div class="relative">
                 <button (click)="toggleChatDropdown()"
-                  class="icon-btn group"
+                  class="icon-btn group chat-btn-trigger"
                   [ngClass]="{ 'bg-amber-500/20': showChatDropdown }"
                   aria-label="Chats">
                   <i class="bi bi-chat-dots text-lg text-slate-300 group-hover:text-amber-400"></i>
@@ -84,7 +84,7 @@
                 </button>
 
                 <div *ngIf="showChatDropdown"
-                     class="absolute right-0 mt-2 w-80 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50">
+                     class="absolute right-0 mt-2 w-80 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50 chat-dropdown-area">
                   <div class="p-4 border-b border-slate-600/30 flex items-center justify-between">
                     <h3 class="font-semibold !text-amber-400 flex items-center gap-2">
                       <i class="bi bi-chat-dots text-amber-400"></i>
@@ -125,7 +125,7 @@
               <!-- Notifications -->
               <div class="relative">
                 <button (click)="toggleNotifications()"
-                  class="icon-btn group"
+                  class="icon-btn group notification-btn-trigger"
                   [ngClass]="{ 'bg-amber-500/20': showNotifications }"
                   aria-label="Notifications">
                   <i class="bi bi-bell text-lg text-slate-300 group-hover:text-amber-400"></i>
@@ -137,7 +137,7 @@
 
                 <div *ngIf="showNotifications" 
                      @fadeInDown
-                     class="absolute right-0 mt-2 w-96 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50 max-h-96 overflow-y-auto">
+                     class="absolute right-0 mt-2 w-96 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50 max-h-96 overflow-y-auto notification-dropdown-area">
                   <div class="p-4 border-b border-slate-600/30 sticky top-0 bg-slate-800/95 backdrop-blur-sm">
                     <div class="flex items-center justify-between">
                       <h3 class="font-semibold text-slate-200 flex items-center gap-2 text-white">
@@ -192,7 +192,7 @@
 
               <div class="relative">
                 <button (click)="toggleProfileMenu()" 
-                        class="flex items-center gap-2 p-2 rounded-xl transition-all duration-300 hover:bg-slate-700/50 group">
+                        class="flex items-center gap-2 p-2 rounded-xl transition-all duration-300 hover:bg-slate-700/50 group profile-btn-trigger">
                   <ng-container *ngIf="userData?.profileImage; else initialsAvatar">
                     <img
                       [src]="'http://localhost:3000' + userData.profileImage"
@@ -210,7 +210,7 @@
                 </button>
 
                 <div *ngIf="showProfileMenu" 
-                     class="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50 p-2">
+                     class="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur-xl rounded-2xl border border-slate-600/30 shadow-2xl z-50 p-2 profile-dropdown-area">
                   <div class="p-3 border-b border-slate-600/30 mb-2">
                     <p class="font-semibold text-slate-200 truncate">{{ userName || 'Felhasználó' }}</p>
                     <p class="text-xs text-slate-400 truncate">{{ userData?.email || 'user@loophub.com' }}</p>
@@ -218,24 +218,24 @@
                   
                   <button class="dropdown-item" [routerLink]="['/profile']" (click)="showProfileMenu = false">
                     <i class="bi bi-person-circle"></i>
-                    My Profile
+                    Profil
                   </button>
-                  <button class="dropdown-item">
+                  <!-- <button class="dropdown-item">
                     <i class="bi bi-music-note-list"></i>
-                    My Loops
-                  </button>
-                  <button class="dropdown-item">
+                    Loopjaim
+                  </button> -->
+                  <!-- <button class="dropdown-item">
                     <i class="bi bi-chat-text"></i>
-                    My Comments
-                  </button>
+                    Kommentjeim
+                  </button> -->
                   <button class="dropdown-item" [routerLink]="['/favorites']">
                     <i class="bi bi-heart"></i>
-                    Favorites
+                    Kedvencek
                   </button>
-                  <button class="dropdown-item">
+                  <!-- <button class="dropdown-item">
                     <i class="bi bi-gear"></i>
-                    Settings
-                  </button>
+                    Beállítások
+                  </button> -->
                   
                   <div class="border-t border-slate-600/30 mt-2 pt-2">
                     <button *ngIf="isAdmin" 
@@ -243,11 +243,11 @@
                             [routerLink]="['/admin','settings']" 
                             (click)="showProfileMenu = false">
                       <i class="bi bi-sliders"></i>
-                      Admin Settings
+                      Admin beállítások
                     </button>
                     <button class="dropdown-item logout-item" (click)="logout()">
                       <i class="bi bi-box-arrow-right"></i>
-                      Log Out
+                      Kijelentkezés
                     </button>
                   </div>
                 </div>
@@ -300,20 +300,20 @@
     <nav class="p-4 space-y-2">
       <a class="mobile-item" [routerLink]="['/home']" (click)="toggleMenu()">
         <i class="bi bi-house-door"></i>
-        Home
+        Főoldal
       </a>
       <a class="mobile-item" [routerLink]="['/loops']" (click)="toggleMenu()">
         <i class="bi bi-music-note-beamed"></i>
-        Loops
+        Loopok
       </a>
-      <a class="mobile-item">
+      <!-- <a class="mobile-item">
         <i class="bi bi-folder"></i>
         Projects
       </a>
       <a class="mobile-item">
         <i class="bi bi-info-circle"></i>
         About
-      </a>
+      </a> -->
       <a *ngIf="isAdmin"
         class="mobile-item admin-mobile"
         [routerLink]="['/admin','dashboard']"
@@ -326,11 +326,11 @@
     <div *ngIf="!(authService.isLoggedIn$ | async)" class="p-4 border-t border-slate-600/30 space-y-3">
       <button class="btn-primary w-full" [routerLink]="['/login']" (click)="toggleMenu()">
         <i class="bi bi-box-arrow-in-right"></i>
-        Login
+        Bejelentkezés
       </button>
       <button class="btn-secondary w-full" [routerLink]="['/register']" (click)="toggleMenu()">
         <i class="bi bi-person-plus"></i>
-        Sign Up
+        Regisztráció
       </button>
     </div>
   </aside>

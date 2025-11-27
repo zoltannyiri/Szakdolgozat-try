@@ -29,6 +29,7 @@ function makeLoopService() {
     uploadLoop: jest.fn().mockReturnValue(of({ loop: { status: 'approved' } })),
   };
 }
+
 function makeAuthService() {
   return {
     isLoggedIn: jest.fn().mockReturnValue(true),
@@ -36,6 +37,7 @@ function makeAuthService() {
     isUserVerified: jest.fn().mockReturnValue(of(true)),
   };
 }
+
 function makeFavoriteService() {
   return {
     getFavoriteIds: jest.fn().mockReturnValue(of({ success: true, ids: [] as string[] })),
@@ -45,16 +47,28 @@ function makeFavoriteService() {
     checkFavoriteStatus: jest.fn().mockReturnValue(of({ isFavorite: false })),
   };
 }
+
 function makeReportsService() {
   return { reportLoop: jest.fn().mockReturnValue(of({ success: true })) };
 }
+
 function makeHttpClient() {
   return { delete: jest.fn(), patch: jest.fn() };
 }
 
+// waveformService mock – hogy a generateWaveform se dőljön el
+function makeWaveformService() {
+  return {
+    getOrCreate: jest.fn().mockResolvedValue({
+      peaks: [],
+      duration: 0,
+    }),
+  };
+}
+
 describe('LoopsComponent (pure class)', () => {
   let comp: LoopsComponent;
-  let loopSvc: any, authSvc: any, favSvc: any, repSvc: any, http: any;
+  let loopSvc: any, authSvc: any, favSvc: any, repSvc: any, http: any, waveformSvc: any;
 
   beforeEach(() => {
     loopSvc = makeLoopService();
@@ -62,8 +76,10 @@ describe('LoopsComponent (pure class)', () => {
     favSvc = makeFavoriteService();
     repSvc = makeReportsService();
     http = makeHttpClient();
+    waveformSvc = makeWaveformService();
 
-    comp = new LoopsComponent(loopSvc, authSvc, {} as any, favSvc, repSvc, http);
+    // FONTOS: a 3. paraméter a waveformService
+    comp = new LoopsComponent(loopSvc, authSvc, waveformSvc, favSvc, repSvc, http);
     comp.ngOnInit();
   });
 
@@ -141,51 +157,51 @@ describe('LoopsComponent (pure class)', () => {
   });
 
   it('downloadLoop: NO_CREDITS hiba esetén alertet jelez', async () => {
-  const err: any = {
-    status: 402,
-    // blob helyett olyan objektum, amin van text()
-    error: { 
-      text: () => Promise.resolve(JSON.stringify({ code: 'NO_CREDITS' }))
-    }
-  };
-  loopSvc.downloadLoop.mockReturnValueOnce(throwError(() => err));
+    const err: any = {
+      status: 402,
+      // blob helyett olyan objektum, amin van text()
+      error: {
+        text: () => Promise.resolve(JSON.stringify({ code: 'NO_CREDITS' }))
+      }
+    };
+    loopSvc.downloadLoop.mockReturnValueOnce(throwError(() => err));
 
-  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
-  await comp.downloadLoop(mockPaged.items[0] as any);
+    await comp.downloadLoop(mockPaged.items[0] as any);
 
-  // várunk, hogy a Promise kifusson
-  await new Promise(res => setTimeout(res, 0));
+    // várunk, hogy a Promise kifusson
+    await new Promise(res => setTimeout(res, 0));
 
-  expect(alertSpy).toHaveBeenCalled();
-  alertSpy.mockRestore();
+    expect(alertSpy).toHaveBeenCalled();
+    alertSpy.mockRestore();
+  });
+
 });
 
 
-});
-
-
-
+// Az Angular-féle TestBed-es boilerplate meghagyható kommentben,
+// de a pure class unit teszt miatt nincs rá szükség a futtatáshoz.
 
 // import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+//
 // import { LoopsComponent } from './loops.component';
-
+//
 // describe('LoopsComponent', () => {
 //   let component: LoopsComponent;
 //   let fixture: ComponentFixture<LoopsComponent>;
-
+//
 //   beforeEach(async () => {
 //     await TestBed.configureTestingModule({
 //       imports: [LoopsComponent]
 //     })
 //     .compileComponents();
-
+//
 //     fixture = TestBed.createComponent(LoopsComponent);
 //     component = fixture.componentInstance;
 //     fixture.detectChanges();
 //   });
-
+//
 //   it('should create', () => {
 //     expect(component).toBeTruthy();
 //   });

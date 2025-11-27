@@ -63,16 +63,16 @@ ngOnInit(): void {
   this.route.queryParams.subscribe(params => {
     this.receiverId = params['userId'];
 
-    this.http.get(`${environment.apiUrl}/api/users/${this.receiverId}/public`, {
-      headers: { Authorization: `Bearer ${this.auth.getToken()}` }
-    }).subscribe((u: any) => {
-      this.userCache[this.receiverId] = {
-        username: u?.username || '',
-        profileImage: u?.profileImage,
-        lastActive: this.asDate(u?.lastActive)
-      };
-    }, () => {
-    });
+    // this.http.get(`${environment.apiUrl}/api/users/${this.receiverId}/public`, {
+    //   headers: { Authorization: `Bearer ${this.auth.getToken()}` }
+    // }).subscribe((u: any) => {
+    //   this.userCache[this.receiverId] = {
+    //     username: u?.username || '',
+    //     profileImage: u?.profileImage,
+    //     lastActive: this.asDate(u?.lastActive)
+    //   };
+    // }, () => {
+    // });
 
     this.connectSocket();
     this.loadMessages();
@@ -91,6 +91,7 @@ ngOnInit(): void {
     this.socket.on('receiveMessage', (message: any) => {
       if (message.senderId === this.receiverId || message.receiverId === this.receiverId) {
         if (!message.timestamp) message.timestamp = new Date();
+        message.timestamp = message.timestamp ? new Date(message.timestamp) : new Date();
         this.messages.push(message);
         this.scrollToBottom();
 
@@ -183,6 +184,55 @@ ngOnInit(): void {
     const atBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 50;
     this.showScrollButton = !atBottom;
   }
+
+  private readonly ONLINE_WINDOW_MS = 10 * 60 * 1000; // 10 perc
+  isPartnerOnline(): boolean {
+    const partner = this.userCache[this.receiverId];
+    if (!partner || !partner.lastActive) return false;
+
+    const d = this.asDate(partner.lastActive);
+    if (!d) return false;
+
+    return Date.now() - d.getTime() <= this.ONLINE_WINDOW_MS;
+  }
+
+
+  isSameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() &&
+         a.getMonth() === b.getMonth() &&
+         a.getDate() === b.getDate();
+}
+
+isToday(d: Date): boolean {
+  const today = new Date();
+  return this.isSameDay(d, today);
+}
+
+isYesterday(d: Date): boolean {
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  return this.isSameDay(d, y);
+}
+
+shouldShowDateDivider(index: number): boolean {
+  if (!this.messages || this.messages.length === 0) return false;
+  if (index === 0) return true;
+  const cur = this.messages[index].timestamp as Date;
+  const prev = this.messages[index - 1].timestamp as Date;
+  return !this.isSameDay(cur, prev);
+}
+
+getDateLabelFor(index: number): string {
+  const d = this.messages[index].timestamp as Date;
+  if (this.isToday(d)) return 'Ma';
+  if (this.isYesterday(d)) return 'Tegnap';
+  return d.toLocaleDateString('hu-HU', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
 
 
 }

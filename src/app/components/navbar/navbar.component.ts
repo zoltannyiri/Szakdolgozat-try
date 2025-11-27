@@ -206,6 +206,30 @@ export class NavbarComponent {
   }
 
   @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+
+    // 1. Sidebar (Mobil menü) bezárása
+    // Javítva: 'menuOpen' változót használunk az 'isSidebarOpen' helyett
+    if (this.menuOpen && !target.closest('aside') && !target.closest('.icon-btn[aria-label="Open menu"]')) {
+      this.menuOpen = false;
+    }
+
+    // 2. Chat Dropdown bezárása
+    if (this.showChatDropdown && !target.closest('.chat-dropdown-area') && !target.closest('.chat-btn-trigger')) {
+      this.showChatDropdown = false;
+    }
+
+    // 3. Notification Dropdown bezárása
+    if (this.showNotifications && !target.closest('.notification-dropdown-area') && !target.closest('.notification-btn-trigger')) {
+      this.showNotifications = false;
+    }
+
+    // 4. Profil menü bezárása
+    if (this.showProfileMenu && !target.closest('.profile-dropdown-area') && !target.closest('.profile-btn-trigger')) {
+      this.showProfileMenu = false;
+    }
+  }
   closeSidebar(event: Event) {
     const target = event.target as HTMLElement;
     if (!target.closest('.sidebar') && !target.closest('.menu-button')) {
@@ -293,16 +317,39 @@ export class NavbarComponent {
   handleNotificationClick(notification: any) {
     if (!notification.read) {
       this.notificationService.markAsRead(notification._id).subscribe();
+      notification.read = true;
+      this.unreadNotificationsCount = Math.max(0, this.unreadNotificationsCount - 1);
     }
-
-    // navigáció
-    if (notification.type === 'comment' || notification.type === 'download') {
-      this.router.navigate(['/loop-detail', notification.relatedItemId]).catch(err => {
-        console.error('Navigációs hiba:', err);
-      });
-    }
-
     this.showNotifications = false;
+    switch (notification.type) {
+      case 'comment':
+      case 'download':
+      case 'like':
+      case 'loop_approved':
+      case 'loop_rejected':
+      case 'loop_edited': 
+        if (notification.relatedItemId) {
+          this.router.navigate(['/loop-detail', notification.relatedItemId]).catch(err => {
+            console.error('Navigációs hiba (Loop):', err);
+          });
+        } else {
+          console.warn('Hiányzó relatedItemId a loop értesítésnél');
+        }
+        break;
+      case 'follow':
+        if (notification.user && notification.user.username) {
+          this.router.navigate(['/profile', notification.user.username]).catch(err => {
+            console.error('Navigációs hiba (Profil):', err);
+          });
+        } else {
+          console.warn('Hiányzó user adat a follow értesítésnél');
+        }
+        break;
+
+      default:
+        console.warn('Ismeretlen értesítés típus:', notification.type);
+        break;
+    }
   }
 
   //chat

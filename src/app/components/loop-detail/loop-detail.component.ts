@@ -48,11 +48,23 @@ export class LoopDetailComponent implements OnInit {
 
 
   isPlaying = false;
-  progress = 0;
+  // progress = 0;
   currentTime = 0;
   duration = 0;
   volume = 0.7;
   waveform: number[] = [];
+
+  get progress(): number {
+    if (!this.duration) return 0;
+    const value = (this.currentTime / this.duration) * 100;
+    return Math.max(0, Math.min(100, value));
+  }
+
+  get playedBars(): number {
+    if (!this.waveform?.length || !this.duration) return 0;
+    const ratio = this.currentTime / this.duration;
+    return Math.floor(ratio * this.waveform.length);
+  }
 
 
   isLoopReportOpen = false;
@@ -344,7 +356,7 @@ export class LoopDetailComponent implements OnInit {
     const audio = this.audioPlayer.nativeElement;
     this.currentTime = audio.currentTime;
     this.duration = audio.duration || 0;
-    this.progress = (this.currentTime / this.duration) * 100 || 0;
+    // this.progress = (this.currentTime / this.duration) * 100 || 0;
   }
 
   seekAudio(event: MouseEvent, isWaveform: boolean): void {
@@ -360,7 +372,7 @@ export class LoopDetailComponent implements OnInit {
     audio.currentTime = newTime;
     
     this.currentTime = newTime;
-    this.progress = percentClicked;
+    // this.progress = percentClicked;
   }
 
   setVolume(): void {
@@ -482,6 +494,11 @@ async generateWaveform(): Promise<void> {
 
   this.waveform = await this.waveformService.getOrCreate(this.loop._id, audioUrl);
 }
+
+// get playedBars(): number {
+//   if (!this.waveform?.length) return 0;
+//   return Math.floor((this.progress / 100) * this.waveform.length);
+// }
 
 
 

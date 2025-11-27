@@ -31,11 +31,32 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30">
-        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-        <span class="text-xs text-emerald-300 font-medium">Online</span>
+      <div
+        class="flex items-center gap-2 px-3 py-1 rounded-full border"
+        [ngClass]="
+          isPartnerOnline()
+            ? 'bg-emerald-500/20 border-emerald-400/30'
+            : 'bg-slate-700/60 border-slate-500/40'
+        "
+      >
+        <div
+          class="w-2 h-2 rounded-full"
+          [ngClass]="isPartnerOnline() ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'"
+        ></div>
+        <span
+          class="text-xs font-medium"
+          [ngClass]="isPartnerOnline() ? 'text-emerald-300' : 'text-slate-300'"
+        >
+          {{ isPartnerOnline() ? 'Online' : 'Offline' }}
+        </span>
+        
       </div>
+      <!-- <p class="text-xs text-slate-400" *ngIf="userCache[receiverId]?.lastActive">
+          Utoljára aktív:
+          {{ userCache[receiverId].lastActive | date:'HH:mm, MMM d' }}
+        </p> -->
     </div>
+    
 
 
     <div class="flex-1 rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/60 to-slate-900/60 backdrop-blur-sm shadow-xl overflow-hidden flex flex-col">
@@ -44,16 +65,21 @@
            class="flex-1 overflow-y-auto px-6 py-4 space-y-4 custom-scrollbar"
            (scroll)="handleScroll($event)">
 
-        <div class="text-center my-6">
+        <!-- <div class="text-center my-6">
           <span class="text-xs text-slate-500 bg-slate-800/50 px-3 py-1 rounded-full backdrop-blur-sm">Ma</span>
-        </div>
+        </div> -->
 
-        <div *ngFor="let message of messages; let i = index"
-             class="flex"
-             [ngClass]="{
-               'justify-end': message.senderId === currentUserId,
-               'justify-start': message.senderId !== currentUserId
-             }">
+         <div *ngFor="let message of messages; let i = index" class="space-y-2">
+          <div *ngIf="shouldShowDateDivider(i)" class="text-center my-4">
+            <span class="text-xs text-slate-500 bg-slate-800/50 px-3 py-1 rounded-full backdrop-blur-sm">
+              {{ getDateLabelFor(i) }}
+            </span>
+          </div>
+          <div class="flex"
+            [ngClass]="{
+              'justify-end': message.senderId === currentUserId,
+              'justify-start': message.senderId !== currentUserId
+            }">
 
           <div *ngIf="message.senderId !== currentUserId" class="flex items-start gap-3 max-w-[80%]">
 

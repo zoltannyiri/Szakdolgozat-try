@@ -113,3 +113,53 @@ export const deleteCommentAdmin = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Szerver hiba' });
   }
 };
+
+
+export const getAllCommentsAdmin = async (req: Request, res: Response) => {
+  try {
+    const comments = await Comment.find()
+      .populate('user', 'username profileImage role')
+      .populate('loop', 'filename uploader bpm instrument')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({
+      success: true,
+      comments
+    });
+  } catch (error) {
+    console.error('Admin kommentek betöltési hiba:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Szerver hiba a kommentek betöltésekor'
+    });
+  }
+};
+
+// Egy komment részleteinek lekérése
+export const getCommentDetailsAdmin = async (req: Request, res: Response) => {
+  try {
+    const comment = await Comment.findById(req.params.id)
+      .populate('user', 'username profileImage role')
+      .populate('loop', 'filename uploader bpm instrument key scale duration')
+      .lean();
+
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Komment nem található'
+      });
+    }
+
+    res.json({
+      success: true,
+      comment
+    });
+  } catch (error) {
+    console.error('Admin komment részletek betöltési hiba:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Szerver hiba a komment részletek betöltésekor'
+    });
+  }
+};

@@ -113,13 +113,15 @@ export const uploadLoop = async (req: CustomRequest, res: Response) => {
 
     // meta
     const metadata = JSON.parse(req.body.metadata);
-    const { bpm, key, scale, tags, instrument } = metadata;
+    const { bpm, key, scale, tags, instrument, customName: metaCustomName } = metadata;
 
     const uploader = req.user.userId;
     const original = req.file.originalname;
     const ext = (original.match(/\.[^.]+$/)?.[0] || '').toLowerCase();
-    const customName = req.body.customName?.trim();
-    const displayName = customName ? `${customName}${ext}` : original;
+    const baseName  = original.replace(/\.[^.]+$/, "");
+    const customName = (metaCustomName ?? "").toString().trim();
+    const displayName = customName || baseName;
+
 
     // 1) hossz bufferből
     let duration = 0;
@@ -268,29 +270,37 @@ export const uploadLoop = async (req: CustomRequest, res: Response) => {
 
 //módosítva: 2025. 04. 27
 export const downloadLoop = [
-  // authenticateToken,
-  // // checkVerified,
-  // checkVerifiedOrBanned,
-  // requireDownloadCredit,
   async (req: CustomRequest, res: Response) => {
     try {
       const { id } = req.params;
+      const currentUserId = req.user?.userId; // A letöltő ID-ja
+
       const loop = await Loop.findById(id);
       if (!loop) {
         return res.status(404).json({ success: false, message: "Loop not found" });
       }
 
-      // Letöltésszámláló
+      // Letöltésszámláló növelése (ez mindenképp megtörténik)
       await Loop.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
 
-      const cfg = await getCreditConfig();
-      const reward = Math.max(0, cfg.rewardPerDownloadToUploader || 0);
-      if (reward > 0 && loop.uploader) {
-        await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: reward } }).exec();
+      // --- JUTALOM LOGIKA MÓDOSÍTÁSA ---
+      
+      // Ellenőrizzük, hogy a letöltő NEM a tulajdonos
+      const isOwner = currentUserId && loop.uploader.toString() === currentUserId;
+
+      // Csak akkor adunk kreditet, ha NEM a sajátját tölti le
+      if (!isOwner) {
+          const cfg = await getCreditConfig();
+          const reward = Math.max(0, cfg.rewardPerDownloadToUploader || 0);
+          
+          if (reward > 0 && loop.uploader) {
+            await User.findByIdAndUpdate(loop.uploader, { $inc: { credits: reward } }).exec();
+          }
       }
       
+      // --- FÁJL KÜLDÉSE (változatlan) ---
+
       if (/^https?:\/\//i.test(loop.path)) {
-        
         return res.redirect(loop.path);
       }
 
@@ -349,14 +359,28 @@ export const getLoops = async (req: Request, res: Response) => {
 
     console.log('Filter object:', filter); 
 
-    const loops = await Loop.find(filter)
-      .populate("uploader", "username")
-      .sort({ uploadDate: -1 });
+    let sort: any;
+    switch (sortBy) {
+      case 'downloads':
+        sort = { downloads: -1, uploadDate: -1 };
+        break;
+      case 'likes':
+        sort = { likes: -1, uploadDate: -1 };
+        break;
+      case 'recent':
+      default:
+        sort = { uploadDate: -1 };
+        break;
+    }
+
+    // const loops = await Loop.find(filter)
+    //   .populate("uploader", "username")
+    //   .sort({ uploadDate: -1 });
 
       const [items, total] = await Promise.all([
       Loop.find(filter)
         .populate("uploader", "username")
-        .sort({ uploadDate: -1 })
+        .sort(sort)
         .skip(skip)
         .limit(limit)
         .lean(),
@@ -377,7 +401,7 @@ export const getLoopById = async (req: Request, res: Response) => {
       .exec();
     
     if (!loop) {
-      return res.status(404).json({ message: "Loop not found" });
+      return res.status(404).json({ message: "A loop nem található" });
     }
 
     res.json(loop);
@@ -532,7 +556,8 @@ export const updateLoopAdmin = async (req: CustomRequest, res: Response) => {
           userId: loop.uploader,
           user: actorId || undefined,
           type: 'loop_edited',
-          message: `Az admin módosította a(z) “${loop.filename}” loop adatait (mezők: ${changedFields.join(', ')}).`,
+          // message: `Az admin módosította a(z) “${loop.filename}” loop adatait (mezők: ${changedFields.join(', ')}).`,
+          message: `Az admin módosította a(z) “${loop.filename}” loop adatait.`,
           relatedItemId: loop._id
         });
       } catch (err) {

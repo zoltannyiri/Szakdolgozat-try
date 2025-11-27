@@ -266,4 +266,38 @@ toggleDropdown(userId: string) {
   this.openDropdownFor = this.openDropdownFor === userId ? null : userId;
 }
 
+toggleRole(user: any) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    this.showToast('Nincs érvényes token (jelentkezz be újra)', 'error');
+    return;
+  }
+
+  const newRole = user.role === 'admin' ? 'user' : 'admin';
+
+  this.http.patch(
+    `${environment.apiUrl}/api/admin/users/${user._id}/role`,
+    { role: newRole },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  ).subscribe({
+    next: () => {
+      this.showToast(
+        newRole === 'admin'
+          ? `${user.username} mostantól admin`
+          : `${user.username} admin jogai visszavonva`,
+        'success'
+      );
+      this.loadUsers();
+    },
+    error: (err) => {
+      console.error('Role módosítás hiba:', err);
+      this.showToast('Hiba a szerepkör módosításakor', 'error');
+    }
+  });
+}
+
 }

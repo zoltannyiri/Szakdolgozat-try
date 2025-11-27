@@ -95,7 +95,7 @@ export const changeEmail: RequestHandler = async (req, res) => {
 
     // try { await sendVerificationEmail(newEmail, dbUser.verificationToken!); } catch {}
 
-    return res.json({ success: true, message: "Email updated. Please verify your new email." });
+    return res.json({ success: true, message: "Email sikeresen megváltoztatva. Kérjük, erősítsd meg az új e-mail címedet." });
   } catch (error) {
     console.error("Change email error:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -120,12 +120,12 @@ export const changePassword: RequestHandler = async (req, res) => {
     }
 
     const match = await bcrypt.compare(currentPassword, dbUser.password);
-    if (!match) return res.status(400).json({ success: false, message: "Current password is incorrect" });
+    if (!match) return res.status(400).json({ success: false, message: "A jelenlegi jelszó helytelen" });
 
     dbUser.password = await bcrypt.hash(newPassword, 10);
     await dbUser.save();
 
-    return res.json({ success: true, message: "Password changed successfully" });
+    return res.json({ success: true, message: "Jelszó sikeresen megváltoztatva" });
   } catch (error) {
     console.error("Change password error:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -143,7 +143,7 @@ export const changeUsername: RequestHandler = async (req, res) => {
     const re = /^[a-zA-Z0-9_]{3,20}$/;
     if (!raw) return res.status(400).json({ message: "Adj meg egy új nicknevet" });
     if (!re.test(raw)) {
-      return res.status(400).json({ message: "3–20 karakter, csak betű/szám/_ engedélyezett" });
+      return res.status(400).json({ message: "3-20 karakter, csak betű/szám/_ engedélyezett" });
     }
 
     
@@ -164,6 +164,30 @@ export const changeUsername: RequestHandler = async (req, res) => {
   } catch (err) {
     console.error("changeUsername error:", err);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getPublicUserById: RequestHandler = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const u = await User.findById(userId)
+      .select("username profileImage lastLogin")
+      .lean();
+
+    if (!u) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({
+      _id: u._id,
+      username: u.username,
+      profileImage: u.profileImage || null,
+      lastActive: u.lastLogin || null
+    });
+  } catch (error) {
+    console.error("getPublicUserById error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -201,7 +225,7 @@ export async function updateSocials(req: Request, res: Response) {
     }
 
     const user = await User.findByIdAndUpdate(uid, { $set: updates }, { new: true })
-      .select("-password"); // opcionális, hogy ne küldd vissza
+      .select("-password");
 
     if (!user) return res.status(404).json({ message: "User not found" });
     return res.json({ success: true, user });

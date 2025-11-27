@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import User from '../models/user.model';
+import Loop from '../models/loop.model';
 import { CustomRequest } from './auth.middleware';
 import { getCreditConfig } from '../utils/creditConfig';
 
@@ -7,7 +8,12 @@ export async function requireDownloadCredit(req: CustomRequest, res: Response, n
     try {
         const uid = req.user?.userId;
         if (!uid) return res.status(401).json({ success: false, message: 'Not authenticated' });
-
+        const loopId = req.params.id;
+        if (!uid) return res.status(401).json({ success: false, message: 'Not authenticated' });
+        const loop = await Loop.findById(loopId).select('uploader');
+        if (loop && loop.uploader.toString() === uid) {
+            return next();
+        }
 
         const cfg = await getCreditConfig();
         const cost = Math.max(0, cfg.downloadCost || 0);

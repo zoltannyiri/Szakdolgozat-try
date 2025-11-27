@@ -12,7 +12,7 @@ router.post("/login", async (req: Request, res: Response) => {
         const user = await User.findOne({ username });
 
         if (!user) {
-            return res.status(400).json({ message: "Invalid login credentials" });
+            return res.status(400).json({ message: "Hibás felhasználónév vagy jelszó" });
         }
 
         // jelszavas fiókok
@@ -31,7 +31,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Invalid login credentials" });
+            return res.status(400).json({ message: "Hibás felhasználónév vagy jelszó" });
         }
 
         await User.updateOne({ _id: user._id }, { lastLogin: new Date() });

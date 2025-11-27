@@ -65,10 +65,24 @@ export const upload = multer({
 export const loopMetadataSchema = yup.object().shape({
     bpm: yup.number().required().positive().integer().min(30).max(600),
     key: yup.string().required(),
-    scale: yup.string().required().oneOf(["major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"]),
+    scale: yup.string().required().oneOf(["Drums",
+    "Percussion",
+    "Bass",
+    "Bass Guitar",
+    "Bass Synth",
+    "Guitar Acoustic",
+    "Guitar Electric",
+    "Piano",
+    "Pad",
+    "Synth",
+    "Strings",
+    "Vocal",
+    "FX",
+    "Arpeggio",
+    "Bells"]),
     tags: yup.array().of(yup.string()),
     instrument: yup.string().required(),
-    customName: yup.string().optional().max(100) // Opcionális, max 100 karakteres név
+    customName: yup.string().optional().max(100)
   });
 
 //   export const validateLoopMetadata = async (req: Request, res: Response, next: NextFunction) => {

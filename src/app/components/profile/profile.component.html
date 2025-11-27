@@ -22,7 +22,7 @@
             <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-300">
               <span class="inline-flex items-center gap-2 rounded-lg bg-slate-700/40 px-3 py-1.5 backdrop-blur-sm">
                 <i class="bi bi-geo-alt text-amber-400"></i>
-                {{ userData?.city || '—' }}, {{ userData?.country || '—' }}
+                {{ userData?.country || '—' }}
               </span>
 
               <span class="inline-flex items-center gap-2 rounded-lg bg-slate-700/40 px-3 py-1.5 backdrop-blur-sm">
@@ -186,7 +186,7 @@
 
             <div *ngIf="!isEditing; else aboutEdit"
                  class="whitespace-pre-wrap text-sm text-slate-300 min-h-[4rem] bg-slate-700/40 rounded-lg p-4 backdrop-blur-sm">
-              {{ aboutMe || 'No information provided yet.' }}
+              {{ aboutMe || 'Nincsenek még adatok...' }}
             </div>
 
             <ng-template #aboutEdit>
@@ -273,7 +273,7 @@
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
               <h3 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{{ userData?.username }} loopjai</h3>
-              <p class="text-sm text-slate-300 mt-1">Loopok gyűjteménye</p>
+              <!-- <p class="text-sm text-slate-300 mt-1">Loopok gyűjteménye</p> -->
             </div>
 
             <div class="flex items-center gap-3">
@@ -313,12 +313,12 @@
             <div class="w-20 h-20 rounded-full bg-slate-700/40 flex items-center justify-center mb-4 backdrop-blur-sm">
               <i class="bi bi-music-note-beamed text-4xl text-slate-400"></i>
             </div>
-            <h4 class="text-lg font-semibold text-slate-200 mb-2">No loops yet</h4>
-            <p class="text-sm text-slate-300 max-w-md mb-6">Start building your collection by uploading your first loop</p>
+            <h4 class="text-lg font-semibold text-slate-200 mb-2">Nincsenek még loopok</h4>
+            <!-- <p class="text-sm text-slate-300 max-w-md mb-6">Start building your collection by uploading your first loop</p> -->
             <button *ngIf="isCurrentUser"
                     class="rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-5 py-2.5 font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
                     (click)="uploadNewLoop()">
-              <i class="bi bi-cloud-upload mr-2"></i>Upload First Loop
+              <i class="bi bi-cloud-upload mr-2"></i>Első loop feltöltése
             </button>
           </div>
 
@@ -363,7 +363,7 @@
                   </button>
 
                   <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-xs text-slate-200 px-2 py-1 rounded-full">
-                    {{ formatDuration(loop.duration) || 'Unknown' }}
+                    {{ formatDuration(loop.duration) || 'Ismeretlen' }}
                   </div>
                 </div>
 
@@ -452,40 +452,37 @@
           <p class="text-sm text-slate-300">No tracks yet.</p>
         </div>
 
-        <div *ngIf="activeMainTab==='comments'" class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-6 shadow-xl backdrop-blur-sm">
+       <div *ngIf="activeMainTab==='comments'" class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-6 shadow-xl backdrop-blur-sm">
 
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
                 {{ userData?.username }} kommentjei
               </h3>
-              <p class="text-sm text-slate-300 mt-1">Loopok alatti kommentjeid</p>
+              <!-- <p class="text-sm text-slate-300 mt-1">Loopok alatti kommentjeid</p> -->
             </div>
             <div class="text-sm text-slate-400">
-              Összesen: <span class="text-slate-200 font-semibold">{{ userComments.length }}</span>
+              Összesen: <span class="text-slate-200 font-semibold">{{ allUserComments.length }}</span>
             </div>
           </div>
 
-          <!-- Loading -->
           <div *ngIf="commentsLoading" class="flex flex-col items-center justify-center py-12 text-slate-400">
             <i class="bi bi-arrow-repeat animate-spin text-4xl mb-3"></i>
             <p>Kommentek betöltése...</p>
           </div>
 
-          <!-- Empty -->
-          <div *ngIf="!commentsLoading && userComments.length === 0"
-              class="flex flex-col items-center justify-center py-12 text-center">
+          <div *ngIf="!commentsLoading && allUserComments.length === 0"
+               class="flex flex-col items-center justify-center py-12 text-center">
             <div class="w-20 h-20 rounded-full bg-slate-700/40 flex items-center justify-center mb-4 backdrop-blur-sm">
               <i class="bi bi-chat-dots text-4xl text-slate-400"></i>
             </div>
             <h4 class="text-lg font-semibold text-slate-200 mb-2">Nincsenek még kommentek</h4>
-            <p class="text-sm text-slate-300 max-w-md">Kommentelj valahová</p>
+            <!-- <p class="text-sm text-slate-300 max-w-md">Kommentelj valahová</p> -->
           </div>
 
-          <!-- List -->
           <div *ngIf="!commentsLoading && userComments.length" class="space-y-4">
             <div *ngFor="let c of userComments"
-                class="group rounded-xl border border-slate-600/30 bg-gradient-to-b from-slate-700/40 to-slate-800/40 p-4 hover:bg-slate-700/60 transition-all duration-300 backdrop-blur-sm">
+                 class="group rounded-xl border border-slate-600/30 bg-gradient-to-b from-slate-700/40 to-slate-800/40 p-4 hover:bg-slate-700/60 transition-all duration-300 backdrop-blur-sm">
 
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
@@ -512,12 +509,36 @@
                 </div>
 
                 <a [routerLink]="['/loop-detail/', c?.loop?._id]"
-                  class="shrink-0 rounded-lg bg-slate-600/50 px-3 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
+                   class="shrink-0 rounded-lg bg-slate-600/50 px-3 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
                   Megtekintés
                 </a>
               </div>
             </div>
-          </div>
+
+            <div *ngIf="allUserComments.length > commentsPageSize" class="flex justify-center mt-6 pt-2 border-t border-slate-600/30">
+              <div class="flex items-center gap-1 bg-slate-700/40 rounded-lg p-1 backdrop-blur-sm">
+                
+                <button (click)="prevCommentsPage()" 
+                        [disabled]="commentsPage === 1"
+                        class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-slate-600/50 transition-colors disabled:opacity-30 disabled:hover:bg-transparent">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <button *ngFor="let p of commentsPageNumbers"
+                        (click)="goToCommentsPage(p)"
+                        class="w-8 h-8 flex items-center justify-center rounded-md transition-colors text-sm font-medium"
+                        [ngClass]="commentsPage === p ? 'bg-amber-600 text-white shadow-lg shadow-amber-900/20' : 'text-slate-300 hover:bg-slate-600/50'">
+                  {{ p }}
+                </button>
+
+                <button (click)="nextCommentsPage()"
+                        [disabled]="commentsPage === commentsTotalPages"
+                        class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-slate-600/50 transition-colors disabled:opacity-30 disabled:hover:bg-transparent">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+            </div>
         </div>
 
       </div>
@@ -558,27 +579,37 @@
 
         <!-- Quick info -->
         <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-5 shadow-xl backdrop-blur-sm">
-          <h4 class="mb-3 text-sm font-semibold text-amber-400">Információk</h4>
-          <ul class="space-y-3 text-sm text-slate-300">
-            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-700/40 backdrop-blur-sm">
-              <div class="w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center">
-                <i class="bi bi-at text-sm"></i>
+          
+          <h4 class="mb-4 text-sm font-semibold text-amber-400">Információk</h4>
+          
+          <div class="space-y-3 text-sm text-slate-300">
+
+            <div class="w-full flex items-center gap-3 rounded-xl bg-slate-700/40 p-3 shadow-sm backdrop-blur-sm">
+              <div class="shrink-0 w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center shadow-md">
+                <i class="bi bi-at text-white"></i>
               </div>
-              <span class="truncate">{{ userData?.username || '—' }}</span>
-            </li>
-            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-700/40 backdrop-blur-sm">
-              <div class="w-8 h-8 rounded-full bg-orange-600 flex items-center justify-center">
-                <i class="bi bi-geo-alt-fill text-sm"></i>
+              <span class="truncate font-medium">{{ userData?.username || '—' }}</span>
+            </div>
+
+            <div class="w-full flex items-center gap-3 rounded-xl bg-slate-700/40 p-3 shadow-sm backdrop-blur-sm">
+              <div class="shrink-0 w-8 h-8 rounded-full bg-orange-600 flex items-center justify-center shadow-md">
+                <i class="bi bi-geo-alt-fill text-white"></i>
               </div>
-              <span class="truncate">{{ userData?.city || '—' }}, {{ userData?.country || '—' }}</span>
-            </li>
-            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-700/40 backdrop-blur-sm">
-              <div class="w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center">
-                <i class="bi bi-envelope-fill text-sm"></i>
+              <span class="truncate font-medium">
+                {{ userData?.city ? userData.city + ', ' : '' }}{{ userData?.country || '—' }}
+              </span>
+            </div>
+
+            <div class="w-full flex items-center gap-3 rounded-xl bg-slate-700/40 p-3 shadow-sm backdrop-blur-sm">
+              <div class="shrink-0 w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center shadow-md">
+                <i class="bi bi-envelope-fill text-white"></i>
               </div>
-              <span class="truncate">{{ userData?.email || '—' }}</span>
-            </li>
-          </ul>
+              <span class="truncate font-medium" [title]="userData?.email">
+                {{ userData?.email || '—' }}
+              </span>
+            </div>
+
+          </div>
         </div>
 
         <!-- Action buttons -->
@@ -745,207 +776,206 @@
 
   <!-- SETTINGS MODAL -->
   <div *ngIf="isSettingsOpen"
-     class="fixed inset-0 z-[70] grid place-items-center bg-black/70 p-4 backdrop-blur-sm"
-     (click)="closeSettings($event)">
-  <div class="w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border border-slate-700/50 bg-gradient-to-b from-[#1a1d2b] to-[#1e2130] shadow-xl"
-     (click)="$event.stopPropagation()">
-      <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
-        <h3 class="text-lg font-semibold !text-amber-400"><i class="bi bi-gear-wide-connected mr-2 "></i> Beállítások</h3>
-        <button (click)="isSettingsOpen=false" class="rounded p-2 hover:bg-slate-800">
-          <i class="bi bi-x-lg !text-amber-400"></i>
+       class="fixed inset-0 z-[70] grid place-items-center bg-black/80 p-4 backdrop-blur-md transition-opacity duration-300"
+       (click)="closeSettings($event)">
+    
+    <div class="w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl border border-slate-700/50 bg-[#0f172a] shadow-2xl ring-1 ring-white/10"
+         (click)="$event.stopPropagation()">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900/50 px-6 py-5">
+        <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+          <i class="bi bi-gear-wide-connected text-amber-500"></i> Beállítások
+        </h3>
+        <button (click)="isSettingsOpen=false" 
+                class="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+          <i class="bi bi-x-lg text-lg"></i>
         </button>
       </div>
 
-      <div class="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
-        <!-- side nav -->
-        <aside class="col-span-12 border-r border-slate-800 bg-slate-925/50 p-4 sm:col-span-4">
-          <nav class="space-y-2">
+      <div class="flex flex-col sm:flex-row flex-1 min-h-0 overflow-hidden">
+        
+        <aside class="w-full sm:w-64 border-b sm:border-b-0 sm:border-r border-slate-800 bg-slate-900/30 p-4 shrink-0 overflow-y-auto">
+          <nav class="space-y-1">
             <button (click)="settingsTab='profile'"
-                    class="w-full rounded-lg px-3 py-2 text-left text-sm"
-                    [ngClass]="settingsTab==='profile' ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800/60'">
-              <i class="bi bi-person-badge mr-2"></i> Profil
+                    class="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200"
+                    [ngClass]="settingsTab==='profile' 
+                      ? 'bg-gradient-to-r from-amber-600/20 to-orange-600/20 text-amber-400 border border-amber-500/10' 
+                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'">
+              <i class="bi bi-person-badge text-lg"></i> Profil
             </button>
             <button (click)="settingsTab='account'"
-                    class="w-full rounded-lg px-3 py-2 text-left text-sm"
-                    [ngClass]="settingsTab==='account' ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800/60'">
-              <i class="bi bi-shield-lock mr-2"></i> Fiók
+                    class="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200"
+                    [ngClass]="settingsTab==='account' 
+                      ? 'bg-gradient-to-r from-amber-600/20 to-orange-600/20 text-amber-400 border border-amber-500/10' 
+                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'">
+              <i class="bi bi-shield-lock text-lg"></i> Fiók biztonság
             </button>
           </nav>
         </aside>
 
-        <!-- content -->
-        <div class="col-span-12 p-6 sm:col-span-8 overflow-y-auto min-h-0 [webkit-overflow-scrolling:touch]">
+        <div class="flex-1 overflow-y-auto p-6 sm:p-8 bg-slate-950/30">
 
-          <!-- PROFILE TAB -->
-          <div *ngIf="settingsTab==='profile'" class="space-y-6">
-            <!-- Nicknév -->
-            <div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-              <h4 class="mb-3 text-sm font-semibold !text-amber-400">
-                <i class="bi bi-at mr-1 !text-amber-400"></i> Nicknév módosítása
-              </h4>
-              <div class="flex flex-col gap-3 sm:flex-row">
-                <input [(ngModel)]="usernameForm.newUsername"
-                       class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40"
-                       placeholder="Új nicknév (3–20, csak betű/szám/_)"
-                       maxlength="20" />
-                <button (click)="changeUsername()"
-                        [disabled]="savingUsername || !usernameForm.newUsername.trim()"
-                        class="shrink-0 rounded-lg bg-fuchsia-600 px-4 py-2 text-white hover:bg-fuchsia-500 disabled:opacity-60">
-                  {{ savingUsername ? 'Mentés…' : 'Mentés' }}
-                </button>
-              </div>
-              <p *ngIf="msgUsername" class="mt-2 text-sm text-emerald-300">{{ msgUsername }}</p>
-              <p *ngIf="errUsername" class="mt-2 text-sm text-rose-300">{{ errUsername }}</p>
-            </div>
-
-            <!-- Általános adatok -->
-            <div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-              <h4 class="mb-3 text-sm font-semibold !text-amber-400">
-                <i class="bi bi-person-lines-fill mr-1 text-amber-400"></i> Általános adatok
-              </h4>
-              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <input [(ngModel)]="editForm.firstName" class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-400/40" placeholder="Keresztnév" />
-                <input [(ngModel)]="editForm.lastName"  class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-400/40" placeholder="Vezetéknév" />
-                <input [(ngModel)]="editForm.country"   class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-400/40" placeholder="Ország" />
-                <input [(ngModel)]="editForm.city"      class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-400/40" placeholder="Város" />
-              </div>
-              <div class="mt-4 flex gap-2">
-                <button (click)="saveGeneral()" [disabled]="saving.general"
-                        class="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-500 disabled:opacity-60">
-                  {{ saving.general ? 'Mentés…' : 'Mentés' }}
-                </button>
-                <button (click)="resetGeneral()" [disabled]="saving.general"
-                        class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-white hover:bg-slate-700 disabled:opacity-60">
-                  Mégse
-                </button>
-              </div>
-              <p *ngIf="msg.general" class="mt-2 text-sm text-emerald-300">{{ msg.general }}</p>
-              <p *ngIf="err.general" class="mt-2 text-sm text-rose-300">{{ err.general }}</p>
-              
-            </div>
-            <!-- Social links -->
-<div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-  <h4 class="mb-3 text-sm font-semibold !text-amber-400">
-    <i class="bi bi-link-45deg mr-1 text-amber-400"></i> Közösségi elérhetőségek
-  </h4>
-
-  <div class="grid grid-cols-1 gap-3">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <input [(ngModel)]="socials.facebook"   placeholder="Facebook URL"   class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-      <input [(ngModel)]="socials.instagram"  placeholder="Instagram URL"  class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-      <input [(ngModel)]="socials.youtube"    placeholder="YouTube URL"    class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-      <input [(ngModel)]="socials.soundcloud" placeholder="SoundCloud URL" class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-      <input [(ngModel)]="socials.spotify"    placeholder="Spotify URL"    class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-      <input [(ngModel)]="socials.tiktok"     placeholder="TikTok URL"     class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-      <input [(ngModel)]="socials.x"          placeholder="X / Twitter URL" class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-      <input [(ngModel)]="socials.website"    placeholder="Saját weboldal" class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-      <input [(ngModel)]="socials.email"      placeholder="E-mail (vagy mailto:...)" class="rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100" />
-    </div>
-
-    <div class="mt-3 flex gap-2">
-      <button (click)="saveSocials()" [disabled]="savingSocials"
-              class="rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2 text-sm font-medium hover:from-amber-500 hover:to-orange-500 disabled:opacity-60">
-        {{ savingSocials ? 'Mentés…' : 'Linkek mentése' }}
-      </button>
-    </div>
-
-    <p *ngIf="msgSocials" class="text-sm text-emerald-300">{{ msgSocials }}</p>
-    <p *ngIf="errSocials" class="text-sm text-rose-300">{{ errSocials }}</p>
-  </div>
-</div>
-
-          </div>
-
-          <!-- ACCOUNT TAB -->
-          <div *ngIf="settingsTab==='account'" class="space-y-6">
-            <!-- Email -->
-            <div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-              <h4 class="mb-3 text-sm font-semibold !text-amber-300">
-                <i class="bi bi-envelope-at mr-1 text-amber-300"></i> E-mail csere
-              </h4>
-
-              <div *ngIf="isGoogleAccount; else localEmailBlock"
-                   class="rounded-lg border border-amber-400/30 bg-amber-500/10 p-3 text-sm text-amber-200">
-                <i class="bi bi-google mr-1"></i>
-                Google-fiókos bejelentkezésnél az e-mail a Google-nál kezelhető. Itt nem módosítható és nem kérünk jelszót.
-              </div>
-
-              <ng-template #localEmailBlock>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <input [(ngModel)]="emailForm.newEmail" type="email"
-                         class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
-                         placeholder="Új e-mail" />
-                  <input [(ngModel)]="emailForm.password" type="password"
-                         class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
-                         placeholder="Jelszó megerősítéshez" />
-                </div>
-                <div class="mt-4">
-                  <button (click)="changeEmail()" [disabled]="saving.email"
-                          class="rounded-lg bg-gradient-to-r from-amber-500 to-rose-500 px-4 py-2 text-white hover:opacity-95 disabled:opacity-60">
-     
-
-
-
-
-
-
-
-
-
-
-
-
-                                        {{ saving.email ? 'Küldés…' : 'E-mail módosítása' }}
+          <div *ngIf="settingsTab==='profile'" class="space-y-8 max-w-3xl mx-auto">
+            
+            <section>
+              <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">Megjelenés</h4>
+              <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-sm">
+                <label class="mb-2 block text-sm font-medium text-slate-300">Felhasználónév</label>
+                <div class="flex gap-3">
+                  <div class="relative flex-1 group">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 group-focus-within:text-amber-400 transition-colors">
+                      <i class="bi bi-at text-lg"></i>
+                    </div>
+                    <input [(ngModel)]="usernameForm.newUsername"
+                           class="block w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 pl-10 pr-3 text-slate-100 placeholder-slate-600 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all"
+                           placeholder="Új nicknév" maxlength="20" />
+                  </div>
+                  <button (click)="changeUsername()"
+                          [disabled]="savingUsername || !usernameForm.newUsername.trim()"
+                          class="shrink-0 rounded-xl bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white shadow-lg border border-slate-700 hover:bg-slate-700 hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95">
+                    {{ savingUsername ? 'Mentés...' : 'Módosítás' }}
                   </button>
                 </div>
+                <div *ngIf="msgUsername" class="mt-3 flex items-center gap-2 text-sm text-emerald-400 bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
+                  <i class="bi bi-check-circle-fill"></i> {{ msgUsername }}
+                </div>
+                <div *ngIf="errUsername" class="mt-3 flex items-center gap-2 text-sm text-rose-400 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
+                  <i class="bi bi-exclamation-triangle-fill"></i> {{ errUsername }}
+                </div>
+              </div>
+            </section>
 
-                <p *ngIf="msg.email" class="mt-2 text-sm text-emerald-300">{{ msg.email }}</p>
-                <p *ngIf="err.email" class="mt-2 text-sm text-rose-300">{{ err.email }}</p>
-              </ng-template>
-            </div>
-
-            <!-- Jelszó csere -->
-            <div class="rounded-xl border border-slate-800 bg-slate-900 p-5">
-              <h4 class="mb-3 text-sm font-semibold !text-emerald-300">
-                <i class="bi bi-shield-lock-fill mr-1 text-emerald-300"></i> Jelszó csere
-              </h4>
-
-              <!-- Google fióknál nincs jelszó -->
-              <div *ngIf="isGoogleAccount; else localPassBlock"
-                   class="rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">
-                <i class="bi bi-google mr-1"></i>
-                Google-fiókkal vagy bejelentkezve — itt nem kérünk és nem is állítunk jelszót.
+            <section>
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-sm font-semibold uppercase tracking-wider text-slate-500">Közösségi média</h4>
+                <button (click)="saveSocials()" [disabled]="savingSocials"
+                        class="text-xs font-bold uppercase tracking-wide text-amber-500 hover:text-amber-400 disabled:opacity-50 transition-colors">
+                  {{ savingSocials ? 'Mentés...' : 'Változások mentése' }}
+                </button>
               </div>
 
-              <ng-template #localPassBlock>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  <input [(ngModel)]="passForm.currentPassword" [disabled]="saving.pass" type="password"
-                         class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
-                         placeholder="Jelenlegi jelszó" aria-label="Jelenlegi jelszó" />
-                  <input [(ngModel)]="passForm.newPassword" [disabled]="saving.pass" type="password"
-                         class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
-                         placeholder="Új jelszó" aria-label="Új jelszó" />
-                  <input [(ngModel)]="passForm.confirmPassword" [disabled]="saving.pass" type="password"
-                         class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
-                         placeholder="Új jelszó mégegyszer" aria-label="Új jelszó mégegyszer" />
+              <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-sm">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2"> <ng-container *ngFor="let item of [
+                    { key: 'facebook', icon: 'bi-facebook', ph: 'Facebook URL', color: 'text-blue-500' },
+                    { key: 'instagram', icon: 'bi-instagram', ph: 'Instagram URL', color: 'text-pink-500' },
+                    { key: 'youtube', icon: 'bi-youtube', ph: 'YouTube URL', color: 'text-red-500' },
+                    { key: 'soundcloud', icon: 'bi-soundwave', ph: 'SoundCloud URL', color: 'text-orange-500' },
+                    { key: 'spotify', icon: 'bi-spotify', ph: 'Spotify URL', color: 'text-green-500' },
+                    { key: 'tiktok', icon: 'bi-tiktok', ph: 'TikTok URL', color: 'text-white' },
+                    { key: 'x', icon: 'bi-twitter-x', ph: 'X / Twitter URL', color: 'text-slate-300' },
+                    { key: 'website', icon: 'bi-globe', ph: 'Weboldal', color: 'text-indigo-400' },
+                    { key: 'email', icon: 'bi-envelope', ph: 'Publikus email', color: 'text-emerald-400' }
+                  ]">
+                    <div class="relative group">
+                      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-0 transition-colors group-focus-within:opacity-100 opacity-70">
+                        <i [class]="'bi ' + item.icon + ' ' + item.color + ' text-xl'"></i>
+                      </div>
+                      
+                      <input [(ngModel)]="socials[$any(item.key)]"
+                             [placeholder]="item.ph"
+                             class="block w-full border-b border-slate-700 bg-transparent py-2.5 pl-8 pr-3 text-sm text-slate-100 placeholder-slate-600 focus:border-amber-500 focus:ring-0 focus:outline-none rounded-none transition-colors" />
+                    </div>
+                  </ng-container>
+
                 </div>
 
-                <div class="mt-4">
-                  <button (click)="changePassword()" [disabled]="saving.pass"
-                          class="rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 px-4 py-2 text-white hover:opacity-95 disabled:opacity-60">
-                    {{ saving.pass ? 'Módosítás…' : 'Jelszó módosítása' }}
-                  </button>
-                </div>
-
-                <p *ngIf="msg.pass" class="mt-2 text-sm text-emerald-300">{{ msg.pass }}</p>
-                <p *ngIf="err.pass" class="mt-2 text-sm text-rose-300">{{ err.pass }}</p>
-              </ng-template>
-            </div>
+                <div *ngIf="msgSocials" class="mt-4 text-center text-sm text-emerald-400">{{ msgSocials }}</div>
+                <div *ngIf="errSocials" class="mt-4 text-center text-sm text-rose-400">{{ errSocials }}</div>
+              </div>
+            </section>
           </div>
-          <!-- /ACCOUNT TAB vége -->
-        </div>
+
+          <div *ngIf="settingsTab==='account'" class="space-y-8 max-w-3xl mx-auto">
+            
+            <section>
+              <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">E-mail cím</h4>
+              <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-sm">
+                
+                <div *ngIf="isGoogleAccount; else localEmailBlock"
+                     class="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-amber-200">
+                  <i class="bi bi-google text-xl mt-0.5"></i>
+                  <div class="text-sm">
+                    <p class="font-semibold">Google fiókkal vagy bejelentkezve.</p>
+                    <p class="opacity-80">Az e-mail címedet a Google fiókodban tudod kezelni. A rendszerünkben ez automatikusan frissül bejelentkezéskor.</p>
+                  </div>
+                </div>
+
+                <ng-template #localEmailBlock>
+                  <div class="space-y-4">
+                    <div>
+                      <label class="mb-1.5 block text-xs font-medium text-slate-400">Új e-mail cím</label>
+                      <div class="relative">
+                        <i class="bi bi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input [(ngModel)]="emailForm.newEmail" type="email" placeholder="pelda@email.com"
+                               class="block w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 pl-10 pr-3 text-slate-100 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="mb-1.5 block text-xs font-medium text-slate-400">Jelenlegi jelszó (megerősítéshez)</label>
+                      <div class="relative">
+                        <i class="bi bi-key absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input [(ngModel)]="emailForm.password" type="password" placeholder="••••••••"
+                               class="block w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 pl-10 pr-3 text-slate-100 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                      <button (click)="changeEmail()" [disabled]="saving.email"
+                              class="rounded-xl bg-gradient-to-r from-slate-700 to-slate-800 border border-slate-600 px-6 py-2.5 text-sm font-semibold text-white hover:from-slate-600 hover:to-slate-700 hover:border-slate-500 disabled:opacity-60 transition-all">
+                        {{ saving.email ? 'Mentés...' : 'E-mail módosítása' }}
+                      </button>
+                    </div>
+                  </div>
+                  <p *ngIf="msg.email" class="mt-3 text-sm text-emerald-400 text-center">{{ msg.email }}</p>
+                  <p *ngIf="err.email" class="mt-3 text-sm text-rose-400 text-center">{{ err.email }}</p>
+                </ng-template>
+              </div>
+            </section>
+
+            <section>
+              <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">Biztonság</h4>
+              <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-sm">
+                
+                <div *ngIf="isGoogleAccount; else localPassBlock"
+                     class="flex items-center gap-3 text-sm text-slate-400 italic">
+                  <i class="bi bi-shield-check text-green-500"></i>
+                  A jelszavadat a Google kezeli.
+                </div>
+
+                <ng-template #localPassBlock>
+                  <div class="space-y-4">
+                    <div>
+                      <label class="mb-1.5 block text-xs font-medium text-slate-400">Jelenlegi jelszó</label>
+                      <input [(ngModel)]="passForm.currentPassword" type="password"
+                             class="block w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 px-4 text-slate-100 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" />
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label class="mb-1.5 block text-xs font-medium text-slate-400">Új jelszó</label>
+                        <input [(ngModel)]="passForm.newPassword" type="password"
+                               class="block w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 px-4 text-slate-100 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label class="mb-1.5 block text-xs font-medium text-slate-400">Új jelszó újra</label>
+                        <input [(ngModel)]="passForm.confirmPassword" type="password"
+                               class="block w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 px-4 text-slate-100 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                      <button (click)="changePassword()" [disabled]="saving.pass"
+                              class="rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg hover:from-amber-500 hover:to-orange-500 disabled:opacity-60 transition-all">
+                        {{ saving.pass ? 'Mentés...' : 'Jelszó frissítése' }}
+                      </button>
+                    </div>
+                  </div>
+                  <p *ngIf="msg.pass" class="mt-3 text-sm text-emerald-400 text-center">{{ msg.pass }}</p>
+                  <p *ngIf="err.pass" class="mt-3 text-sm text-rose-400 text-center">{{ err.pass }}</p>
+                </ng-template>
+              </div>
+            </section>
+
+          </div>
+          </div>
       </div>
-      <!-- /content -->
     </div>
   </div>
 <!-- </div> -->

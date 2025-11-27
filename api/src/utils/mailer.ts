@@ -43,13 +43,81 @@ export async function sendVerificationEmail({
   const from     = process.env.SMTP_USER_FROM || process.env.SMTP_USER || '';
 
   const html = `
-    <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px">
-      <h2>Üdv, ${username}!</h2>
-      <p>Kattints az alábbi gombra a profilod megerősítéséhez:</p>
-      <p><a href="${link}" style="background:#4f46e5;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;">Profil megerősítése</a></p>
-      <p>Ha a gomb nem működik: <a href="${link}">${link}</a></p>
-      <p style="color:#64748b;font-size:12px">A link 24 óráig érvényes.</p>
+  <div style="background:#0f172a;margin:0;padding:24px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;padding:0 24px;">
+      <!-- Card -->
+      <div style="background:#020617;border-radius:18px;border:1px solid #1e293b;box-shadow:0 18px 45px rgba(15,23,42,.8);overflow:hidden;">
+        
+        <!-- Header -->
+        <div style="padding:20px 24px;border-bottom:1px solid #1e293b;
+                    background:linear-gradient(135deg,#0f172a,#1e293b);">
+          <div style="display:flex;align-items:center;">
+            <div style="width:36px;height:36px;border-radius:12px;
+                        background:linear-gradient(135deg,#f97316,#fb923c);
+                        display:flex;align-items:center;justify-content:center;
+                        color:#0f172a;font-weight:700;font-size:18px;margin-right:12px;">
+              L
+            </div>
+            <div>
+              <div style="font-size:18px;font-weight:600;color:#e5e7eb;">LoopHub</div>
+              <div style="font-size:12px;color:#9ca3af;">Fiók megerősítés</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:24px 24px 20px;color:#e5e7eb;">
+          <h2 style="margin:0 0 12px;font-size:20px;font-weight:600;color:#f9fafb;">
+            Üdv, ${username}!
+          </h2>
+          <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#cbd5f5;">
+            Köszönjük, hogy regisztráltál a <strong>LoopHub</strong> oldalára.
+          </p>
+          <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#cbd5f5;">
+            A fiókod aktiválásához kérjük, erősítsd meg az e-mail címed az alábbi gombbal:
+          </p>
+
+          <!-- Button -->
+          <div style="text-align:center;margin:24px 0 20px;">
+            <a href="${link}"
+               style="display:inline-block;padding:12px 24px;border-radius:999px;
+                      background:linear-gradient(135deg,#f97316,#facc15);
+                      color:#111827;font-size:14px;font-weight:600;
+                      text-decoration:none;box-shadow:0 12px 30px rgba(248,181,23,.45);">
+              Profil megerősítése
+            </a>
+          </div>
+
+          <!-- Fallback link -->
+          <p style="margin:0 0 8px;font-size:12px;line-height:1.6;color:#9ca3af;">
+            Ha a gomb nem működik, másold be az alábbi linket a böngésződ címsorába:
+          </p>
+          <p style="margin:0 0 8px;font-size:12px;line-height:1.6;word-break:break-all;">
+            <a href="${link}" style="color:#fbbf24;text-decoration:underline;">${link}</a>
+          </p>
+
+          <p style="margin:16px 0 0;font-size:11px;line-height:1.6;color:#6b7280;">
+            A megerősítő link <strong>24 óráig</strong> érvényes. Ha nem te hoztál létre fiókot
+            a LoopHubon, kérjük, hagyd figyelmen kívül ezt az e-mailt.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding:14px 24px 18px;border-top:1px solid #1e293b;
+                    background:#020617;">
+          <p style="margin:0;font-size:11px;color:#6b7280;line-height:1.6;">
+            Üdvözlettel,<br>
+            <span style="color:#e5e7eb;">LoopHub csapat</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- small footer -->
+      <p style="margin:16px 0 0;font-size:10px;color:#6b7280;text-align:center;">
+        Ezt az üzenetet azért kaptad, mert regisztráltál a LoopHub szolgáltatásba.
+      </p>
     </div>
+  </div>
   `;
 
   await t.sendMail({

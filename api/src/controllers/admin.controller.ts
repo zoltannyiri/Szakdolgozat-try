@@ -67,6 +67,11 @@ export const getAdminStats = async (req: Request, res: Response) => {
     const totalDownloads = await Loop.aggregate([{ $group: { _id: null, total: { $sum: "$downloads" } } }]);
     const totalLikes = await Loop.aggregate([{ $group: { _id: null, total: { $sum: "$likes" } } }]);
     const commentCount = await Comment.countDocuments();
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+    const activeUsersCount = await User.countDocuments({
+      lastLogin: { $gte: tenMinutesAgo }
+    });
 
     res.json({
       success: true,
@@ -75,7 +80,8 @@ export const getAdminStats = async (req: Request, res: Response) => {
         loops: loopCount,
         comments: commentCount,
         downloads: totalDownloads[0]?.total || 0,
-        likes: totalLikes[0]?.total || 0
+        likes: totalLikes[0]?.total || 0,
+        activeUsers: activeUsersCount 
       }
     });
   } catch (error) {

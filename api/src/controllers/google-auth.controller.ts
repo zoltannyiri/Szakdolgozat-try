@@ -16,7 +16,7 @@ async function uniqueUsername(preferred: string) {
 
   let candidate = base;
   let i = 0;
-  
+
   while (await User.exists({ username: candidate })) {
     i += 1;
     candidate = `${base}${i}`;
@@ -31,7 +31,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Hiányzó idToken' });
     }
 
-    // google id token ellenőrzése
+    // Google ID token ellenőrzése
     const ticket = await client.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -46,55 +46,52 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Hiányzó email cím' });
     }
 
-    // meglévő user keresése
+    // Meglévő user keresése googleId vagy email alapján
     let user = await User.findOne({ googleId }) || await User.findOne({ email });
 
     if (user) {
-      // ha van már user az emaillel
-      if (user.provider === 'local' && user.password) {
-        return res.status(400).json({
-          success: false,
-          message: 'Ezzel az e-maillel már van jelszavas fiók. Jelentkezz be jelszóval.',
-        });
-      }
+      // **NINCS** többé hibadobás jelszavas fiókra – itt linkeljük a Google-t
 
-
+      // Ha a Google szerint verifikált az email, de nálunk még nem
       if (email_verified && !user.isVerified) {
         const cfg = await getCreditConfig();
         const upd = await User.updateOne(
           { _id: user._id, isVerified: false },
-          { $set: { isVerified: true, provider: 'google', googleId: user.googleId || googleId },
-            $inc: { credits: cfg.bonusOnVerify ?? 0 } }
+          {
+            $set: {
+              isVerified: true,
+              // csak googleId-t frissítünk, a provider-t nem írjuk felül
+              googleId: user.googleId || googleId,
+            },
+            $inc: {
+              credits: cfg.bonusOnVerify ?? 0,
+            },
+          }
         );
 
-        
         if ((upd as any).modifiedCount > 0 || (upd as any).nModified > 0) {
           user.isVerified = true;
           user.credits = (user.credits ?? 0) + (cfg.bonusOnVerify ?? 0);
         }
       }
 
-     
-      user.provider = 'google' as any;
-      user.googleId = user.googleId || googleId;
-      if (email_verified && !user.isVerified) user.isVerified = true;
-      if (!user.username) user.username = await uniqueUsername(name || email);
-      if (!user.profileImage && picture) user.profileImage = picture;
+      // googleId linkelése, ha még nincs
+      if (!user.googleId) {
+        user.googleId = googleId as string;
+      }
+
+      // provider-t NEM írjuk át 'google'-re, ha már jelszavas user is lehet
+      // (így a /login továbbra is engedi a jelszavas bejelentkezést)
+
+      if (!user.username) {
+        user.username = await uniqueUsername(name || email);
+      }
+      // if (!user.profileImage && picture) {
+      //   user.profileImage = picture;
+      // }
       user.lastLogin = new Date();
       await user.save();
     } else {
-      // // Új user létrehozása JELSZÓ NÉLKÜL
-      // user = new User({
-      //   email,
-      //   username: await uniqueUsername(name || email),
-      //   provider: 'google',
-      //   googleId,
-      //   isVerified: !!email_verified,
-      //   credits: email_verified ? 2 : 0,
-      //   profileImage: picture || undefined,
-      //   lastLogin: new Date(),
-      // });
-      // await user.save();
       // Új user létrehozása JELSZÓ NÉLKÜL (kezdő kreditek configból)
       const cfg = await getCreditConfig();
       user = new User({
@@ -103,55 +100,36 @@ router.post('/auth/google', async (req: Request, res: Response) => {
         provider: 'google',
         googleId,
         isVerified: !!email_verified,
-        credits: (cfg.initialCreditsForNewUser ?? 0) + (email_verified ? (cfg.bonusOnVerify ?? 0) : 0),
-        profileImage: picture || undefined,
+        credits:
+          (cfg.initialCreditsForNewUser ?? 0) +
+          (email_verified ? (cfg.bonusOnVerify ?? 0) : 0),
+        // profileImage: picture || undefined,
         lastLogin: new Date(),
       });
       await user.save();
     }
 
-    // jwt
+    // JWT
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET as string,
       { expiresIn: '7d' }
     );
 
-    return res.json({ success: true, token, user: { email: user.email, lastLogin: user.lastLogin, credits: user.credits, isVerified: user.isVerified } });
+    return res.json({
+      success: true,
+      token,
+      user: {
+        email: user.email,
+        lastLogin: user.lastLogin,
+        credits: user.credits,
+        isVerified: user.isVerified,
+      },
+    });
   } catch (e) {
     console.error('[googleSignIn] error:', e);
     return res.status(500).json({ success: false, message: 'Google sign-in failed' });
   }
 });
-
-
-// router.post('/auth/google/step-up', async (req: Request, res: Response) => {
-//   try {
-//     const { idToken } = req.body;
-//     if (!idToken) return res.status(400).json({ success: false, message: 'Missing idToken' });
-
-//     const ticket  = await client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
-//     const payload = ticket.getPayload();
-//     if (!payload?.email || !payload?.sub) {
-//       return res.status(401).json({ success: false, message: 'Invalid token' });
-//     }
-
-
-//     const user = await User.findOne({ email: payload.email, googleId: payload.sub });
-//     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-
-
-//     const actionToken = jwt.sign(
-//       { sub: String(user._id), typ: 'step-up' },
-//       process.env.JWT_SECRET as string,
-//       { expiresIn: '5m' }
-//     );
-
-//     return res.json({ success: true, actionToken });
-//   } catch (e) {
-//     console.error('[googleStepUp] error:', e);
-//     return res.status(500).json({ success: false, message: 'Step-up failed' });
-//   }
-// });
 
 export default router;

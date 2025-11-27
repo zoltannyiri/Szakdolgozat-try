@@ -1,1 +1,339 @@
-<p>admin-comments works!</p>
+<div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 p-6">
+  <div class="max-w-7xl mx-auto space-y-8">
+
+    <!-- HEADER SECTION -->
+    <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-8">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div>
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+            Komment kezelés
+          </h1>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+          <!-- SEARCH -->
+          <div class="relative">
+            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
+              placeholder="Keresés komment szöveg vagy felhasználó alapján..."
+              class="pl-12 pr-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 backdrop-blur-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 w-full sm:w-80 transition-all" />
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK STATS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-600/30">
+        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-2xl font-bold text-amber-400">{{ comments.length }}</div>
+          <div class="text-sm text-slate-300 mt-1">Összes komment</div>
+        </div>
+        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-2xl font-bold text-orange-400">{{ activeUsersCount() }}</div>
+          <div class="text-sm text-slate-300 mt-1">Aktív felhasználók</div>
+        </div>
+        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-2xl font-bold text-emerald-400">{{ loopsWithCommentsCount() }}</div>
+          <div class="text-sm text-slate-300 mt-1">Loopok kommentekkel</div>
+        </div>
+        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-2xl font-bold text-blue-400">{{ filteredComments.length }}</div>
+          <div class="text-sm text-slate-300 mt-1">Szűrt kommentek</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROR MESSAGE -->
+    <div *ngIf="errorMessage" 
+         class="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-300 backdrop-blur-sm">
+      <div class="flex items-center gap-3">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span class="font-medium">{{ errorMessage }}</span>
+      </div>
+    </div>
+
+    <!-- MAIN TABLE -->
+    <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-700/60 backdrop-blur-sm border-b border-slate-600/30">
+            <tr>
+              <!-- KOMMENT SZÖVEG -->
+              <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
+                  (click)="setSort('text')">
+                <div class="flex items-center gap-2">
+                  <span>Komment</span>
+                  <i *ngIf="sortField === 'text'" 
+                     [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
+                  <i *ngIf="sortField !== 'text'" 
+                     class="bi bi-chevron-down text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+              </th>
+              
+              <!-- FELHASZNÁLÓ -->
+              <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
+                  (click)="setSort('user')">
+                <div class="flex items-center gap-2">
+                  <span>Felhasználó</span>
+                  <i *ngIf="sortField === 'user'" 
+                     [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
+                  <i *ngIf="sortField !== 'user'" 
+                     class="bi bi-chevron-down text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+              </th>
+              
+              <!-- LOOP -->
+              <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
+                  (click)="setSort('loop')">
+                <div class="flex items-center gap-2">
+                  <span>Loop</span>
+                  <i *ngIf="sortField === 'loop'" 
+                     [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
+                  <i *ngIf="sortField !== 'loop'" 
+                     class="bi bi-chevron-down text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+              </th>
+              
+              <!-- DÁTUM -->
+              <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
+                  (click)="setSort('createdAt')">
+                <div class="flex items-center gap-2">
+                  <span>Dátum</span>
+                  <i *ngIf="sortField === 'createdAt'" 
+                     [class]="'bi text-amber-400 transition-transform ' + (sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down')"></i>
+                  <i *ngIf="sortField !== 'createdAt'" 
+                     class="bi bi-chevron-down text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+              </th>
+              
+              <!-- MŰVELETEK -->
+              <th class="px-6 py-4 text-left font-semibold text-slate-300">
+                Műveletek
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-600/30">
+            <tr *ngFor="let comment of paginatedComments" 
+                class="hover:bg-slate-700/40 transition-all duration-200 group">
+              
+              <!-- KOMMENT SZÖVEG -->
+              <td class="px-6 py-4">
+                <button (click)="openModal(comment)"
+                        class="font-medium text-slate-300 hover:text-amber-300 transition-colors text-left group-hover:underline flex items-start gap-2 max-w-md">
+                  <i class="bi bi-chat-text text-slate-400 mt-1 flex-shrink-0"></i>
+                  <span class="line-clamp-2">{{ comment.text }}</span>
+                </button>
+              </td>
+              
+              <!-- FELHASZNÁLÓ -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2 text-slate-300">
+                  <i class="bi bi-person-circle text-slate-400"></i>
+                  {{ comment.user?.username || 'Ismeretlen' }}
+                </div>
+              </td>
+              
+              <!-- LOOP -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2 text-slate-300">
+                  <i class="bi bi-music-note-beamed text-slate-400"></i>
+                  {{ comment.loop?.filename || 'Loop betöltése...' }}
+                </div>
+              </td>
+              
+              <!-- DÁTUM -->
+              <td class="px-6 py-4 text-slate-400">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar3 text-slate-500"></i>
+                  {{ comment.createdAt | date: 'yyyy.MM.dd' }}
+                </div>
+              </td>
+              
+              <!-- MŰVELETEK -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <!-- VIEW BUTTON -->
+                  <button (click)="openModal(comment)"
+                          class="p-2 rounded-lg bg-slate-600/50 hover:bg-amber-600 transition-all group/tooltip relative"
+                          title="Részletek megtekintése">
+                    <i class="bi bi-eye text-slate-300 group-hover/tooltip:text-white"></i>
+                    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap">
+                      Részletek
+                    </div>
+                  </button>
+                  
+                  <!-- DELETE BUTTON -->
+                  <button (click)="deleteComment(comment._id)"
+                          class="p-2 rounded-lg bg-slate-600/50 hover:bg-rose-600 transition-all group/tooltip relative"
+                          title="Komment törlése">
+                    <i class="bi bi-trash text-slate-300 group-hover/tooltip:text-white"></i>
+                    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap">
+                      Törlés
+                    </div>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div *ngIf="filteredComments.length === 0" class="text-center py-16">
+        <div class="w-24 h-24 rounded-full bg-slate-700/40 flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+          <i class="bi bi-chat-text text-5xl text-slate-400"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-slate-200 mb-3">Nincsenek kommentek</h3>
+        <p class="text-slate-400 max-w-md mx-auto">
+          {{ searchTerm ? 'Nincs a keresési feltételeknek megfelelő komment.' : 'Még nincsenek kommentek a rendszerben.' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-400">
+      <div class="flex items-center gap-3 bg-slate-700/40 rounded-xl px-4 py-3 backdrop-blur-sm">
+        <i class="bi bi-chat-text text-amber-400"></i>
+        <span>Összesen: <span class="text-slate-200 font-semibold">{{ filteredComments.length }}</span> komment</span>
+      </div>
+      
+      <div class="flex items-center gap-2 bg-slate-700/40 rounded-xl p-2 backdrop-blur-sm">
+        <button (click)="prevPage()" [disabled]="currentPage === 1"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+          <i class="bi bi-chevron-left"></i>
+          <span class="hidden sm:inline">Előző</span>
+        </button>
+        
+        <div class="flex items-center gap-3 px-4 py-2">
+          <span class="text-slate-200 font-semibold">{{ currentPage }}</span>
+          <span class="text-slate-500">/</span>
+          <span class="text-slate-200 font-semibold">{{ Math.ceil(filteredComments.length / itemsPerPage) }}</span>
+        </div>
+        
+        <button (click)="nextPage()" [disabled]="currentPage * itemsPerPage >= filteredComments.length"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+          <span class="hidden sm:inline">Következő</span>
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMENT DETAIL MODAL -->
+  <div *ngIf="selectedComment" 
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm overflow-y-auto"
+       (click)="closeModal()">
+    <div class="w-full max-w-4xl rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 shadow-2xl backdrop-blur-sm my-8 max-h-[90vh] overflow-y-auto"
+         (click)="$event.stopPropagation()">
+      
+      <!-- HEADER -->
+      <div class="flex items-start justify-between p-8 border-b border-slate-600/30 sticky top-0 bg-slate-800/90 backdrop-blur-sm z-10">
+        <div class="flex-1">
+          <h2 class="text-3xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent mb-3">
+            Komment részletei
+          </h2>
+          <div class="flex flex-wrap items-center gap-4 text-sm text-slate-300">
+            <span class="flex items-center gap-2 bg-slate-700/40 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+              <i class="bi bi-person-circle text-amber-400"></i>
+              {{ selectedComment.user?.username || 'Ismeretlen' }}
+            </span>
+            <span class="flex items-center gap-2 bg-slate-700/40 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+              <i class="bi bi-calendar3 text-orange-400"></i>
+              {{ selectedComment.createdAt | date: 'yyyy.MM.dd • HH:mm' }}
+            </span>
+          </div>
+        </div>
+        <button (click)="closeModal()" 
+                class="p-3 rounded-xl hover:bg-slate-700/50 transition-all text-slate-400 hover:text-slate-200 ml-4">
+          <i class="bi bi-x-lg text-xl"></i>
+        </button>
+      </div>
+
+      <!-- CONTENT GRID -->
+      <div class="p-8 space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <!-- COMMENT CONTENT & LOOP INFO -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- COMMENT TEXT -->
+            <div class="rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
+              <h3 class="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-3">
+                <i class="bi bi-chat-text"></i>
+                Komment szövege
+              </h3>
+              <div class="bg-slate-600/30 rounded-lg p-4 text-slate-200">
+                {{ selectedComment.text }}
+              </div>
+            </div>
+
+            <!-- LOOP INFORMATION -->
+            <div class="rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
+              <h3 class="text-lg font-semibold text-amber-400 mb-4">Loop Információk</h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 rounded-lg bg-slate-600/30">
+                  <span class="text-slate-300">Cím</span>
+                  <span class="font-semibold text-amber-400">{{ selectedComment.loop?.filename || 'Ismeretlen' }}</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg bg-slate-600/30">
+                  <span class="text-slate-300">Feltöltő</span>
+                  <span class="font-semibold text-amber-400">{{ selectedComment.loop?.uploader?.username || 'Ismeretlen' }}</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg bg-slate-600/30">
+                  <span class="text-slate-300">BPM</span>
+                  <span class="font-semibold text-amber-400">{{ selectedComment.loop?.bpm || 'N/A' }}</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg bg-slate-600/30">
+                  <span class="text-slate-300">Hangszer</span>
+                  <span class="font-semibold text-amber-400">{{ selectedComment.loop?.instrument || 'N/A' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- USER INFO & ACTIONS -->
+          <div class="space-y-6">
+            <!-- USER INFORMATION -->
+            <div class="rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
+              <h3 class="text-lg font-semibold text-amber-400 mb-4">Felhasználó információk</h3>
+              <div class="space-y-3">
+                <div class="text-center p-4 rounded-xl bg-slate-600/30">
+                  <div class="text-xl font-bold text-amber-400">{{ selectedComment.user?.username || 'Ismeretlen' }}</div>
+                  <div class="text-sm text-slate-300 mt-1">Felhasználónév</div>
+                </div>
+                <div class="text-center p-4 rounded-xl bg-slate-600/30">
+                  <div class="text-sm text-slate-300">Profil megtekintése</div>
+                  <a *ngIf="selectedComment.user?.username"
+                    [routerLink]="['/profile', selectedComment.user.username]"
+                    (click)="closeModal()"
+                    class="inline-flex items-center gap-2 mt-2 text-amber-400 hover:text-amber-300 transition-colors">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    Profil megnyitása
+                    </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
+              <h3 class="text-lg font-semibold text-amber-400 mb-4">Gyors Műveletek</h3>
+              <div class="space-y-3">
+                <a *ngIf="selectedComment.loop?._id" 
+                   [href]="getLoopLink(selectedComment.loop._id)" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="text-white w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-3 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all">
+                  <i class="bi bi-music-note-beamed"></i>
+                  Loop megtekintése
+                </a>
+                <button (click)="deleteCommentFromModal(selectedComment._id)"
+                        class="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-rose-700 to-red-700 px-4 py-3 text-sm font-medium hover:from-rose-600 hover:to-red-600 transition-all">
+                  <i class="bi bi-trash"></i>
+                  Komment törlése
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

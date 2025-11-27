@@ -110,7 +110,24 @@ export class LoopsComponent implements OnInit, OnDestroy {
 
   // Constants
   keys = ["A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
-  scales = ["Rap", "major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
+  // scales = ["Rap", "major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
+  scales = [
+    "Drums",
+    "Percussion",
+    "Bass",
+    "Bass Guitar",
+    "Bass Synth",
+    "Guitar Acoustic",
+    "Guitar Electric",
+    "Piano",
+    "Pad",
+    "Synth",
+    "Strings",
+    "Vocal",
+    "FX",
+    "Arpeggio",
+    "Bells"
+  ];
   instruments = ["Kick", "Snare", "Hihat", "Clap", "Cymbal", "Percussion", "Bass", "Synth", "Guitar", "Vocal", "FX"];
 
   constructor(
@@ -615,7 +632,17 @@ export class LoopsComponent implements OnInit, OnDestroy {
 
   uploadFile(): void {
     if (!this.selectedFile) {
-      this.fileError = "Please select a file!";
+      this.fileError = "Válassz egy fájlt!";
+      return;
+    }
+
+    const bpm = this.metadata.bpm;
+    if (bpm === null || bpm === undefined || isNaN(bpm as any)) {
+      this.fileError = 'Add meg a BPM értékét!';
+      return;
+    }
+    if (bpm < 30 || bpm > 600) {
+      this.fileError = 'A BPM értékének 30 és 600 között kell lennie.';
       return;
     }
 
@@ -650,6 +677,32 @@ export class LoopsComponent implements OnInit, OnDestroy {
         }
       }),
       timeout(30000),
+      // catchError(error => {
+      //   this.isUploading = false;
+      //   const duration = (Date.now() - startTime) / 1000;
+
+      //   if (error instanceof HttpErrorResponse) {
+      //     if (error.status === 500) {
+      //       this.fileError = `Server error occurred during upload (after ${duration.toFixed(1)} seconds). Please try again later.`;
+      //     } else if (error.status === 413) {
+      //       this.fileError = 'The file is too large for the server.';
+      //     } else {
+      //       this.fileError = `Network error occurred (${error.status})`;
+      //     }
+      //   } else if (error.name === 'TimeoutError') {
+      //     this.fileError = 'Upload took too long. Please try again.';
+      //   } else {
+      //     this.fileError = 'Unknown error occurred during upload.';
+      //   }
+
+      //   console.error('Upload error details:', {
+      //     status: error.status,
+      //     message: error.message,
+      //     duration: duration
+      //   });
+
+      //   return throwError(() => error);
+      // })
       catchError(error => {
         this.isUploading = false;
         const duration = (Date.now() - startTime) / 1000;
@@ -659,6 +712,21 @@ export class LoopsComponent implements OnInit, OnDestroy {
             this.fileError = `Server error occurred during upload (after ${duration.toFixed(1)} seconds). Please try again later.`;
           } else if (error.status === 413) {
             this.fileError = 'The file is too large for the server.';
+          } else if (error.status === 400) {
+            const apiErr: any = error.error || {};
+            const errs: string[] | undefined = apiErr.errors;
+
+            if (Array.isArray(errs) && errs.length) {
+              if (errs.some(e => e.toLowerCase().includes('bpm'))) {
+                this.fileError = 'A BPM értékének 30 és 600 között kell lennie.';
+              } else {
+                this.fileError = errs.join(' ');
+              }
+            } else if (apiErr.message) {
+              this.fileError = apiErr.message;
+            } else {
+              this.fileError = 'Érvénytelen adatok a feltöltésnél.';
+            }
           } else {
             this.fileError = `Network error occurred (${error.status})`;
           }
@@ -669,13 +737,14 @@ export class LoopsComponent implements OnInit, OnDestroy {
         }
 
         console.error('Upload error details:', {
-          status: error.status,
-          message: error.message,
+          status: (error as any).status,
+          message: (error as any).message,
           duration: duration
         });
 
         return throwError(() => error);
       })
+
     ).subscribe({
       next: (response) => {
         this.isUploading = false;
@@ -875,7 +944,7 @@ export class LoopsComponent implements OnInit, OnDestroy {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = loop.filename || `loop_${loop._id}.wav`;
+          a.download = loop.filename || `loop_${loop._id}`;
           document.body.appendChild(a);
           a.click();
 
@@ -1224,8 +1293,8 @@ export class LoopsComponent implements OnInit, OnDestroy {
     // validálás
     if (this.editForm.bpm !== null) {
       const bpm = Number(this.editForm.bpm);
-      if (isNaN(bpm) || bpm < 40 || bpm > 300) {
-        this.editError = 'A BPM értéke 40 és 300 között legyen.';
+      if (isNaN(bpm) || bpm < 40 || bpm > 600) {
+        this.editError = 'A BPM értéke 40 és 600 között legyen.';
         return;
       }
     }

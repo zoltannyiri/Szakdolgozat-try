@@ -83,7 +83,7 @@ export class AdminReportsComponent implements OnInit {
   }
 
   private loadCounts() {
-    this.reportsSvc.getCounts('pending').subscribe({
+    this.reportsSvc.getCounts(this.status).subscribe({
       next: (res: { success: boolean; data: Record<ReportType, number> }) => {
         if (res?.success) {
           this.counts = res.data;

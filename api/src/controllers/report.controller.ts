@@ -230,6 +230,39 @@ export const listReports = async (req: Request, res: Response) => {
           };
         }
 
+        if (r.type === 'loop') {
+          const loop = await Loop.findById(r.targetId)
+            .populate({ path: 'uploader', select: '_id username' })
+            .lean();
+
+          const meta = {
+            ...(r.meta || {}),
+            loopId:    loop?._id ?? r.meta?.loopId,
+            loopTitle: loop?.filename ?? r.meta?.loopTitle,
+          };
+
+          let target: any = null;
+          if (loop) {
+            const uploader: any = loop.uploader;
+            target = {
+              _id: loop._id,
+              filename: loop.filename,
+              user: uploader
+                ? { _id: uploader._id || uploader, username: uploader.username }
+                : undefined,
+              createdAt: loop.uploadDate,
+            };
+          }
+
+          return {
+            ...r,
+            target,
+            targetOwnerId: loop?.uploader?._id ?? loop?.uploader ?? r.targetOwnerId,
+            meta,
+            reporter: r.reporter || r.reporterId || null,
+          };
+        }
+
          if (r.type === 'profile') {
           const userId = r.targetOwnerId || r.targetId;
           const u = userId
