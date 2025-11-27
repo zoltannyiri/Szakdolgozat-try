@@ -908,115 +908,115 @@ export class LoopsComponent implements OnInit, OnDestroy {
 
 
 
+  // KOMMENTELVE RENDER.COM MIATT
+  // async downloadLoop(loop: ILoop): Promise<void> {
+  //   console.log('Starting download for loop:', loop._id); // [14]
 
-  async downloadLoop(loop: ILoop): Promise<void> {
-    console.log('Starting download for loop:', loop._id); // [14]
-
-    try {
-      const isVerified = await this.authService.isUserVerified().toPromise();
-      console.log('User verified status:', isVerified); // [15]
-      // KOMMENTELVE RENDER.COM MIATT
-      // this.loopService.downloadLoop(loop._id).subscribe({
+  //   try {
+  //     const isVerified = await this.authService.isUserVerified().toPromise();
+  //     console.log('User verified status:', isVerified); // [15]
+  //     // KOMMENTELVE RENDER.COM MIATT
+  //     // this.loopService.downloadLoop(loop._id).subscribe({
         
-      //   next: (blob: Blob) => {
-      //     console.log('Received blob:', { // [16]
-      //       size: blob.size,
-      //       type: blob.type
-      //     });
+  //     //   next: (blob: Blob) => {
+  //     //     console.log('Received blob:', { // [16]
+  //     //       size: blob.size,
+  //     //       type: blob.type
+  //     //     });
 
-      //     const url = window.URL.createObjectURL(blob);
-      //     const a = document.createElement('a');
-      //     a.href = url;
-      //     a.download = loop.filename || `loop_${loop._id}`;
-      //     document.body.appendChild(a);
-      //     a.click();
+  //     //     const url = window.URL.createObjectURL(blob);
+  //     //     const a = document.createElement('a');
+  //     //     a.href = url;
+  //     //     a.download = loop.filename || `loop_${loop._id}`;
+  //     //     document.body.appendChild(a);
+  //     //     a.click();
 
-      //     window.URL.revokeObjectURL(url);
-      //     document.body.removeChild(a);
+  //     //     window.URL.revokeObjectURL(url);
+  //     //     document.body.removeChild(a);
 
-      //     console.log('Download completed successfully'); // [17]
-      //   },
-      this.loopService.downloadLoop(loop._id).subscribe({
+  //     //     console.log('Download completed successfully'); // [17]
+  //     //   },
+  //     this.loopService.downloadLoop(loop._id).subscribe({
         
-        next: (blob: Blob) => {
-          console.log('Received blob:', { // [16]
-            size: blob.size,
-            type: blob.type
-          });
+  //       next: (blob: Blob) => {
+  //         console.log('Received blob:', { // [16]
+  //           size: blob.size,
+  //           type: blob.type
+  //         });
 
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = loop.filename || `loop_${loop._id}`;
-          document.body.appendChild(a);
-          a.click();
+  //         const url = window.URL.createObjectURL(blob);
+  //         const a = document.createElement('a');
+  //         a.href = url;
+  //         a.download = loop.filename || `loop_${loop._id}`;
+  //         document.body.appendChild(a);
+  //         a.click();
 
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
+  //         window.URL.revokeObjectURL(url);
+  //         document.body.removeChild(a);
 
-          console.log('Download completed successfully'); // [17]
-        },
-        // error: (err) => {
-        //   console.error('Download failed:', { // [18]
-        //     error: err,
-        //     loopId: loop._id,
-        //     path: loop.path
-        //   });
-        //   alert('You need to authenticate your email.');
-        //   // window.open(this.getSafeAudioUrl(loop.path), '_blank');
-        // }
-        error: (err) => {
-          // Helper
-          const handle = (data: any) => {
-            const code = data?.code;
+  //         console.log('Download completed successfully'); // [17]
+  //       },
+  //       // error: (err) => {
+  //       //   console.error('Download failed:', { // [18]
+  //       //     error: err,
+  //       //     loopId: loop._id,
+  //       //     path: loop.path
+  //       //   });
+  //       //   alert('You need to authenticate your email.');
+  //       //   // window.open(this.getSafeAudioUrl(loop.path), '_blank');
+  //       // }
+  //       error: (err) => {
+  //         // Helper
+  //         const handle = (data: any) => {
+  //           const code = data?.code;
 
-            if (err.status === 402 && code === 'NO_CREDITS') {
-              alert('Nincs elég kredited a letöltéshez. Tölts fel loopot, hogy creditet szerezhess!');
-              return;
-            }
+  //           if (err.status === 402 && code === 'NO_CREDITS') {
+  //             alert('Nincs elég kredited a letöltéshez. Tölts fel loopot, hogy creditet szerezhess!');
+  //             return;
+  //           }
 
-            if (err.status === 403 && code === 'BANNED') {
-              const untilIso = data?.until;
-              const reason = (data?.reason || '').trim();
-              let msg = 'A fiókod tiltva.';
-              if (untilIso) {
-                const until = new Date(untilIso);
-                const forever = until.getUTCFullYear() >= 9999;
-                msg = forever
-                  ? 'A fiókod véglegesen tiltva.'
-                  : `A fiókod ideiglenesen tiltva eddig: ${until.toLocaleString()}.`;
-              }
-              if (reason) msg += `\nOk: ${reason}`;
-              alert(msg);
-              return;
-            }
-            if (err.status === 403 && code === 'EMAIL_NOT_VERIFIED') {
-              alert('Előbb igazold az e-mail címedet.');
-              return;
-            }
-            alert('A letöltés nem engedélyezett vagy hiba történt.');
-          };
+  //           if (err.status === 403 && code === 'BANNED') {
+  //             const untilIso = data?.until;
+  //             const reason = (data?.reason || '').trim();
+  //             let msg = 'A fiókod tiltva.';
+  //             if (untilIso) {
+  //               const until = new Date(untilIso);
+  //               const forever = until.getUTCFullYear() >= 9999;
+  //               msg = forever
+  //                 ? 'A fiókod véglegesen tiltva.'
+  //                 : `A fiókod ideiglenesen tiltva eddig: ${until.toLocaleString()}.`;
+  //             }
+  //             if (reason) msg += `\nOk: ${reason}`;
+  //             alert(msg);
+  //             return;
+  //           }
+  //           if (err.status === 403 && code === 'EMAIL_NOT_VERIFIED') {
+  //             alert('Előbb igazold az e-mail címedet.');
+  //             return;
+  //           }
+  //           alert('A letöltés nem engedélyezett vagy hiba történt.');
+  //         };
 
-          // Ha Blob az error body, akkor parse
-          if (err?.error instanceof Blob) {
-            err.error.text().then((t: string) => {
-              try {
-                const data = JSON.parse(t);
-                handle(data);
-              } catch {
-                handle({});
-              }
-            });
-          } else {
-            handle(err?.error);
-          }
-        }
+  //         // Ha Blob az error body, akkor parse
+  //         if (err?.error instanceof Blob) {
+  //           err.error.text().then((t: string) => {
+  //             try {
+  //               const data = JSON.parse(t);
+  //               handle(data);
+  //             } catch {
+  //               handle({});
+  //             }
+  //           });
+  //         } else {
+  //           handle(err?.error);
+  //         }
+  //       }
 
-      });
-    } catch (err) {
-      console.error('Error in download process:', err); // [19]
-    }
-  }
+  //     });
+  //   } catch (err) {
+  //     console.error('Error in download process:', err); // [19]
+  //   }
+  // }
   // async downloadLoop(loop: ILoop): Promise<void> {
   //   try {
   //     // 1. Fetch the file
@@ -1046,6 +1046,55 @@ export class LoopsComponent implements OnInit, OnDestroy {
   //     window.open(this.getSafeAudioUrl(loop.path), '_blank');
   //   }
   // }
+  async downloadLoop(loop: ILoop): Promise<void> {
+    console.log('Starting download for loop:', loop._id);
+    try {
+      const isVerified = await this.authService.isUserVerified().toPromise();
+      this.loopService.downloadLoop(loop._id).subscribe({
+        next: (response: any) => {
+          if (response && response.downloadUrl) {
+            let url = response.downloadUrl;
+            const idMatch = url.match(/\/files\/([a-zA-Z0-9_-]+)/) || 
+                            url.match(/id=([a-zA-Z0-9_-]+)/) || 
+                            url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (idMatch && idMatch[1]) {
+               const fileId = idMatch[1];
+               url = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            } else {
+               if (url.includes('localhost:3000')) {
+                 url = url.replace('http://localhost:3000', this.loopService.apiUrl);
+                 url = url.replace('https://localhost:3000', this.loopService.apiUrl);
+               }
+            }
+            console.log('Force download URL:', url);
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_self'; 
+            a.download = loop.filename || `loop_${loop._id}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+          else if (response instanceof Blob) {
+             const url = window.URL.createObjectURL(response);
+             const a = document.createElement('a');
+             a.href = url;
+             a.download = loop.filename || `loop_${loop._id}`;
+             document.body.appendChild(a);
+             a.click();
+             window.URL.revokeObjectURL(url);
+             document.body.removeChild(a);
+          }
+        },
+        error: (err) => {
+          console.error('Download error:', err);
+          if (err.status === 402) alert('Nincs elég kredited!');
+        }
+      });
+    } catch (err) {
+      console.error('Error in download process:', err);
+    }
+  }
 
 
   bandHeights: { [key: string]: number[] } = {};
