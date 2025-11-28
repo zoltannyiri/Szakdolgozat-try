@@ -41,7 +41,7 @@ export class AdminReportsComponent implements OnInit {
     { key: 'loop', label: 'Loopok' },
     { key: 'profile', label: 'Profilok' },
   ];
-  activeTab: Tab = this.tabs[1]; // default: Kommentek
+  activeTab: Tab = this.tabs[0];
 
   // Statusz szűrő
   status: ReportStatus = 'pending';

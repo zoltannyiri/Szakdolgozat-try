@@ -1,17 +1,19 @@
-<div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 p-6">
-  <div class="max-w-7xl mx-auto space-y-8">
+<div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 p-3 sm:p-6 pb-24 sm:pb-6">
+  <div class="max-w-7xl mx-auto space-y-4 sm:space-y-8">
 
-    <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-8">
-      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+    <!-- HEADER & STATS -->
+    <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-4 sm:p-8">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
         <div>
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+          <h1 class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
             Jelentések
           </h1>
         </div>
 
-        <div class="inline-flex rounded-xl bg-slate-700/60 p-1 backdrop-blur-sm border border-slate-600/30">
+        <!-- STATUS FILTER BUTTONS -->
+        <div class="flex flex-wrap gap-2 w-full lg:w-auto rounded-xl bg-slate-700/60 p-1 backdrop-blur-sm border border-slate-600/30">
           <button
-            class="px-4 py-2 text-sm font-medium rounded-lg transition-all"
+            class="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all text-center whitespace-nowrap"
             [ngClass]="{
               'bg-gradient-to-r from-amber-600 to-orange-600 text-white': status === 'pending',
               'text-slate-300 hover:text-slate-200': status !== 'pending'
@@ -23,7 +25,7 @@
           </button>
 
           <button
-            class="px-4 py-2 text-sm font-medium rounded-lg transition-all"
+            class="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all text-center whitespace-nowrap"
             [ngClass]="{
               'bg-gradient-to-r from-emerald-600 to-green-600 text-white': status === 'resolved',
               'text-slate-300 hover:text-slate-200': status !== 'resolved'
@@ -35,7 +37,7 @@
           </button>
 
           <button
-            class="px-4 py-2 text-sm font-medium rounded-lg transition-all"
+            class="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all text-center whitespace-nowrap"
             [ngClass]="{
               'bg-gradient-to-r from-rose-600 to-red-600 text-white': status === 'rejected',
               'text-slate-300 hover:text-slate-200': status !== 'rejected'
@@ -49,56 +51,62 @@
 
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-600/30">
-        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
-          <div class="text-2xl font-bold text-amber-400">{{ counts.comment }}</div>
-          <div class="text-sm text-slate-300 mt-1">Kommentek</div>
+      <!-- STATS GRID -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-600/30">
+        <div class="text-center p-3 sm:p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-xl sm:text-2xl font-bold text-amber-400">{{ counts.comment }}</div>
+          <div class="text-xs sm:text-sm text-slate-300 mt-1">Kommentek</div>
         </div>
-        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
-          <div class="text-2xl font-bold text-orange-400">{{ counts.loop }}</div>
-          <div class="text-sm text-slate-300 mt-1">Loopok</div>
+        <div class="text-center p-3 sm:p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-xl sm:text-2xl font-bold text-orange-400">{{ counts.loop }}</div>
+          <div class="text-xs sm:text-sm text-slate-300 mt-1">Loopok</div>
         </div>
-        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
-          <div class="text-2xl font-bold text-emerald-400">{{ counts.profile }}</div>
-          <div class="text-sm text-slate-300 mt-1">Profilok</div>
+        <div class="text-center p-3 sm:p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-xl sm:text-2xl font-bold text-emerald-400">{{ counts.profile }}</div>
+          <div class="text-xs sm:text-sm text-slate-300 mt-1">Profilok</div>
         </div>
-        <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
-          <div class="text-2xl font-bold text-blue-400">{{ total }}</div>
-          <div class="text-sm text-slate-300 mt-1">Összes jelentés</div>
+        <div class="text-center p-3 sm:p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
+          <div class="text-xl sm:text-2xl font-bold text-blue-400">{{ total }}</div>
+          <div class="text-xs sm:text-sm text-slate-300 mt-1">Összes</div>
         </div>
       </div>
     </div>
 
+    <!-- FILTER TABS + REFRESH -->
     <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-      <div class="flex gap-1.5 rounded-2xl border border-slate-600/30 bg-slate-800/60 p-1 backdrop-blur-sm">
-        <button
-          *ngFor="let t of tabs"
-          (click)="setTab(t)"
-          type="button"
-          class="group inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all"
-          [ngClass]="{
-            'bg-gradient-to-r from-amber-600 to-orange-600 text-white': activeTab.key === t.key,
-            'text-slate-300 hover:bg-slate-700/60': activeTab.key !== t.key
-          }"
-        >
-          <span>{{ t.label }}</span>
-          <span
-            *ngIf="t.count !== undefined"
-            class="inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-xs"
+      <div class="w-full sm:w-auto">
+        <!-- ITT A VÁLTOZÁS: grid grid-cols-2 mobilon -->
+        <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 rounded-2xl border border-slate-600/30 bg-slate-800/60 p-2 backdrop-blur-sm">
+          <button
+            *ngFor="let t of tabs"
+            (click)="setTab(t)"
+            type="button"
+            class="group inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap"
             [ngClass]="{
-              'bg-white text-amber-600': activeTab.key === t.key,
-              'bg-slate-700 text-slate-300': activeTab.key !== t.key
+              'bg-gradient-to-r from-amber-600 to-orange-600 text-white': activeTab.key === t.key,
+              'text-slate-300 hover:bg-slate-700/60': activeTab.key !== t.key
             }"
           >
-            {{ t.count }}
-          </span>
-        </button>
+            <!-- Az order-first és order-last osztályokat eltávolítottam -->
+            <span>{{ t.label }}</span>
+            <span
+              *ngIf="t.count !== undefined"
+              class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[10px] sm:text-xs"
+              [ngClass]="{
+                'bg-white text-amber-600': activeTab.key === t.key,
+                'bg-slate-700 text-slate-300': activeTab.key !== t.key
+              }"
+            >
+              {{ t.count }}
+            </span>
+          </button>
+        </div>
       </div>
 
       <button
         type="button"
         (click)="refresh()"
-        class="flex items-center gap-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl"
+        class="w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2.5 sm:px-6 sm:py-3 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl"
         title="Lista frissítése"
       >
         <i class="bi bi-arrow-clockwise"></i>
@@ -106,21 +114,22 @@
       </button>
     </div>
 
+    <!-- LIST SECTION -->
     <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl overflow-hidden">
       
-      <div *ngIf="loading" class="space-y-4 p-8 animate-pulse">
+      <div *ngIf="loading" class="space-y-4 p-4 sm:p-8 animate-pulse">
         <div *ngFor="let i of [1,2,3]" class="flex items-center space-x-4">
           <div class="h-4 rounded bg-slate-700/60 flex-1"></div>
           <div class="h-4 rounded bg-slate-700/60 w-20"></div>
         </div>
       </div>
 
-      <div *ngIf="!loading && reports.length === 0" class="text-center py-16">
-        <div class="w-24 h-24 rounded-full bg-slate-700/40 flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
-          <i class="bi bi-flag text-5xl text-slate-400"></i>
+      <div *ngIf="!loading && reports.length === 0" class="text-center py-12 sm:py-16">
+        <div class="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-slate-700/40 flex items-center justify-center mx-auto mb-4 sm:mb-6 backdrop-blur-sm">
+          <i class="bi bi-flag text-3xl sm:text-5xl text-slate-400"></i>
         </div>
-        <h3 class="text-xl font-semibold text-slate-200 mb-3">Nincsenek bejelentések</h3>
-        <p class="text-slate-400 max-w-md mx-auto">
+        <h3 class="text-lg sm:text-xl font-semibold text-slate-200 mb-2 sm:mb-3">Nincsenek bejelentések</h3>
+        <p class="text-sm text-slate-400 max-w-md mx-auto px-4">
           {{ status === 'pending' ? 'Nincsenek függőben lévő bejelentések.' : 
              status === 'resolved' ? 'Nincsenek megoldott bejelentések.' : 
              'Nincsenek elutasított bejelentések.' }}
@@ -128,12 +137,13 @@
       </div>
 
       <div *ngIf="!loading && reports.length > 0" class="divide-y divide-slate-600/30">
-        <div *ngFor="let r of reports" class="p-6 hover:bg-slate-700/20 transition-all duration-200">
+        <div *ngFor="let r of reports" class="p-3 sm:p-6 hover:bg-slate-700/20 transition-all duration-200">
           
-          <div class="relative rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
+          <div class="relative rounded-2xl border border-slate-600/30 bg-slate-700/40 p-4 sm:p-6 backdrop-blur-sm">
             
+            <!-- Type indicator stripe -->
             <div
-              class="absolute left-0 top-0 h-full w-1.5 rounded-l-2xl"
+              class="absolute left-0 top-0 h-full w-1 sm:w-1.5 rounded-l-2xl"
               [ngClass]="{
                 'bg-rose-400': r.type === 'comment',
                 'bg-blue-400': r.type === 'loop',
@@ -141,9 +151,10 @@
               }"
             ></div>
 
-            <div class="flex flex-wrap items-start gap-3 pl-4 mb-4">
+            <!-- Header Badges -->
+            <div class="flex flex-wrap items-start gap-2 sm:gap-3 pl-2 sm:pl-4 mb-4">
               <span
-                class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium backdrop-blur-sm border"
+                class="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-medium backdrop-blur-sm border"
                 [ngClass]="{
                   'bg-rose-500/20 text-rose-300 border-rose-500/30': r.type === 'comment',
                   'bg-blue-500/20 text-blue-300 border-blue-500/30': r.type === 'loop',
@@ -159,7 +170,7 @@
               </span>
 
               <span
-                class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium backdrop-blur-sm border"
+                class="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-medium backdrop-blur-sm border"
                 [ngClass]="{
                   'bg-slate-500/20 text-slate-300 border-slate-500/30': r.status === 'pending',
                   'bg-emerald-500/20 text-emerald-300 border-emerald-500/30': r.status === 'resolved',
@@ -174,98 +185,89 @@
                 {{ r.status === 'pending' ? 'Függőben' : (r.status === 'resolved' ? 'Megoldott' : 'Elutasított') }}
               </span>
 
-              <span class="ml-auto flex items-center gap-2 text-xs text-slate-400 bg-slate-600/30 px-3 py-1.5 rounded-full">
+              <span class="ml-auto flex items-center gap-2 text-[10px] sm:text-xs text-slate-400 bg-slate-600/30 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full">
                 <i class="bi bi-calendar3"></i>
                 {{ r.createdAt | date:'yyyy.MM.dd. HH:mm' }}
               </span>
             </div>
 
-            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pl-4">
+            <!-- Content Grid -->
+            <div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 pl-2 sm:pl-4">
               <div class="sm:col-span-2">
-                <div class="text-xs text-slate-400 mb-2 flex items-center gap-2">
+                <div class="text-xs text-slate-400 mb-1.5 sm:mb-2 flex items-center gap-2">
                   <i class="bi bi-chat-text"></i>
                   Bejelentés üzenete
                 </div>
-                <div class="break-words text-sm font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                <div class="break-words text-xs sm:text-sm font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                   {{ r.message || '—' }}
                 </div>
               </div>
 
               <div>
-                <div class="text-xs text-slate-400 mb-2 flex items-center gap-2">
+                <div class="text-xs text-slate-400 mb-1.5 sm:mb-2 flex items-center gap-2">
                   <i class="bi bi-person-up"></i>
                   Bejelentő
                 </div>
-                <div class="text-sm font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                <div class="text-xs sm:text-sm font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                   {{ r.reporter?.username || 'Ismeretlen' }}
                 </div>
               </div>
 
               <div *ngIf="r.type==='comment'">
-                <div class="text-xs text-slate-400 mb-2 flex items-center gap-2">
+                <div class="text-xs text-slate-400 mb-1.5 sm:mb-2 flex items-center gap-2">
                   <i class="bi bi-music-note-beamed"></i>
                   Érintett loop
                 </div>
-                <div class="text-sm font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                <div class="text-xs sm:text-sm font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                   {{ r.target?.loop?.filename || r.meta?.loopTitle || '—' }}
                 </div>
               </div>
             </div>
 
-            <div class="mt-6 flex flex-wrap items-center gap-3 pl-4">
+            <!-- Actions Bar -->
+            <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pl-2 sm:pl-4">
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-xl border border-slate-600/30 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-600/40 transition-all group/tooltip relative"
+                class="flex items-center justify-center sm:justify-start gap-2 rounded-xl border border-slate-600/30 px-4 py-2.5 text-xs sm:text-sm font-medium text-slate-300 hover:bg-slate-600/40 transition-all group/tooltip relative"
                 (click)="toggleExpand(r._id)"
               >
                 <i class="bi" [class.bi-chevron-down]="!expanded[r._id]" [class.bi-chevron-up]="expanded[r._id]"></i>
-                {{ expanded[r._id] ? 'Részletek elrejtése' : 'Részletek megtekintése' }}
-                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap">
-                  {{ expanded[r._id] ? 'Részletek elrejtése' : 'Részletek megjelenítése' }}
-                </div>
+                {{ expanded[r._id] ? 'Részletek elrejtése' : 'Részletek' }}
               </button>
 
-              <div class="ml-auto flex items-center gap-2">
+              <div class="sm:ml-auto flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
-                  class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-4 py-2.5 text-sm font-medium text-white hover:from-emerald-500 hover:to-green-500 transition-all shadow-lg hover:shadow-xl group/tooltip relative"
+                  class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-white hover:from-emerald-500 hover:to-green-500 transition-all shadow-lg hover:shadow-xl"
                   (click)="handleSetStatus(r._id, 'resolved')"
                 >
                   <i class="bi bi-check-circle"></i>
                   Megoldva
-                  <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap">
-                    Megoldottnak jelölés
-                  </div>
                 </button>
 
                 <button
                   type="button"
-                  class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 px-4 py-2.5 text-sm font-medium text-white hover:from-rose-500 hover:to-red-500 transition-all shadow-lg hover:shadow-xl group/tooltip relative"
+                  class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-white hover:from-rose-500 hover:to-red-500 transition-all shadow-lg hover:shadow-xl"
                   (click)="handleSetStatus(r._id, 'rejected')"
                 >
                   <i class="bi bi-x-circle"></i>
                   Elutasít
-                  <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap">
-                    Bejelentés elutasítása
-                  </div>
                 </button>
 
                 <button
                   *ngIf="r.type==='comment' && status!=='resolved'"
                   type="button"
-                  class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-700 to-red-700 px-4 py-2.5 text-sm font-medium text-white hover:from-rose-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl group/tooltip relative"
+                  class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-700 to-red-700 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-white hover:from-rose-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl"
                   (click)="deleteCommentInline(r)"
                 >
                   <i class="bi bi-trash"></i>
                   Törlés
-                  <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap">
-                    Komment törlése
-                  </div>
                 </button>
               </div>
             </div>
 
-            <div *ngIf="expanded[r._id]" class="mt-6 rounded-2xl border border-slate-600/30 bg-slate-600/20 p-6 backdrop-blur-sm">
+            <!-- Expanded Details -->
+            <div *ngIf="expanded[r._id]" class="mt-6 rounded-2xl border border-slate-600/30 bg-slate-600/20 p-4 sm:p-6 backdrop-blur-sm">
               <ng-container [ngSwitch]="r.type">
                 
                 <ng-container *ngSwitchCase="'comment'">
@@ -273,26 +275,26 @@
                     <i class="bi bi-chat-quote"></i>
                     Eredeti komment
                   </div>
-                  <div class="whitespace-pre-wrap rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-sm text-slate-100 backdrop-blur-sm">
+                  <div class="whitespace-pre-wrap rounded-xl border border-slate-600/30 bg-slate-700/40 p-3 sm:p-4 text-xs sm:text-sm text-slate-100 backdrop-blur-sm">
                     {{ r.target?.text || r.meta?.commentText || '—' }}
                   </div>
 
                   <div class="mt-6 grid gap-4 sm:grid-cols-3 text-sm">
                     <div>
                       <div class="text-xs text-slate-400 mb-2">Kommentelő</div>
-                      <div class="font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                      <div class="font-medium text-xs sm:text-sm text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                         {{ r.target?.user?.username || '—' }}
                       </div>
                     </div>
                     <div>
                       <div class="text-xs text-slate-400 mb-2">Loop</div>
-                      <div class="font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                      <div class="font-medium text-xs sm:text-sm text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                         {{ r.target?.loop?.filename || r.meta?.loopTitle || '—' }}
                       </div>
                     </div>
                     <div>
                       <div class="text-xs text-slate-400 mb-2">Beküldve</div>
-                      <div class="font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                      <div class="font-medium text-xs sm:text-sm text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                         {{ (r.target?.createdAt || r.createdAt) | date:'yyyy.MM.dd. HH:mm' }}
                       </div>
                     </div>
@@ -304,8 +306,7 @@
                       [routerLink]="['/loop-detail', (r.target?.loop?._id || r.meta?.loopId)]"
                       [fragment]="'comment-' + (r.target?._id || r.meta?.commentId)"
                       [queryParams]="{ comment: (r.target?._id || r.meta?.commentId) }"
-                      class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2.5 text-sm font-medium text-white hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl"
-                      title="Ugrás a kommenthez"
+                      class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2.5 text-xs sm:text-sm font-medium text-white hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl"
                     >
                       <i class="bi bi-box-arrow-up-right"></i>
                       Megnyitás a kommenthez
@@ -318,11 +319,11 @@
                     <i class="bi bi-music-note-beamed"></i>
                     Jelentett loop
                   </div>
-                  <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-sm text-slate-100 backdrop-blur-sm">
+                  <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-3 sm:p-4 text-xs sm:text-sm text-slate-100 backdrop-blur-sm">
                     <div class="font-medium">
                       {{ r.target?.filename || r.meta?.loopTitle || '—' }}
                     </div>
-                    <div class="mt-2 text-xs text-slate-400">
+                    <div class="mt-2 text-xs text-slate-400 truncate">
                       ID: {{ r.target?._id || r.meta?.loopId || r.targetId }}
                     </div>
                   </div>
@@ -330,20 +331,20 @@
                   <div class="mt-6 grid gap-4 sm:grid-cols-3 text-sm">
                     <div>
                       <div class="text-xs text-slate-400 mb-2">Feltöltő</div>
-                      <div class="font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                      <div class="font-medium text-xs sm:text-sm text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                         {{ r.target?.user?.username || r.targetOwnerId || '—' }}
                       </div>
                     </div>
                     <div>
                       <div class="text-xs text-slate-400 mb-2">Beküldve</div>
-                      <div class="font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                      <div class="font-medium text-xs sm:text-sm text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                         {{ (r.target?.createdAt || r.createdAt) | date:'yyyy.MM.dd. HH:mm' }}
                       </div>
                     </div>
                     <div class="flex items-end">
                       <a
                         [routerLink]="['/loop-detail', (r.target?._id || r.meta?.loopId || r.targetId)]"
-                        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2.5 text-sm font-medium text-white hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2.5 text-xs sm:text-sm font-medium text-white hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl"
                       >
                         <i class="bi bi-box-arrow-up-right"></i>
                         Megnyitás
@@ -357,11 +358,11 @@
                     <i class="bi bi-person"></i>
                     Jelentett profil
                   </div>
-                  <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 text-sm text-slate-100 backdrop-blur-sm">
+                  <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-3 sm:p-4 text-xs sm:text-sm text-slate-100 backdrop-blur-sm">
                     <div class="font-medium">
                       {{ r.target?.username || r.meta?.username || '—' }}
                     </div>
-                    <div class="mt-2 text-xs text-slate-400" *ngIf="!(r.target?.username || r.meta?.username)">
+                    <div class="mt-2 text-xs text-slate-400 truncate" *ngIf="!(r.target?.username || r.meta?.username)">
                       Felhasználó ID: {{ r.targetOwnerId || r.targetId || '—' }}
                     </div>
                   </div>
@@ -369,14 +370,14 @@
                   <div class="mt-6 grid gap-4 sm:grid-cols-3 text-sm">
                     <div>
                       <div class="text-xs text-slate-400 mb-2">Beküldve</div>
-                      <div class="font-medium text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
+                      <div class="font-medium text-xs sm:text-sm text-slate-100 bg-slate-600/30 rounded-xl p-3 backdrop-blur-sm">
                         {{ r.createdAt | date:'yyyy.MM.dd. HH:mm' }}
                       </div>
                     </div>
                     <div class="flex items-end">
                       <a
                         [routerLink]="['/profile', (r.target?.username || r.meta?.username || r.targetOwnerId || r.targetId)]"
-                        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2.5 text-sm font-medium text-white hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2.5 text-xs sm:text-sm font-medium text-white hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl"
                         title="Ugrás a jelentett profilhoz"
                       >
                         <i class="bi bi-box-arrow-up-right"></i>
@@ -399,6 +400,7 @@
       </div>
     </div>
 
+    <!-- Pagination -->
     <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-400">
       <div class="flex items-center gap-3 bg-slate-700/40 rounded-xl px-4 py-3 backdrop-blur-sm">
         <i class="bi bi-flag text-amber-400"></i>

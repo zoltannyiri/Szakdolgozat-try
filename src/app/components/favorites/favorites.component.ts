@@ -10,6 +10,7 @@ import { ReportsService } from '../../services/reports.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { WaveformService } from '../../services/waveform.service';
 
 @Component({
   selector: 'app-favorites',
@@ -64,10 +65,11 @@ export class FavoritesComponent implements OnInit, OnDestroy {
 
   constructor(
     private favoriteService: FavoriteService,
-    public loopService: LoopService,
+    public loopService: LoopService, // Public, hogy a HTML elérje az apiUrl-t
     public authService: AuthService,
     private reportsSvc: ReportsService,
-    private http: HttpClient
+    private http: HttpClient,
+    private waveformService: WaveformService // 2. Injektáljuk
   ) {}
 
   ngOnInit(): void {
@@ -88,10 +90,10 @@ export class FavoritesComponent implements OnInit, OnDestroy {
         next: (res: any) => {
           const raw = res?.favorites ?? [];
           this.favoriteLoops = raw.filter((l: any) => l && typeof l === 'object' && l._id);
-          // audio
+          
           this.favoriteLoops.forEach(l => {
             this.volumes[l._id] = 0.7;
-            this.generateWaveform(l._id);
+            this.generateWaveform(l._id); // 3. Hívjuk az új generátort
           });
           this.isLoading = false;
         },
@@ -103,18 +105,44 @@ export class FavoritesComponent implements OnInit, OnDestroy {
       });
   }
 
-  // URL
-  getAudioUrl(path?: string | null): string | null {
-    if (!path) return null;
+  // 4. JAVÍTOTT URL KEZELÉS (Ugyanaz mint a loops.component-ben)
+  getAudioUrl(path?: string | null): string {
+    if (!path) return '';
 
-    const driveId = path.match(/[?&]id=([A-Za-z0-9_\-]+)/)?.[1];
-    if (path.includes('drive.google.com') && driveId) {
-      return `${this.loopService.apiUrl}/api/files/${driveId}`;
+    // Localhost javítás
+    if (path.includes('localhost:3000')) {
+        const relative = path.replace('http://localhost:3000', '').replace('https://localhost:3000', '');
+        return `${this.loopService.apiUrl}${relative}`;
     }
 
-    if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    const cleaned = path.replace(/\\/g, '/').replace(/^\/?uploads\//, 'uploads/');
-    return `${this.loopService.apiUrl}/${cleaned}`;
+    // Google Drive
+    const driveIdMatch = path.match(/[?&]id=([A-Za-z0-9_\-]+)/);
+    if (path.includes('drive.google.com') && driveIdMatch) {
+      const fileId = driveIdMatch[1];
+      return `${this.loopService.apiUrl}/api/files/${fileId}`;
+    }
+
+    // Teljes URL
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+
+    // Relatív
+    const cleanPath = path.replace(/^\/?uploads\//, 'uploads/');
+    return `${this.loopService.apiUrl}/${cleanPath}`;
+  }
+
+  // 5. JAVÍTOTT WAVEFORM GENERÁLÁS (Service-en keresztül)
+  async generateWaveform(loopId: string): Promise<void> {
+    const loop = this.favoriteLoops.find(l => l._id === loopId);
+    if (!loop) return;
+
+    const audioUrl = this.getAudioUrl(loop.path);
+    if (!audioUrl) return;
+
+    // Használjuk a közös service-t, ami cache-el és stabil
+    const wf = await this.waveformService.getOrCreate(loopId, audioUrl);
+    this.waveforms[loopId] = wf;
   }
 
   // Lejátszás
@@ -187,39 +215,6 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // waveform (loops)
-  async generateWaveform(loopId: string): Promise<void> {
-    try {
-      const target = this.favoriteLoops.find(l => l._id === loopId);
-      const url = this.getAudioUrl(target?.path || '');
-      if (!url) return;
-
-      const ctx = new AudioContext();
-      const res = await fetch(url);
-      const arr = await res.arrayBuffer();
-      const buf = await ctx.decodeAudioData(arr);
-
-      const ch = buf.getChannelData(0);
-      const spp = Math.max(1, Math.floor(ch.length / 100));
-      const wf: number[] = [];
-
-      for (let i = 0; i < 100; i++) {
-        const s = i * spp;
-        const e = Math.min(s + spp, ch.length);
-        let sum = 0;
-        for (let j = s; j < e; j++) sum += Math.abs(ch[j]);
-        const avg = sum / (e - s);
-        wf.push(Math.min(100, Math.floor(avg * 200)));
-      }
-
-      this.waveforms[loopId] = wf;
-      await ctx.close();
-    } catch (err) {
-      console.error('Waveform gen error:', err);
-      this.waveforms[loopId] = new Array(100).fill(30);
-    }
-  }
-
   // Like (loops)
   hasLiked(loop: ILoop): boolean {
     const uid = this.authService.getUserId();
@@ -252,49 +247,48 @@ export class FavoritesComponent implements OnInit, OnDestroy {
       });
     }
   }
-
-  // letöltés (loops)
+  
   async downloadLoop(loop: ILoop): Promise<void> {
     try {
       const verified = await this.authService.isUserVerified().toPromise();
       if (!verified) { alert('Előbb igazold az e-mail címedet.'); return; }
 
       this.loopService.downloadLoop(loop._id).subscribe({
-        next: (blob: Blob) => {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = loop.filename || `loop_${loop._id}.wav`;
-          document.body.appendChild(a);
-          a.click();
-          URL.revokeObjectURL(url);
-          a.remove();
+        next: (response: any) => {
+          if (response && response.downloadUrl) {
+            let url = response.downloadUrl;
+            
+            // Localhost fix
+            if (url.includes('localhost:3000')) {
+               url = url.replace('http://localhost:3000', this.loopService.apiUrl);
+               url = url.replace('https://localhost:3000', this.loopService.apiUrl);
+            }
+            const idMatch = url.match(/\/files\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (idMatch && idMatch[1]) {
+               url = `https://drive.google.com/uc?export=download&id=${idMatch[1]}`;
+            }
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = loop.filename || `loop_${loop._id}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+          else if (response instanceof Blob) {
+            const url = URL.createObjectURL(response);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = loop.filename || `loop_${loop._id}.wav`;
+            document.body.appendChild(a);
+            a.click();
+            URL.revokeObjectURL(url);
+            a.remove();
+          }
         },
         error: (err) => {
-          // részletes kezelések
-          const handle = (data: any) => {
-            const code = data?.code;
-            if (err.status === 403 && code === 'BANNED') {
-              const untilIso = data?.until;
-              const reason = (data?.reason || '').trim();
-              let msg = 'A fiókod tiltva.';
-              if (untilIso) {
-                const until = new Date(untilIso);
-                const forever = until.getUTCFullYear() >= 9999;
-                msg = forever ? 'A fiókod véglegesen tiltva.' : `Ideiglenes tiltás eddig: ${until.toLocaleString()}.`;
-              }
-              if (reason) msg += `\nOk: ${reason}`;
-              alert(msg); return;
-            }
-            if (err.status === 403 && code === 'EMAIL_NOT_VERIFIED') { alert('Előbb igazold az e-mail címedet.'); return; }
-            alert('A letöltés nem engedélyezett vagy hiba történt.');
-          };
-
-          if (err?.error instanceof Blob) {
-            err.error.text().then((t: string) => { try { handle(JSON.parse(t)); } catch { handle({}); } });
-          } else {
-            handle(err?.error);
-          }
+          if (err.status === 402) alert('Nincs elég kredited!');
+          else console.error(err);
         }
       });
     } catch (e) {
@@ -317,7 +311,7 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Report
+  // ... Report és Admin metódusok változatlanul maradhatnak ...
   openLoopReportModal(loopId: string) {
     if (!this.authService.isLoggedIn()) { alert('Please log in to report loops'); return; }
     this.reportTargetLoopId = loopId;
@@ -355,7 +349,6 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Admin
   private checkIsAdmin(): boolean {
     try {
       const tok = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -439,7 +432,6 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // utils
   formatTime(sec?: number): string {
     if (sec === undefined || isNaN(sec)) return '0:00';
     const m = Math.floor(sec / 60);
