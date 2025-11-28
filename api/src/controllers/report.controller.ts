@@ -62,26 +62,26 @@ export const createCommentReport = async (req: CustomRequest, res: Response) => 
 };
 
 
-export async function createLoopReport(req: Request, res: Response) {
+export const createLoopReport = async (req: CustomRequest, res: Response) => {
   try {
     const { loopId } = req.params;
     const { message } = req.body;
-
+    const reporterId = req.user?.userId;
+    if (!reporterId) {
+      return res.status(401).json({ success: false, message: 'Nem vagy bejelentkezve.' });
+    }
     if (!message || typeof message !== 'string' || message.trim().length < 3) {
       return res.status(400).json({ success: false, message: 'A jelentés indoklása túl rövid.' });
     }
-
     const loop = await Loop.findById(loopId).populate('uploader', '_id username');
     if (!loop) {
       return res.status(404).json({ success: false, message: 'A loop nem található.' });
     }
-
-    const reporterId = (req as any).user?.id || (req as any).user?._id;
     const doc = await Report.create({
       type: 'loop',
       targetId: loop._id,
       reporter: reporterId,
-      reporterId,
+      reporterId: reporterId,
       targetOwnerId: loop.uploader?._id || loop.uploader,
       message: message.trim(),
       status: 'pending',
@@ -90,13 +90,12 @@ export async function createLoopReport(req: Request, res: Response) {
         loopTitle: loop.filename
       }
     });
-
     return res.json({ success: true, data: doc });
   } catch (err) {
     console.error('[createLoopReport] error:', err);
     return res.status(500).json({ success: false, message: 'Szerverhiba a jelentés mentésekor.' });
   }
-}
+};
 
 
 export const createProfileReport = async (req: CustomRequest, res: Response) => {
