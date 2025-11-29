@@ -12,7 +12,7 @@ type PendingLoop = {
   key?: string;
   scale?: string;
   instrument?: string;
-  duration?: number;          // mp
+  duration?: number;
   uploadDate?: string | Date;
   tags?: string[];
   uploader?: { username?: string; _id?: string };
@@ -29,13 +29,10 @@ export class AdminLoopModerationComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
 
-  // a template ezt használja
   pendingLoops: PendingLoop[] = [];
-
-  // indok mezők tartalma loop ID szerint
   reasonMap: Record<string, string> = {};
 
-  // szűrők a felső sávhoz
+  // szűrők
   filters: {
     q?: string;
     minBpm?: number | null;
@@ -79,12 +76,9 @@ export class AdminLoopModerationComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // lekérdezés a szűrőkkel
     this.loopSvc.getPendingLoops().subscribe({
       next: (res: any) => {
-        
         this.pendingLoops = res?.loops ?? [];
-        // indok reset
         this.reasonMap = {};
         this.isLoading = false;
       },

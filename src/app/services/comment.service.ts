@@ -7,10 +7,6 @@ import { catchError, map, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class CommentService {
-
-
-
-
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
@@ -23,7 +19,6 @@ export class CommentService {
       );
   }
 
-
   getCommentsForLoop(loopId: string) {
     return this.http.get<any>(`${this.apiUrl}/api/loops/${loopId}/comments`).pipe(
       catchError(error => {
@@ -33,19 +28,9 @@ export class CommentService {
     );
   }
 
-  //  reportComment(commentId: string, message: string) {
-  //   return this.http.post(`${this.apiUrl}/api/reports/comments/${commentId}`, { message })
-  //     .pipe(
-  //       catchError((error: HttpErrorResponse) => {
-  //         console.error('Hiba a jelentés küldésekor:', error);
-  //         return throwError(() => error);
-  //       })
-  //     );
-  // }
   reportComment(commentId: string, message: string) {
     return this.http.post(`${this.apiUrl}/api/reports/comments/${commentId}`, { message });
   }
-
 
   deleteCommentAdmin(commentId: string) {
     return this.http.delete(`${this.apiUrl}/api/admin/comments/${commentId}`)
@@ -56,7 +41,6 @@ export class CommentService {
     console.error('Hiba történt:', error);
     return throwError(() => new Error('Hiba a komment küldésekor'));
   }
-
 
   getCommentsByUser(userId: string) {
     return this.http.get<{ items: any[] }>(`${this.apiUrl}/api/users/${userId}/comments`)

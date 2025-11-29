@@ -14,7 +14,7 @@ type ToastVariant = 'default' | 'success' | 'error';
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss'
 })
-export class AdminUsersComponent implements OnInit{
+export class AdminUsersComponent implements OnInit {
   apiUrl = environment.apiUrl;
   users: any[] = [];
   errorMessage = '';
@@ -27,47 +27,36 @@ export class AdminUsersComponent implements OnInit{
 
   toast = { text: '', variant: 'default' as ToastVariant, timer: 0 as number };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
-  // loadUsers() {
-  //   this.http.get(`${environment.apiUrl}/api/admin/users`).subscribe({
-  //     next: (res: any) => {
-  //       this.users = res.users || [];
-  //     },
-  //     error: (err) => {
-  //       console.error('Nem sikerült lekérni a felhasználókat:', err);
-  //       this.errorMessage = 'Nem sikerült betölteni a felhasználókat.';
-  //     }
-  //   });
-  // }
-loadUsers() {
-  this.loading = true;
-  const token = localStorage.getItem('token');
+  loadUsers() {
+    this.loading = true;
+    const token = localStorage.getItem('token');
 
-  this.http.get(`${environment.apiUrl}/api/admin`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).subscribe({
-    next: (res: any) => {
-      this.users = res.users || [];
-      this.applyFilters();
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Error loading users:', err);
-      this.errorMessage = 'Nem sikerült betölteni a felhasználókat.';
-      this.showToast('Hiba a felhasználók betöltésekor', 'error');
-      this.loading = false;
-    }
-  });
-}
+    this.http.get(`${environment.apiUrl}/api/admin`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).subscribe({
+      next: (res: any) => {
+        this.users = res.users || [];
+        this.applyFilters();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading users:', err);
+        this.errorMessage = 'Nem sikerült betölteni a felhasználókat.';
+        this.showToast('Hiba a felhasználók betöltésekor', 'error');
+        this.loading = false;
+      }
+    });
+  }
 
-onSearch(event: any) {
+  onSearch(event: any) {
     this.searchTerm = event.target.value.toLowerCase();
     this.applyFilters();
   }
@@ -86,7 +75,7 @@ onSearch(event: any) {
     let result = [...this.users];
 
     if (this.searchTerm) {
-      result = result.filter(user => 
+      result = result.filter(user =>
         user.username.toLowerCase().includes(this.searchTerm) ||
         user.email.toLowerCase().includes(this.searchTerm) ||
         (user.firstName && user.firstName.toLowerCase().includes(this.searchTerm)) ||
@@ -123,7 +112,7 @@ onSearch(event: any) {
 
 
 
-isBanned(user: any): boolean {
+  isBanned(user: any): boolean {
     if (!user?.bannedUntil) return false;
     const until = new Date(user.bannedUntil).getTime();
     return until > Date.now() && !this.isPermanent(user);
@@ -159,10 +148,10 @@ isBanned(user: any): boolean {
       this.http.post(`${base}/unban`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
-        next: () => { 
-          this.loadUsers(); 
+        next: () => {
+          this.loadUsers();
           this.showToast(`${user.username} tiltása feloldva`, 'success');
-         },
+        },
         error: (err) => {
           console.error('Unban hiba:', err);
           this.showToast('Hiba a felhasználó tiltásának feloldásakor', 'error');
@@ -185,23 +174,13 @@ isBanned(user: any): boolean {
     }
   }
 
-    // ha nincs tiltva → BAN
-    // default: 1 hónap
-    // const body = { duration: '1m', reason: '' as string }; // '1d' | '1m' | 'permanent'
-    // this.http.post(`${base}/ban`, body, {
-    //   headers: { Authorization: `Bearer ${token}` }
-    // }).subscribe({
-    //   next: () => this.loadUsers(),
-    //   error: (err) => console.error('Ban hiba:', err)
-    // });
-  // }
-    quickBan(user: any, duration: '1d' | '1m' | 'permanent') {
+  quickBan(user: any, duration: '1d' | '1m' | 'permanent') {
     const token = localStorage.getItem('token');
     const base = `${environment.apiUrl}/api/admin/users/${user._id}`;
-    
+
     const durationLabels = {
       '1d': '1 nap',
-      '1m': '1 hónap', 
+      '1m': '1 hónap',
       'permanent': 'véglegesen'
     };
 
@@ -227,18 +206,18 @@ isBanned(user: any): boolean {
   }
 
   isUserActive(user: any): boolean {
-  const v = user?.lastLogin;
-  if (!v) return false;
+    const v = user?.lastLogin;
+    if (!v) return false;
 
-  const t = typeof v === 'number'
-    ? (v > 1e12 ? v : v * 1000)
-    : Date.parse(v);
+    const t = typeof v === 'number'
+      ? (v > 1e12 ? v : v * 1000)
+      : Date.parse(v);
 
-  if (isNaN(t)) return false;
+    if (isNaN(t)) return false;
 
-  const diffMin = (Date.now() - t) / 60000;
-  return diffMin >= 0 && diffMin <= 5; 
-}
+    const diffMin = (Date.now() - t) / 60000;
+    return diffMin >= 0 && diffMin <= 5;
+  }
 
   getDaysSince(date: string): number {
     const regDate = new Date(date);
@@ -248,57 +227,57 @@ isBanned(user: any): boolean {
   }
 
   private showToast(text: string, variant: ToastVariant = 'default', ms = 3000) {
-  this.toast.text = text;
-  this.toast.variant = variant;
-  if (this.toast.timer) clearTimeout(this.toast.timer);
-  this.toast.timer = window.setTimeout(() => (this.toast.text = ''), ms);
-}
+    this.toast.text = text;
+    this.toast.variant = variant;
+    if (this.toast.timer) clearTimeout(this.toast.timer);
+    this.toast.timer = window.setTimeout(() => (this.toast.text = ''), ms);
+  }
 
 
   getStatusLabel(user: any): string {
-  if (this.isPermanent(user)) return 'Véglegesen tiltott';
-  if (this.isBanned(user))    return 'Ideiglenesen tiltott';
-  return 'Aktív';
-}
-
-openDropdownFor: string | null = null;
-
-toggleDropdown(userId: string) {
-  this.openDropdownFor = this.openDropdownFor === userId ? null : userId;
-}
-
-toggleRole(user: any) {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    this.showToast('Nincs érvényes token (jelentkezz be újra)', 'error');
-    return;
+    if (this.isPermanent(user)) return 'Véglegesen tiltott';
+    if (this.isBanned(user)) return 'Ideiglenesen tiltott';
+    return 'Aktív';
   }
 
-  const newRole = user.role === 'admin' ? 'user' : 'admin';
+  openDropdownFor: string | null = null;
 
-  this.http.patch(
-    `${environment.apiUrl}/api/admin/users/${user._id}/role`,
-    { role: newRole },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
+  toggleDropdown(userId: string) {
+    this.openDropdownFor = this.openDropdownFor === userId ? null : userId;
+  }
+
+  toggleRole(user: any) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.showToast('Nincs érvényes token (jelentkezz be újra)', 'error');
+      return;
+    }
+
+    const newRole = user.role === 'admin' ? 'user' : 'admin';
+
+    this.http.patch(
+      `${environment.apiUrl}/api/admin/users/${user._id}/role`,
+      { role: newRole },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    }
-  ).subscribe({
-    next: () => {
-      this.showToast(
-        newRole === 'admin'
-          ? `${user.username} mostantól admin`
-          : `${user.username} admin jogai visszavonva`,
-        'success'
-      );
-      this.loadUsers();
-    },
-    error: (err) => {
-      console.error('Role módosítás hiba:', err);
-      this.showToast('Hiba a szerepkör módosításakor', 'error');
-    }
-  });
-}
+    ).subscribe({
+      next: () => {
+        this.showToast(
+          newRole === 'admin'
+            ? `${user.username} mostantól admin`
+            : `${user.username} admin jogai visszavonva`,
+          'success'
+        );
+        this.loadUsers();
+      },
+      error: (err) => {
+        console.error('Role módosítás hiba:', err);
+        this.showToast('Hiba a szerepkör módosításakor', 'error');
+      }
+    });
+  }
 
 }

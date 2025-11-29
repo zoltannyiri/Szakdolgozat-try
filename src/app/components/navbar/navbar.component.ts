@@ -32,9 +32,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 
 export class NavbarComponent {
-  // toggleProfileMenu() {
-  //   throw new Error('Method not implemented.');
-  // }
   apiUrl = environment.apiUrl;
   menuOpen = false;
   showProfileMenu = false;
@@ -53,34 +50,12 @@ export class NavbarComponent {
   showChatDropdown = false;
   currentUserId: string = '';
 
-  // ---- admin flag ----
   isAdmin = false;
 
   private subscription: Subscription;
   loggedInView: TemplateRef<NgIfContext<boolean>> | null | undefined;
   profileMenuOpen: any;
-
-  // constructor(public authService: AuthService, private notificationService: NotificationService, private router: Router) {
-  //   this.subscription = this.authService.isLoggedIn$.subscribe(
-  //     (loggedIn) => {
-  //       this.isLoggedIn = loggedIn;
-  //       if (loggedIn) {
-  //         this.userName = this.authService.getUsernameFromToken() || '';
-  //       }
-  //     }
-  //   );
-
-  //   // Értesítések frissítése bejelentkezéskor
-  //   this.authService.isLoggedIn$.subscribe(loggedIn => {
-  //     if (loggedIn) {
-  //       this.loadNotifications();
-  //       // Frissítés minden 60 másodpercben
-  //       setInterval(() => this.loadNotifications(), 60000);
-  //     }
-  //   });
-  // }
-
-
+  
   constructor(
     public authService: AuthService,
     private notificationService: NotificationService,
@@ -127,14 +102,8 @@ export class NavbarComponent {
             this.userName = res.user?.username || '';
             this.userData = res.user || {};
             this.currentUserId = res.user?._id;
-
-            // ---- admin státusz frissítése ----
             this.isAdmin = (res.user?.role === 'admin') || this.readRoleFromToken() === 'admin';
-
-           
             this.socket?.emit('joinRoom', this.currentUserId);
-
-            
             this.socket?.on('receiveMessage', (message: any) => {
               if (message.senderId !== this.currentUserId) {
                 this.unreadMessagesCount++;
@@ -166,7 +135,6 @@ export class NavbarComponent {
           },
           error: (err) => {
             console.error('[NAVBAR] Failed to load profile:', err);
-            // fallback
             this.isAdmin = this.readRoleFromToken() === 'admin';
           }
         });
@@ -209,24 +177,18 @@ export class NavbarComponent {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
     const target = event.target as HTMLElement;
-
-    // 1. Sidebar (Mobil menü) bezárása
-    // Javítva: 'menuOpen' változót használunk az 'isSidebarOpen' helyett
     if (this.menuOpen && !target.closest('aside') && !target.closest('.icon-btn[aria-label="Open menu"]')) {
       this.menuOpen = false;
     }
 
-    // 2. Chat Dropdown bezárása
     if (this.showChatDropdown && !target.closest('.chat-dropdown-area') && !target.closest('.chat-btn-trigger')) {
       this.showChatDropdown = false;
     }
 
-    // 3. Notification Dropdown bezárása
     if (this.showNotifications && !target.closest('.notification-dropdown-area') && !target.closest('.notification-btn-trigger')) {
       this.showNotifications = false;
     }
 
-    // 4. Profil menü bezárása
     if (this.showProfileMenu && !target.closest('.profile-dropdown-area') && !target.closest('.profile-btn-trigger')) {
       this.showProfileMenu = false;
     }
@@ -242,7 +204,6 @@ export class NavbarComponent {
     this.authService.logout();
     this.showProfileMenu = false;
     this.isSidebarOpen = false;
-    // ---- kilépéskor admin flag reset ----
     this.isAdmin = false;
   }
 
@@ -353,7 +314,6 @@ export class NavbarComponent {
     }
   }
 
-  //chat
   navigateToChat(userId: string) {
     this.router.navigate(['/chat'], { queryParams: { userId } });
   }
@@ -362,36 +322,6 @@ export class NavbarComponent {
     this.showChatDropdown = !this.showChatDropdown;
   }
 
-  // ngOnInit(): void {
-  //   document.addEventListener('DOMContentLoaded', () => {
-  //     const burger = document.querySelectorAll('.navbar-burger');
-  //     const menu = document.querySelectorAll('.navbar-menu');
-  //     const close = document.querySelectorAll('.navbar-close');
-  //     const backdrop = document.querySelectorAll('.navbar-backdrop');
-
-  //     if (burger.length && menu.length) {
-  //         burger.forEach((burgerElement) => {
-  //             burgerElement.addEventListener('click', () => {
-  //                 menu.forEach((menuElement) => {
-  //                     menuElement.classList.toggle('hidden');
-  //                 });
-  //             });
-  //         });
-  //     }
-
-  //     if (close.length) {
-  //         close.forEach((closeElement) => {
-  //             closeElement.addEventListener('click', () => {
-  //                 menu.forEach((menuElement) => {
-  //                     menuElement.classList.toggle('hidden');
-  //                 });
-  //             });
-  //         });
-  //     }
-  //   });
-  // }
-
-  // ---- JWT payload-ból role kiolvasása fallbackként ----
   private readRoleFromToken(): string | null {
     try {
       const token = (this.authService as any)?.getToken?.();
@@ -399,7 +329,6 @@ export class NavbarComponent {
       const base64 = token.split('.')[1];
       if (!base64) return null;
       const payload = JSON.parse(atob(base64));
-      // többféle backend payloadot is kezelünk
       return payload?.role || payload?.user?.role || null;
     } catch {
       return null;

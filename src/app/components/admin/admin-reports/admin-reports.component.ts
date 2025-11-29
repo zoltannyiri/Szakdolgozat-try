@@ -1,31 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  ReportsService,
-  ReportType,
-  ReportStatus,
-  ReportListWire
-} from '../../../services/reports.service';
+import { ReportsService, ReportType, ReportStatus, ReportListWire } from '../../../services/reports.service';
 import { RouterModule } from '@angular/router';
 
 type Tab = { key: ReportType | 'all'; label: string; count?: number };
 
-// type ReportItem = {
-//   _id: string;
-//   type: ReportType;
-//   status: ReportStatus;
-//   message: string;
-//   createdAt: string;
-//   reporter?: { _id: string; username?: string } | string;
-//   targetId: string;
-//   targetOwnerId?: string;
-//   meta?: {
-//     commentText?: string;
-//     loopId?: string;
-//     loopTitle?: string;
-//   };
-// };
 
 @Component({
   selector: 'app-admin-reports',
@@ -43,7 +23,6 @@ export class AdminReportsComponent implements OnInit {
   ];
   activeTab: Tab = this.tabs[0];
 
-  // Statusz szűrő
   status: ReportStatus = 'pending';
 
   counts: Record<ReportType, number> = { comment: 0, loop: 0, profile: 0 };

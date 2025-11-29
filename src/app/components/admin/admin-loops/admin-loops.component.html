@@ -1,7 +1,6 @@
 <div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 p-6">
   <div class="max-w-7xl mx-auto space-y-8">
 
-    <!-- HEADER SECTION -->
     <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-8">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -11,24 +10,15 @@
         </div>
         
         <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-          <!-- SEARCH -->
           <div class="relative">
             <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
             <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
               placeholder="Keresés cím vagy feltöltő alapján..."
               class="pl-12 pr-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 backdrop-blur-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 w-full sm:w-80 transition-all" />
           </div>
-          
-          <!-- EXPORT BUTTON -->
-          <!-- <button (click)="exportToCSV()"
-            class="flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl">
-            <i class="bi bi-download"></i>
-            Export CSV
-          </button> -->
         </div>
       </div>
 
-      <!-- QUICK STATS -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-600/30">
         <div class="text-center p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
           <div class="text-2xl font-bold text-amber-400">{{ loops.length }}</div>
@@ -49,7 +39,6 @@
       </div>
     </div>
 
-    <!-- ERROR MESSAGE -->
     <div *ngIf="errorMessage" 
          class="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-300 backdrop-blur-sm">
       <div class="flex items-center gap-3">
@@ -58,13 +47,11 @@
       </div>
     </div>
 
-    <!-- MAIN TABLE -->
     <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead class="bg-slate-700/60 backdrop-blur-sm border-b border-slate-600/30">
             <tr>
-              <!-- CÍM -->
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('filename')">
                 <div class="flex items-center gap-2">
@@ -76,7 +63,6 @@
                 </div>
               </th>
               
-              <!-- FELTÖLTŐ -->
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('uploader')">
                 <div class="flex items-center gap-2">
@@ -88,7 +74,6 @@
                 </div>
               </th>
               
-              <!-- DÁTUM -->
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('uploadDate')">
                 <div class="flex items-center gap-2">
@@ -100,7 +85,6 @@
                 </div>
               </th>
               
-              <!-- LIKE-OK -->
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('likes')">
                 <div class="flex items-center gap-2">
@@ -112,7 +96,6 @@
                 </div>
               </th>
               
-              <!-- LETÖLTÉSEK -->
               <th class="px-6 py-4 text-left font-semibold text-slate-300 cursor-pointer hover:bg-slate-600/40 transition-colors group"
                   (click)="setSort('downloads')">
                 <div class="flex items-center gap-2">
@@ -124,7 +107,6 @@
                 </div>
               </th>
               
-              <!-- MŰVELETEK -->
               <th class="px-6 py-4 text-left font-semibold text-slate-300">
                 Műveletek
               </th>
@@ -134,7 +116,6 @@
             <tr *ngFor="let loop of paginatedLoops" 
                 class="hover:bg-slate-700/40 transition-all duration-200 group">
               
-              <!-- CÍM -->
               <td class="px-6 py-4">
                 <button (click)="openModal(loop)"
                         class="font-medium text-amber-400 hover:text-amber-300 transition-colors text-left group-hover:underline flex items-center gap-2">
@@ -143,7 +124,6 @@
                 </button>
               </td>
               
-              <!-- FELTÖLTŐ -->
               <td class="px-6 py-4">
                 <div class="flex items-center gap-2 text-slate-300">
                   <i class="bi bi-person-circle text-slate-400"></i>
@@ -151,7 +131,6 @@
                 </div>
               </td>
               
-              <!-- DÁTUM -->
               <td class="px-6 py-4 text-slate-400">
                 <div class="flex items-center gap-2">
                   <i class="bi bi-calendar3 text-slate-500"></i>
@@ -159,7 +138,6 @@
                 </div>
               </td>
               
-              <!-- LIKE-OK -->
               <td class="px-6 py-4">
                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-sm">
                   <i class="bi bi-heart-fill"></i>
@@ -167,7 +145,6 @@
                 </span>
               </td>
               
-              <!-- LETÖLTÉSEK -->
               <td class="px-6 py-4">
                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm">
                   <i class="bi bi-download"></i>
@@ -175,10 +152,8 @@
                 </span>
               </td>
               
-              <!-- MŰVELETEK -->
               <td class="px-6 py-4">
                 <div class="flex items-center gap-2">
-                  <!-- VIEW BUTTON -->
                   <button (click)="openInNewTab(loop._id)"
                           class="p-2 rounded-lg bg-slate-600/50 hover:bg-amber-600 transition-all group/tooltip relative"
                           title="Részletek megtekintése">
@@ -188,7 +163,6 @@
                     </div>
                   </button>
                   
-                  <!-- DELETE BUTTON -->
                   <button (click)="deleteLoop(loop._id)"
                           class="p-2 rounded-lg bg-slate-600/50 hover:bg-rose-600 transition-all group/tooltip relative"
                           title="Loop törlése">
@@ -204,7 +178,6 @@
         </table>
       </div>
 
-      <!-- EMPTY STATE -->
       <div *ngIf="filteredLoops.length === 0" class="text-center py-16">
         <div class="w-24 h-24 rounded-full bg-slate-700/40 flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
           <i class="bi bi-music-note-beamed text-5xl text-slate-400"></i>
@@ -216,7 +189,6 @@
       </div>
     </div>
 
-    <!-- PAGINATION -->
     <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-400">
       <div class="flex items-center gap-3 bg-slate-700/40 rounded-xl px-4 py-3 backdrop-blur-sm">
         <i class="bi bi-file-earmark-music text-amber-400"></i>
@@ -245,14 +217,12 @@
     </div>
   </div>
 
-  <!-- LOOP DETAIL MODAL - JAVÍTOTT -->
   <div *ngIf="selectedLoop" 
        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm overflow-y-auto"
        (click)="closeModal()">
     <div class="w-full max-w-4xl rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 shadow-2xl backdrop-blur-sm my-8 max-h-[90vh] overflow-y-auto"
          (click)="$event.stopPropagation()">
       
-      <!-- HEADER -->
       <div class="flex items-start justify-between p-8 border-b border-slate-600/30 sticky top-0 bg-slate-800/90 backdrop-blur-sm z-10">
         <div class="flex-1">
           <h2 class="text-3xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent mb-3">
@@ -275,13 +245,10 @@
         </button>
       </div>
 
-      <!-- CONTENT GRID -->
       <div class="p-8 space-y-8">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          <!-- AUDIO PLAYER & DETAILS -->
           <div class="lg:col-span-2 space-y-6">
-            <!-- AUDIO PLAYER -->
             <div class="rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
               <h3 class="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-3">
                 <i class="bi bi-play-circle"></i>
@@ -291,11 +258,10 @@
                      class="w-full rounded-lg"
                      controls 
                      [src]="getAudioUrl(selectedLoop.path)">
-                A böngészője nem támogatja az audio elemet.
+                A böngésződ nem támogatja az audio elemet.
               </audio>
             </div>
 
-            <!-- LOOP INFORMATION -->
             <div class="rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
               <h3 class="text-lg font-semibold text-amber-400 mb-4">Loop Információk</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -319,9 +285,7 @@
             </div>
           </div>
 
-          <!-- STATS & ACTIONS -->
           <div class="space-y-6">
-            <!-- STATISTICS -->
             <div class="rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
               <h3 class="text-lg font-semibold text-amber-400 mb-4">Statisztikák</h3>
               <div class="space-y-4">
@@ -336,7 +300,6 @@
               </div>
             </div>
 
-            <!-- QUICK ACTIONS -->
             <div class="rounded-2xl border border-slate-600/30 bg-slate-700/40 p-6 backdrop-blur-sm">
               <h3 class="text-lg font-semibold text-amber-400 mb-4">Gyors Műveletek</h3>
               <div class="space-y-3">
@@ -357,7 +320,6 @@
           </div>
         </div>
 
-        <!-- TAGS SECTION -->
         <div *ngIf="selectedLoop.tags?.length" class="pt-6 border-t border-slate-600/30">
           <h3 class="text-lg font-semibold text-amber-400 mb-4">Címkék</h3>
           <div class="flex flex-wrap gap-2">
@@ -381,5 +343,4 @@
         {{ toast.text }}
       </div>
     </div>
-  
 </div>

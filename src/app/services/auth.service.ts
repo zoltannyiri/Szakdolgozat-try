@@ -10,17 +10,17 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AuthService {
   getCurrentUser(): string | null {
-  const token = this.getToken();
-  if (!token) return null;
+    const token = this.getToken();
+    if (!token) return null;
 
-  try {
-    const decoded: any = jwtDecode(token);
-    return decoded.username || null;
-  } catch (error) {
-    console.error('Token decode error:', error);
-    return null;
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.username || null;
+    } catch (error) {
+      console.error('Token decode error:', error);
+      return null;
+    }
   }
-}
 
 
   // verifikálás
@@ -32,7 +32,7 @@ export class AuthService {
     const token = this.getToken();
     if (!token) throw new Error('Nincs bejelentkezve');
     let userId: string | null = null;
-    try { const d: any = jwtDecode(token); userId = d?.userId || null; } catch {}
+    try { const d: any = jwtDecode(token); userId = d?.userId || null; } catch { }
     return this.http.post(`${environment.apiUrl}/api/auth/verify/resend`, { userId });
   }
 
@@ -60,7 +60,7 @@ export class AuthService {
       if (token && !this.isTokenValid(token)) {
         this.clearAuthData();
       }
-    }, 60000); // Minden percben ellenőriz
+    }, 60000);
   }
 
   private isTokenValid(token: string): boolean {
@@ -81,9 +81,9 @@ export class AuthService {
       this.router.navigate([redirectUrl || '/']);
       return of(true);
     }
-    
-    this.router.navigate(['/login'], { 
-      queryParams: { redirectUrl: redirectUrl || '/' } 
+
+    this.router.navigate(['/login'], {
+      queryParams: { redirectUrl: redirectUrl || '/' }
     });
     return of(false);
   }
@@ -154,18 +154,18 @@ export class AuthService {
     });
   }
 
-  //megerősített profil? frissítve: 2025. 04. 27
-isUserVerified(): Observable<boolean> {
-  const token = this.getToken();
-  if (!token) return of(false);
-  
-  return this.http.get<any>(`${environment.apiUrl}/api/profile`, {
-    headers: { Authorization: `Bearer ${token}` }
-  }).pipe(
-    map(response => response.user?.isVerified || false),
-    catchError(() => of(false))
-  );
-}
+  //megerősített profil?
+  isUserVerified(): Observable<boolean> {
+    const token = this.getToken();
+    if (!token) return of(false);
+
+    return this.http.get<any>(`${environment.apiUrl}/api/profile`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).pipe(
+      map(response => response.user?.isVerified || false),
+      catchError(() => of(false))
+    );
+  }
 
   getUserProfile() {
     const token = localStorage.getItem('token');
@@ -194,7 +194,7 @@ isUserVerified(): Observable<boolean> {
   getUserId(): string | null {
     const token = this.getToken();
     if (!token) return null;
-  
+
     try {
       const decoded: any = jwtDecode(token);
       return decoded.userId || null;
@@ -223,16 +223,16 @@ isUserVerified(): Observable<boolean> {
     }
   }
 
-  // Google Sign-In
+  // Google login
   loginWithGoogle(idToken: string) {
-  return this.http.post<{ success: boolean; token: string }>(
-    `${environment.apiUrl}/api/auth/google`,
-    { idToken }
-  ).pipe(
-    tap(res => {
-      if (res?.token) this.handleSuccessfulLogin(res.token);
-    })
-  );
-}
+    return this.http.post<{ success: boolean; token: string }>(
+      `${environment.apiUrl}/api/auth/google`,
+      { idToken }
+    ).pipe(
+      tap(res => {
+        if (res?.token) this.handleSuccessfulLogin(res.token);
+      })
+    );
+  }
 
 }

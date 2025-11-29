@@ -21,13 +21,6 @@
           <h2 class="text-xl font-semibold text-white">
             {{ userCache[receiverId]?.username || 'Ismeretlen felhasználó' }}
           </h2>
-          <!-- <p class="text-sm text-slate-400">
-            Utoljára aktív: 
-            <span *ngIf="userCache[receiverId]?.lastActive"
-                  class="text-slate-300">{{ userCache[receiverId].lastActive | date:'HH:mm, MMM d' }}</span>
-            <span *ngIf="!userCache[receiverId]?.lastActive"
-                  class="text-slate-500">nem elérhető</span>
-          </p> -->
         </div>
       </div>
 
@@ -51,10 +44,6 @@
         </span>
         
       </div>
-      <!-- <p class="text-xs text-slate-400" *ngIf="userCache[receiverId]?.lastActive">
-          Utoljára aktív:
-          {{ userCache[receiverId].lastActive | date:'HH:mm, MMM d' }}
-        </p> -->
     </div>
     
 
@@ -64,10 +53,6 @@
       <div id="chat-box"
            class="flex-1 overflow-y-auto px-6 py-4 space-y-4 custom-scrollbar"
            (scroll)="handleScroll($event)">
-
-        <!-- <div class="text-center my-6">
-          <span class="text-xs text-slate-500 bg-slate-800/50 px-3 py-1 rounded-full backdrop-blur-sm">Ma</span>
-        </div> -->
 
          <div *ngFor="let message of messages; let i = index" class="space-y-2">
           <div *ngIf="shouldShowDateDivider(i)" class="text-center my-4">
@@ -171,7 +156,6 @@
                    (input)="onTyping()">
             <button type="button"
                     class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-amber-400 transition-colors duration-200 p-1">
-              <!-- <i class="bi bi-emoji-smile text-lg"></i> -->
             </button>
           </div>
 

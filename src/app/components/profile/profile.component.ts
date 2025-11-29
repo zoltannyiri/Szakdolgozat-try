@@ -87,47 +87,28 @@ export class ProfileComponent implements OnInit {
     private commentSvc: CommentService
   ) { }
 
-  // ngOnInit(): void {
-  //   this.route.paramMap.subscribe(params => {
-  //     const username = params.get('username');
-  //     if (username) {
-  //       this.secureGet(`${environment.apiUrl}/api/profile/${username}`).subscribe({
-  //         next: (response: any) => this.hydrateUser(response.user),
-  //         error: () => this.errorMessage = 'Could not load profile data'
-  //       });
-  //     } else {
-  //       this.secureGet(`${environment.apiUrl}/api/profile`).subscribe({
-  //         next: (response: any) => this.hydrateUser(response.user, true),
-  //         error: () => this.errorMessage = 'Could not load profile data'
-  //       });
-  //     }
-  //   });
-  // }
   ngOnInit(): void {
   this.route.paramMap.subscribe(params => {
     const username = params.get('username');
 
     if (username) {
-      // 1) Megnyitott profil (idegen)
+      // Megnyitott profil (másik useré)
       this.secureGet(`${environment.apiUrl}/api/profile/${username}`).subscribe({
         next: (response: any) => this.hydrateUser(response.user, false),
         error: () => this.errorMessage = 'Nem sikerült betölteni a profil adatokat'
       });
 
-      // 2) Saját adatok is kellenek, hogy tudjuk: verified? banned?
       this.secureGet(`${environment.apiUrl}/api/profile`).subscribe({
         next: (meResp: any) => this.setCurrentUserState(meResp.user),
         error: () => {
-          // ha nem vagy belépve vagy hiba van, akkor nem töltjük
         }
       });
 
     } else {
-      // Saját profil oldalam
+      // Saját profil
       this.secureGet(`${environment.apiUrl}/api/profile`).subscribe({
         next: (response: any) => {
           this.hydrateUser(response.user, true);
-          // hydrateUser(true) már hívni fogja setCurrentUserState-et (lásd lent)
         },
         error: () => this.errorMessage = 'Nem sikerült betölteni a profil adatokat'
       });
@@ -137,7 +118,6 @@ export class ProfileComponent implements OnInit {
 
 
 private setCurrentUserState(me: any) {
-  // verified flag normálisan (ha lenne olyan mező, hogy verified, azt is fallbackelhetjük)
   this.currentUserIsVerified = !!(me?.isVerified ?? me?.verified ?? false);
 
   // ban státusz kiszámítása
@@ -185,8 +165,6 @@ private setCurrentUserState(me: any) {
   this.fetchUserComments();
 }
 
-
-  // socials
   savingSocials = false;
   msgSocials = '';
   errSocials = '';
@@ -195,8 +173,6 @@ private setCurrentUserState(me: any) {
     this.msgSocials = '';
     this.errSocials = '';
     this.savingSocials = true;
-
-    // opcionális kliens oldali minimál validáció
     const payload = { socials: { ...this.socials } };
 
     this.securePatch(`${environment.apiUrl}/api/profile/socials`, payload).subscribe({
@@ -242,7 +218,6 @@ private setCurrentUserState(me: any) {
   }
 
 
-  // időtartam
   formatDuration(seconds?: number): string {
     if (!seconds || seconds <= 0) return "0:00";
     const total = Math.floor(seconds);
@@ -250,8 +225,6 @@ private setCurrentUserState(me: any) {
     const s = total % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
   }
-
-
 
   get isActive(): boolean {
     if (!this.userData?.lastLogin) return false;
@@ -267,17 +240,11 @@ private setCurrentUserState(me: any) {
   }
 
   copy(text: string) {
-    navigator.clipboard.writeText(text).then(() => this.showToast('Másolva ✅', 'success'));
+    navigator.clipboard.writeText(text).then(() => this.showToast('Másolva', 'success'));
   }
 
-  // startChatWithUser() {
-  //   if (this.userData?._id) {
-  //     this.router.navigate(['/chat'], { queryParams: { userId: this.userData._id } });
-  //   }
-  // }
 
   startChatWithUser() {
-  // 1) nincs token -> loginra küldjük
   if (!this.authService.getToken()) {
     this.showToast('A privát üzenethez jelentkezz be', 'error');
     this.router.navigate(
@@ -287,17 +254,15 @@ private setCurrentUserState(me: any) {
     return;
   }
 
-  // 2) bannolt felhasználó
   if (this.currentUserIsBanned) {
     this.showToast(
       this.currentUserBanMessage || 'A fiókod jelenleg tiltva, az üzenetküldés nem engedélyezett.',
       'error',
-      5000 // kicsit tovább maradhat
+      5000
     );
     return;
   }
 
-  // 3) nincs verifikálva
   if (!this.currentUserIsVerified) {
     this.showToast(
       'A privát üzenetküldéshez meg kell erősítened a fiókodat.',
@@ -306,13 +271,7 @@ private setCurrentUserState(me: any) {
     return;
   }
 
-  // 4) magaddal nem chatelek
-  if (this.isCurrentUser) {
-    this.showToast('Ez te vagy 😅', 'error');
-    return;
-  }
 
-  // 5) minden ok -> mehet
   if (this.userData?._id) {
     this.router.navigate(
       ['/chat'], 
@@ -325,7 +284,6 @@ private setCurrentUserState(me: any) {
   startEditing() { this.isEditing = true; }
   cancelEditing() { this.aboutMe = this.originalAboutMe; this.isEditing = false; }
 
-  /** --- forms --- */
   private fillGeneralForm() {
     this.editForm.firstName = this.userData?.firstName || '';
     this.editForm.lastName = this.userData?.lastName || '';
@@ -350,7 +308,7 @@ private setCurrentUserState(me: any) {
         this.fillGeneralForm();
         this.originalAboutMe = this.userData?.aboutMe || '';
         this.aboutMe = this.userData?.aboutMe || '';
-        this.msg.general = 'Mentve ✅';
+        this.msg.general = 'Mentve';
         this.isEditing = false;
         this.showToast('Profil frissítve', 'success');
       },
@@ -420,7 +378,6 @@ private setCurrentUserState(me: any) {
 
   @HostListener('document:drop', ['$event'])
   preventDocumentDropDefault(e: DragEvent) {
-    // képmegnyitás elkerülése
     e.preventDefault();
     e.stopPropagation();
   }
@@ -446,7 +403,6 @@ private setCurrentUserState(me: any) {
     });
   }
 
-  // tokken header
   private secureGet(url: string) {
     return this.http.get(url, { headers: { 'Authorization': `Bearer ${this.authService.getToken()}` } });
   }
@@ -460,7 +416,6 @@ private setCurrentUserState(me: any) {
     return this.http.patch(url, body, { headers: { 'Authorization': `Bearer ${this.authService.getToken()}` } });
   }
 
-  /** --- toast --- */
   private showToast(text: string, variant: ToastVariant = 'default', ms = 2200) {
     this.toast.text = text;
     this.toast.variant = variant;
@@ -469,8 +424,6 @@ private setCurrentUserState(me: any) {
     this.toast.timer = setTimeout(() => (this.toast.text = ''), ms);
   }
 
-
-  // report
   openProfileReportModal(): void {
     if (!this.authService.getToken()) {
       this.showToast('Kérlek jelentkezz be a jelentéshez', 'error');
@@ -493,7 +446,6 @@ private setCurrentUserState(me: any) {
       this.isProfileReportOpen = false;
     }
   }
-
 
   submitProfileReport(): void {
     if (!this.userData?._id || !this.profileReportReason.trim()) return;
@@ -518,8 +470,6 @@ private setCurrentUserState(me: any) {
       });
   }
 
-
-  //admin
   get isAdmin(): boolean {
     try {
       const token = this.authService.getToken();
@@ -552,19 +502,6 @@ private setCurrentUserState(me: any) {
       });
   }
 
-  // unban() {
-  //   if (!this.userData?._id) return;
-  //   this.securePost(`${environment.apiUrl}/api/admin/users/${this.userData._id}/unban`, {})
-  //     .subscribe({
-  //       next: (res: any) => {
-  //         this.userData.bannedUntil = null;
-  //         this.userData.banReason = '';
-  //         this.showToast('Tiltás feloldva', 'success');
-  //       },
-  //       error: (e: any) => this.showToast(e?.error?.message || 'Feloldás sikertelen', 'error')
-  //     });
-  // }
-
   unban() {
     if (!this.userData?._id) return;
     this.unbanning = true;
@@ -580,7 +517,6 @@ private setCurrentUserState(me: any) {
         complete: () => { this.unbanning = false; this.isBanModalOpen = false; }
       });
   }
-
 
   openBanModal() {
     if (!this.userData?._id) return;
@@ -632,7 +568,6 @@ private setCurrentUserState(me: any) {
   msgUsername = '';
   errUsername = '';
 
-  // + metódusok:
   openSettings() { this.isSettingsOpen = true; this.settingsTab = 'profile'; }
   closeSettings(evt?: Event) {
     if (!evt) { this.isSettingsOpen = false; return; }
@@ -650,20 +585,17 @@ private setCurrentUserState(me: any) {
     const raw = this.usernameForm?.newUsername ?? '';
     const newU = raw.trim();
 
-    // ha üres
     if (!newU) {
       this.errUsername = 'Adj meg egy új nicknevet';
       return;
     }
 
-    // kliens oldali validáció: 3–20, betű/szám/_
     const valid = /^[a-zA-Z0-9_]{3,20}$/.test(newU);
     if (!valid) {
       this.errUsername = '3–20 karakter, csak betű/szám/alsóvonás (_) engedélyezett';
       return;
     }
 
-    // ne engedjük ugyanazt
     const current = (this.userData?.username || '').trim();
     if (current.toLowerCase() === newU.toLowerCase()) {
       this.errUsername = 'Ez már a jelenlegi nickneved';
@@ -672,7 +604,6 @@ private setCurrentUserState(me: any) {
 
     this.savingUsername = true;
 
-    // Szerver
     this.securePatch(`${environment.apiUrl}/api/profile/username`, { newUsername: newU })
       .subscribe({
         next: (res: any) => {
@@ -687,9 +618,8 @@ private setCurrentUserState(me: any) {
           this.showToast('Nicknév frissítve', 'success');
         },
         error: (e: any) => {
-          // ha foglalt a nick
           if (e?.status === 409) {
-            this.errUsername = 'Ez a nick már foglalt';
+            this.errUsername = 'Ez a nicknév már foglalt';
           } else {
             this.errUsername = e?.error?.message || 'Nicknév módosítás sikertelen';
           }
@@ -699,20 +629,14 @@ private setCurrentUserState(me: any) {
       });
   }
 
-
-  // fő tabok + al-tab
   activeMainTab: 'profile' | 'loops' | 'acapellas' | 'tracks' | 'comments' = 'profile';
   profileSub: 'about' | 'blocked' | 'ignored' | 'followed' = 'about';
 
-  // stat getter 
   stat(key: 'uploads' | 'downloads' | 'downloaded' | 'commentsOut' | 'favouritesIn' | 'favouritesOut'): number {
     const u = this.userData || {};
-    // ha nincs, akkor 0
     return Number(u[key] ?? 0);
   }
 
-
-  // user adatai jobb oldali sávban
   get statUploads(): number {
     return this.userLoops?.length || 0;
   }
@@ -730,7 +654,6 @@ private setCurrentUserState(me: any) {
   commentsPage = 1;      
   commentsPageSize = 6;
 
-  // user kommentjei
   fetchUserComments() {
     if (!this.userData?._id) return;
     this.commentsLoading = true;

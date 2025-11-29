@@ -23,7 +23,7 @@ import { WaveformService } from '../../services/waveform.service';
 })
 export class LoopDetailComponent implements OnInit {
   @ViewChild('audioPlayer') audioPlayer!: ElementRef<HTMLAudioElement>;
-
+  toast = { text: '', variant: 'default' as 'success' | 'error' | 'default', timer: 0 as any };
   loop: any = {
     uploader: {
       _id: '',
@@ -48,7 +48,6 @@ export class LoopDetailComponent implements OnInit {
 
 
   isPlaying = false;
-  // progress = 0;
   currentTime = 0;
   duration = 0;
   volume = 0.7;
@@ -66,6 +65,16 @@ export class LoopDetailComponent implements OnInit {
     return Math.floor(ratio * this.waveform.length);
   }
 
+  showToast(message: string, type: 'success' | 'error' = 'success') {
+    this.toast.text = message;
+    this.toast.variant = type;
+    if (this.toast.timer) clearTimeout(this.toast.timer);
+    this.toast.timer = setTimeout(() => {
+      this.toast.text = '';
+    }, 3000);
+  }
+
+
 
   isLoopReportOpen = false;
   loopReportReason = '';
@@ -82,64 +91,40 @@ export class LoopDetailComponent implements OnInit {
 
 
   editForm: {
-  name: string;
-  bpm: number | null;
-  key: string;
-  scale: string;
-  instrument: string;
-  tags: string; // vesszővel elválasztva
-} = {
-  name: '',
-  bpm: null,
-  key: '',
-  scale: '',
-  instrument: '',
-  tags: ''
-};
+    name: string;
+    bpm: number | null;
+    key: string;
+    scale: string;
+    instrument: string;
+    tags: string;
+  } = {
+      name: '',
+      bpm: null,
+      key: '',
+      scale: '',
+      instrument: '',
+      tags: ''
+    };
 
-  // Constants
+  // const
   keys = ["A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
   scales = ["major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
   instruments = ["Kick", "Snare", "Hihat", "Clap", "Cymbal", "Percussion", "Bass", "Synth", "Guitar", "Vocal", "FX"];
 
-  // constructor(
-  //   private location: Location,
-  //   private route: ActivatedRoute,
-  //   private router: Router,
-  //   private loopService: LoopService,
-  //   private commentService: CommentService,
-  //   private userService: UserService,
-  //   public authService: AuthService,
-  //   private favoriteService: FavoriteService,
-  //   private reportsSvc: ReportsService,
-  //   private http: HttpClient
-  // ) {}
   constructor(
-  private location: Location,
-  private route: ActivatedRoute,
-  private router: Router,
-  private loopService: LoopService,
-  private commentService: CommentService,
-  private userService: UserService,
-  public authService: AuthService,
-  private favoriteService: FavoriteService,
-  private reportsSvc: ReportsService,
-  private http: HttpClient,
-  private waveformService: WaveformService
-) {}
+    private location: Location,
+    private route: ActivatedRoute,
+    private router: Router,
+    private loopService: LoopService,
+    private commentService: CommentService,
+    private userService: UserService,
+    public authService: AuthService,
+    private favoriteService: FavoriteService,
+    private reportsSvc: ReportsService,
+    private http: HttpClient,
+    private waveformService: WaveformService
+  ) { }
 
-
-  // ngOnInit(): void {
-  //   this.checkAuthStatus();
-  //   this.isAdmin = this.checkIsAdmin();
-  //   this.route.paramMap.subscribe(params => {
-  //     const id = params.get('id');
-  //     if (id) {
-  //       this.loadLoop(id);
-  //       this.checkFavoriteStatus(id);
-  //     }
-  //   });
-  // }
   ngOnInit(): void {
     this.checkAuthStatus();
     this.isAdmin = this.checkIsAdmin();
@@ -204,7 +189,7 @@ export class LoopDetailComponent implements OnInit {
       next: (loop) => {
         console.log('Loop response:', loop);
         this.loop = loop;
-        
+
 
         if (typeof this.loop.uploader === 'string') {
           this.userService.getUserById(this.loop.uploader).subscribe({
@@ -224,14 +209,12 @@ export class LoopDetailComponent implements OnInit {
             }
           });
         }
-        // Ha az uploader objektum, de nincs username
         else if (!this.loop.uploader?.username) {
           this.loop.uploader = this.loop.uploader || { username: 'Ismeretlen' };
           this.loadComments();
           this.generateWaveform();
           this.isLoading = false;
         }
-        // Minden rendben
         else {
           this.loadComments();
           this.generateWaveform();
@@ -276,7 +259,7 @@ export class LoopDetailComponent implements OnInit {
 
   loadComments(): void {
     if (!this.loop?._id) return;
-    
+
     this.commentService.getCommentsForLoop(this.loop._id).subscribe({
       next: (response: any) => {
         this.comments = Array.isArray(response?.data) ? response.data : [];
@@ -291,15 +274,11 @@ export class LoopDetailComponent implements OnInit {
 
   addComment(): void {
     if (!this.newComment.trim() || this.newComment.length > 500 || !this.loop?._id) {
-      this.errorMessage = 'Érvénytelen komment';
+      this.showToast('Érvénytelen komment.', 'error');
       return;
     }
-  
     this.isAddingComment = true;
-    this.errorMessage = '';
 
-    
-  
     this.commentService.addComment(this.loop._id, this.newComment).subscribe({
       next: (newComment) => {
         this.comments.unshift(newComment);
@@ -307,20 +286,27 @@ export class LoopDetailComponent implements OnInit {
         this.isAddingComment = false;
       },
       error: (err) => {
-        console.error('Hiba:', err);
-        this.errorMessage = this.getErrorMessage(err);
         this.isAddingComment = false;
+        console.error('Hiba:', err);
+        if (err.status === 401) {
+          this.showToast('Jelentkezz be a kommenteléshez!', 'error');
+        } else if (err.status === 403 && err.error?.code === 'BANNED') {
+          this.showToast('Tiltott fiókkal nem kommentelhetsz.', 'error');
+        } else if (err.status === 403 && err.error?.code === 'EMAIL_NOT_VERIFIED') {
+          this.showToast('Erősítsd meg az e-mail címedet a kommenteléshez!', 'error');
+        } else {
+          this.showToast('Hiba a komment elküldésekor.', 'error');
+        }
       }
     });
   }
 
-  // avatar
   getImageUrl(path?: string): string {
-  if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  const clean = path.startsWith('/') ? path : `/${path}`;
-  return `${this.loopService.apiUrl}${clean}`;
-}
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    const clean = path.startsWith('/') ? path : `/${path}`;
+    return `${this.loopService.apiUrl}${clean}`;
+  }
 
   private getErrorMessage(error: any): string {
     if (error.status === 404) {
@@ -334,11 +320,11 @@ export class LoopDetailComponent implements OnInit {
 
   getAudioUrl(path: string | undefined): string {
     if (!path) return '';
-    
+
     if (path.startsWith('http://') || path.startsWith('https://')) {
       return path;
     }
-    
+
     const cleanPath = path.replace(/\\/g, '/').replace(/^\/?uploads\//, '');
     return `${this.loopService.apiUrl}/uploads/${cleanPath}`;
   }
@@ -346,7 +332,7 @@ export class LoopDetailComponent implements OnInit {
 
   togglePlay(): void {
     const audio = this.audioPlayer.nativeElement;
-    
+
     if (audio.paused) {
       audio.play()
         .then(() => {
@@ -381,23 +367,21 @@ export class LoopDetailComponent implements OnInit {
     const audio = this.audioPlayer.nativeElement;
     this.currentTime = audio.currentTime;
     this.duration = audio.duration || 0;
-    // this.progress = (this.currentTime / this.duration) * 100 || 0;
   }
 
   seekAudio(event: MouseEvent, isWaveform: boolean): void {
     const audio = this.audioPlayer.nativeElement;
     if (!audio) return;
-  
+
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
     const clickPosition = event.clientX - rect.left;
     const percentClicked = (clickPosition / rect.width) * 100;
-    
+
     const newTime = (percentClicked / 100) * audio.duration;
     audio.currentTime = newTime;
-    
+
     this.currentTime = newTime;
-    // this.progress = percentClicked;
   }
 
   setVolume(): void {
@@ -414,153 +398,23 @@ export class LoopDetailComponent implements OnInit {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   }
 
-  // async generateWaveform(): Promise<void> {
-  //   if (!this.loop?.path) return;
-    
-  //   let audioContext: AudioContext | null = null;
-  //   try {
-  //     const audioUrl = this.getAudioUrl(this.loop.path);
-  //     if (!audioUrl) return;
+  async generateWaveform(): Promise<void> {
+    if (!this.loop?._id || !this.loop?.path) return;
 
-  //     audioContext = new AudioContext();
-  //     const response = await fetch(audioUrl);
-  //     const arrayBuffer = await response.arrayBuffer();
-  //     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      
-  //     const channelData = audioBuffer.getChannelData(0);
-  //     const samplesPerPixel = Math.floor(channelData.length / 100);
-  //     const waveform = [];
-      
-  //     for (let i = 0; i < 100; i++) {
-  //       let sum = 0;
-  //       const start = i * samplesPerPixel;
-  //       const end = Math.min(start + samplesPerPixel, channelData.length);
-        
-  //       for (let j = start; j < end; j++) {
-  //         sum += Math.abs(channelData[j]);
-  //       }
-        
-  //       const avg = sum / (end - start);
-  //       waveform.push(Math.min(100, Math.floor(avg * 200)));
-  //     }
-      
-  //     this.waveform = waveform;
-  //   } catch (error) {
-  //     console.error('Waveform generation error:', error);
-  //     this.waveform = new Array(100).fill(30);
-  //   } finally {
-  //     if (audioContext && audioContext.state !== 'closed') {
-  //       await audioContext.close();
-  //     }
-  //   }
-  // }
-//   async generateWaveform(): Promise<void> {
-//   if (!this.loop?.path) return;
-  
-//   try {
-//     const audioUrl = this.getAudioUrl(this.loop.path);
-//     if (!audioUrl) return;
+    const audioUrl = this.getAudioUrl(this.loop.path);
+    if (!audioUrl) return;
 
+    this.waveform = await this.waveformService.getOrCreate(this.loop._id, audioUrl);
+  }
 
-//     const response = await fetch(audioUrl);
-//     const arrayBuffer = await response.arrayBuffer();
-    
- 
-//     const audioContext = new AudioContext();
-//     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
- 
-//     const channelData = audioBuffer.getChannelData(0);
-//     const samples = channelData.length;
-    
-
-//     const waveform = [];
-//     const samplesPerPixel = Math.floor(samples / 200);
-    
-
-//     for (let i = 0; i < 200; i++) {
-//       const start = Math.floor(i * samplesPerPixel);
-//       const end = Math.min(start + samplesPerPixel, samples);
-      
-//       let sum = 0;
-//       let peak = 0;
-      
-//       for (let j = start; j < end; j++) {
-//         const value = Math.abs(channelData[j]);
-//         sum += value * value; // RMS calculation
-//         if (value > peak) peak = value;
-//       }
-      
-    
-//       const rms = Math.sqrt(sum / (end - start));
-      
-      
-//       const combinedValue = (peak * 0.7 + rms * 0.3) * 1.5;
-      
-
-//       const scaledValue = Math.min(100, Math.floor(combinedValue * 150));
-//       waveform.push(scaledValue);
-//     }
-    
-//     this.waveform = waveform;
-    
-    
-//     await audioContext.close();
-//   } catch (error) {
-//     console.error('Waveform generation error:', error);
-    
-//     this.waveform = Array.from({length: 200}, () => Math.floor(Math.random() * 30) + 10);
-//   }
-// }
-async generateWaveform(): Promise<void> {
-  if (!this.loop?._id || !this.loop?.path) return;
-
-  const audioUrl = this.getAudioUrl(this.loop.path);
-  if (!audioUrl) return;
-
-  this.waveform = await this.waveformService.getOrCreate(this.loop._id, audioUrl);
-}
-
-// get playedBars(): number {
-//   if (!this.waveform?.length) return 0;
-//   return Math.floor((this.progress / 100) * this.waveform.length);
-// }
-
-
-
-
-// hibakezelés
   private readErrorPayload(err: any): Promise<any> {
-      if (err?.error instanceof Blob) {
-        return err.error.text().then((t: string) => {
-          try { return JSON.parse(t || '{}'); } catch { return {}; }
-        });
-      }
-      return Promise.resolve(err?.error || {});
+    if (err?.error instanceof Blob) {
+      return err.error.text().then((t: string) => {
+        try { return JSON.parse(t || '{}'); } catch { return {}; }
+      });
     }
-
-  // async downloadLoop(): Promise<void> {
-  //   if (!this.loop?.path) return;
-    
-  //   try {
-  //     const response = await fetch(this.getAudioUrl(this.loop.path));
-  //     const blob = await response.blob();
-      
-  //     const url = window.URL.createObjectURL(blob);
-  //     const a = document.createElement('a');
-  //     a.style.display = 'none';
-  //     a.href = url;
-  //     a.download = this.loop.filename || `loop_${this.loop._id}.wav`;
-      
-  //     document.body.appendChild(a);
-  //     a.click();
-      
-  //     window.URL.revokeObjectURL(url);
-  //     document.body.removeChild(a);
-  //   } catch (err) {
-  //     console.error('Letöltési hiba:', err);
-  //     window.open(this.getAudioUrl(this.loop.path), '_blank');
-  //   }
-  // }
+    return Promise.resolve(err?.error || {});
+  }
 
   async downloadLoop(): Promise<void> {
     if (!this.loop?._id) return;
@@ -593,21 +447,24 @@ async generateWaveform(): Promise<void> {
             path: this.loop?.path
           });
 
-          // 401: login szükséges
-          if (err?.status === 401) { this.handleLogin(); return; }
+          if (err?.status === 401) {
+            this.handleLogin();
+            this.showToast('Jelentkezz be a letöltéshez!', 'error');
+            return;
+          }
 
           const payload = await this.readErrorPayload(err);
+          const code = payload?.code;
 
-          if (payload?.code === 'BANNED') {
-            alert(payload?.message || 'A fiókod tiltva van, a letöltés nem engedélyezett.');
-            return;
+          if (code === 'BANNED') {
+            this.showToast('A fiókod tiltva van, a letöltés nem engedélyezett.', 'error');
+          } else if (code === 'NO_CREDITS') {
+            this.showToast('Nincs elég kredited! Tölts fel loopot.', 'error');
+          } else if (code === 'EMAIL_NOT_VERIFIED') {
+            this.showToast('Erősítsd meg az e-mail címedet!', 'error');
+          } else {
+            this.showToast(payload?.message || 'A letöltés nem sikerült.', 'error');
           }
-          if (payload?.code === 'EMAIL_NOT_VERIFIED') {
-            alert('You need to authenticate your email.');
-            return;
-          }
-
-          alert(payload?.message || 'A letöltés nem sikerült.');
         }
       });
     } catch (e) {
@@ -616,55 +473,62 @@ async generateWaveform(): Promise<void> {
   }
 
 
-  //likeolás
-hasLiked(): boolean {
-  const userId = this.authService.getUserId();
-  if (!userId || !this.loop?.likedBy) return false;
-  
-  const userIdStr = userId.toString();
-  return this.loop.likedBy.some((id: any) => id.toString() === userIdStr);
-}
+  hasLiked(): boolean {
+    const userId = this.authService.getUserId();
+    if (!userId || !this.loop?.likedBy) return false;
 
-toggleLike(): void {
-  const userId = this.authService.getUserId();
-  if (!userId) {
-    this.handleLogin();
-    return;
+    const userIdStr = userId.toString();
+    return this.loop.likedBy.some((id: any) => id.toString() === userIdStr);
   }
 
-  if (this.hasLiked()) {
-    this.loopService.unlikeLoop(this.loop._id).subscribe({
-      next: (response) => {
-        this.loop.likes = response.likes;
-        this.loop.likedBy = this.loop.likedBy.filter(
-          (id: any) => id.toString() !== userId.toString()
-        );
-      },
-      error: (err) => {
-        console.error('Unlike error:', err);
-        this.errorMessage = 'Hiba történt a like visszavonásakor';
-      }
-    });
-  } else {
-    this.loopService.likeLoop(this.loop._id).subscribe({
-      next: (response) => {
-        this.loop.likes = response.likes;
-        if (!this.loop.likedBy) this.loop.likedBy = [];
-        this.loop.likedBy.push(userId);
-      },
-      error: (err) => {
-        console.error('Like error:', err);
-        this.errorMessage = 'Hiba történt a likeoláskor';
-      }
-    });
-  }
-}
+  toggleLike(): void {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.showToast('Jelentkezz be a likeoláshoz!', 'error');
+      this.handleLogin();
+      return;
+    }
 
-//favorite
+    if (this.hasLiked()) {
+      this.loopService.unlikeLoop(this.loop._id).subscribe({
+        next: (response) => {
+          this.loop.likes = response.likes;
+          this.loop.likedBy = this.loop.likedBy.filter(
+            (id: any) => id.toString() !== userId.toString()
+          );
+        },
+        error: (err) => {
+          console.error('Unlike error:', err);
+          if (err.status === 403) {
+            this.showToast('Művelet megtagadva.', 'error');
+          } else {
+            this.showToast('Hiba történt a like visszavonásakor.', 'error');
+          }
+        }
+      });
+    } else {
+      this.loopService.likeLoop(this.loop._id).subscribe({
+        next: (response) => {
+          this.loop.likes = response.likes;
+          if (!this.loop.likedBy) this.loop.likedBy = [];
+          this.loop.likedBy.push(userId);
+        },
+        error: (err) => {
+          console.error('Like error:', err);
+          if (err.status === 403 && err.error?.code === 'BANNED') {
+            this.showToast('Tiltott fiókkal nem likeolhatsz.', 'error');
+          } else if (err.status === 403 && err.error?.code === 'EMAIL_NOT_VERIFIED') {
+            this.showToast('Erősítsd meg az e-mail címedet a likeoláshoz!', 'error');
+          } else {
+            this.showToast('Hiba történt a likeoláskor.', 'error');
+          }
+        }
+      });
+    }
+  }
+
   isCheckingFavorites = false;
   favoriteStatus: { [key: string]: boolean } = {};
-
-  // A komponens osztályhoz új metódusok
   isFavorite(loopId: string): boolean {
     return this.favoriteStatus[loopId] || false;
   }
@@ -672,7 +536,7 @@ toggleLike(): void {
 
   checkFavoriteStatus(loopId: string): void {
     if (!this.authService.isLoggedIn()) return;
-    
+
     this.isCheckingFavorites = true;
     this.favoriteService.checkFavoriteStatus(loopId).subscribe({
       next: (response) => {
@@ -686,44 +550,41 @@ toggleLike(): void {
     });
   }
 
-  // favoriteStatus: { [key: string]: boolean } = {};
   favoriteLoops: ILoop[] = [];
 
   toggleFavorite(loop: ILoop): void {
-  const userId = this.authService.getUserId();
-  if (!userId) {
-    this.handleLogin();
-    return;
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.handleLogin();
+      return;
+    }
+
+    if (this.isFavorite(loop._id)) {
+      this.favoriteService.removeFavorite(loop._id).subscribe({
+        next: () => {
+          this.favoriteStatus[loop._id] = false;
+
+          if (this.favoriteLoops) {
+            this.favoriteLoops = this.favoriteLoops.filter(l => l._id !== loop._id);
+          }
+        },
+        error: (err) => console.error('Error removing favorite:', err)
+      });
+    } else {
+      this.favoriteService.addFavorite(loop._id).subscribe({
+        next: () => {
+          this.favoriteStatus[loop._id] = true;
+
+          if (this.favoriteLoops && this.loop) {
+            this.favoriteLoops.unshift(this.loop);
+          }
+        },
+        error: (err) => console.error('Error adding favorite:', err)
+      });
+    }
   }
 
-  if (this.isFavorite(loop._id)) {
-    this.favoriteService.removeFavorite(loop._id).subscribe({
-      next: () => {
-        this.favoriteStatus[loop._id] = false;
-       
-        if (this.favoriteLoops) {
-          this.favoriteLoops = this.favoriteLoops.filter(l => l._id !== loop._id);
-        }
-      },
-      error: (err) => console.error('Error removing favorite:', err)
-    });
-  } else {
-    this.favoriteService.addFavorite(loop._id).subscribe({
-      next: () => {
-        this.favoriteStatus[loop._id] = true;
-       
-        if (this.favoriteLoops && this.loop) {
-          this.favoriteLoops.unshift(this.loop);
-        }
-      },
-      error: (err) => console.error('Error adding favorite:', err)
-    });
-  }
-}
-
-//report 
-
-openLoopReportModal() {
+  openLoopReportModal() {
     if (!this.isLoggedIn) { this.handleLogin(); return; }
     this.loopReportReason = '';
     this.loopReportError = '';
@@ -739,43 +600,43 @@ openLoopReportModal() {
     }
   }
 
-openReportModal(commentId: string) {
-  if (!this.isLoggedIn) { this.handleLogin(); return; }
-  this.reportTargetCommentId = commentId;
-  this.reportReason = '';
-  this.reportError = '';
-  this.reportSuccess = '';
-  this.isReportModalOpen = true;
-}
-
-closeReportModal(event?: Event) {
-  if (event && (event.target as HTMLElement).classList.contains('bg-black/50')) {
-    this.isReportModalOpen = false;
+  openReportModal(commentId: string) {
+    if (!this.isLoggedIn) { this.handleLogin(); return; }
+    this.reportTargetCommentId = commentId;
+    this.reportReason = '';
+    this.reportError = '';
+    this.reportSuccess = '';
+    this.isReportModalOpen = true;
   }
-}
 
-submitReport() {
-  if (!this.reportTargetCommentId || !this.reportReason.trim()) return;
-  this.isReporting = true;
-  this.reportError = '';
-  this.reportSuccess = '';
-
-  this.commentService.reportComment(this.reportTargetCommentId, this.reportReason.trim()).subscribe({
-    next: () => {
-      this.isReporting = false;
-      this.reportSuccess = 'Köszönjük! A jelentést megkaptuk.';
-      setTimeout(() => { this.isReportModalOpen = false; }, 900);
-    },
-    error: (err) => {
-      console.error('[report] error:', err);
-      this.isReporting = false;
-      this.reportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
+  closeReportModal(event?: Event) {
+    if (event && (event.target as HTMLElement).classList.contains('bg-black/50')) {
+      this.isReportModalOpen = false;
     }
-  });
-  
-}
+  }
 
- submitLoopReport() {
+  submitReport() {
+    if (!this.reportTargetCommentId || !this.reportReason.trim()) return;
+    this.isReporting = true;
+    this.reportError = '';
+    this.reportSuccess = '';
+
+    this.commentService.reportComment(this.reportTargetCommentId, this.reportReason.trim()).subscribe({
+      next: () => {
+        this.isReporting = false;
+        this.reportSuccess = 'Köszönjük! A jelentést megkaptuk.';
+        setTimeout(() => { this.isReportModalOpen = false; }, 900);
+      },
+      error: (err) => {
+        console.error('[report] error:', err);
+        this.isReporting = false;
+        this.reportError = err?.error?.message || 'Hiba történt a jelentés beküldésekor.';
+      }
+    });
+
+  }
+
+  submitLoopReport() {
     if (!this.loop?._id || !this.loopReportReason.trim()) return;
     this.isReportingLoop = true;
     this.loopReportError = '';
@@ -785,7 +646,6 @@ submitReport() {
       next: () => {
         this.isReportingLoop = false;
         this.loopReportSuccess = 'Köszönjük! A jelentést megkaptuk.';
-        // setTimeout(() => { this.isLoopReportOpen = false; }, 900);
       },
       error: (err) => {
         console.error('[loop-detail loop report] error:', err);
@@ -796,179 +656,123 @@ submitReport() {
   }
 
 
-  // ADMIN
   private checkIsAdmin(): boolean {
-  try {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (!token) return false;
-    const payload = JSON.parse(atob(token.split('.')[1] || ''));
-    return payload?.role === 'admin' || payload?.isAdmin === true;
-  } catch {
-    return false;
-  }
-}
-
-adminDeleteLoop(): void {
-  if (!this.isAdmin || !this.loop?._id) return;
-  if (!confirm('Biztosan törlöd ezt a loopot?')) return;
-
-  this.http.delete(`${this.loopService.apiUrl}/api/admin/loops/${this.loop._id}`).subscribe({
-    next: () => {
-      this.location.back();
-    },
-    error: (err) => {
-      console.error('Loop törlés hiba:', err);
-      alert('A törlés nem sikerült.');
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      if (!token) return false;
+      const payload = JSON.parse(atob(token.split('.')[1] || ''));
+      return payload?.role === 'admin' || payload?.isAdmin === true;
+    } catch {
+      return false;
     }
-  });
-}
+  }
 
+  adminDeleteLoop(): void {
+    if (!this.isAdmin || !this.loop?._id) return;
+    if (!confirm('Biztosan törlöd ezt a loopot?')) return;
 
-
-adminDeleteComment(commentId: string): void {
-  if (!this.isAdmin || !commentId) return;
-  if (!confirm('Biztosan törlöd ezt a kommentet?')) return;
-
-  this.isDeletingCommentId = commentId;
-
-  this.http
-    .delete(`${this.loopService.apiUrl}/api/admin/comments/${commentId}`)
-    .subscribe({
+    this.http.delete(`${this.loopService.apiUrl}/api/admin/loops/${this.loop._id}`).subscribe({
       next: () => {
-        this.comments = this.comments.filter(c => c._id !== commentId);
-        this.isDeletingCommentId = null;
+        this.location.back();
       },
       error: (err) => {
-        console.error('Komment törlés hiba:', err);
-        this.isDeletingCommentId = null;
-        alert(err?.error?.message || 'A komment törlése nem sikerült.');
+        console.error('Loop törlés hiba:', err);
+        alert('A törlés nem sikerült.');
       }
     });
-}
-
-
-openEditModal(): void {
-  console.log('[loop-detail] openEditModal clicked'); 
-  // if (!this.isAdmin || !this.loop) return;
-  this.editError = null;
-  this.isEditModalOpen = true;
-
-  this.editForm = {
-    name: (this.loop.title ?? this.loop.customName ?? this.loop.filename ?? ''),
-    bpm: typeof this.loop.bpm === 'number' ? this.loop.bpm : null,
-    key: this.loop.key ?? '',
-    scale: this.loop.scale ?? '',
-    instrument: this.loop.instrument ?? '',
-    tags: Array.isArray(this.loop.tags) ? this.loop.tags.join(', ') : (this.loop.tags || '')
-  };
-}
-
-closeEditModal(evt?: Event) {
-  if (!evt || evt.target === evt.currentTarget) {
-    this.isEditModalOpen = false;
-  }
-}
-
-
-saveLoopEdit(): void {
-  if (!this.isAdmin || !this.loop?._id) return;
-
-  // minimális validáció
-  if (this.editForm.bpm !== null) {
-    const bpm = Number(this.editForm.bpm);
-    if (isNaN(bpm) || bpm < 40 || bpm > 600) {
-      this.editError = 'A BPM értéke 40 és 600 között legyen.';
-      return;
-    }
   }
 
-  const payload: any = {};
 
-  // név frissitése
-  if ('title' in this.loop) payload.title = (this.editForm.name || '').trim();
-  else payload.filename = (this.editForm.name || '').trim();
 
-  if (this.editForm.bpm !== null) payload.bpm = Number(this.editForm.bpm);
-  if (this.editForm.key) payload.key = this.editForm.key;
-  if (this.editForm.scale) payload.scale = this.editForm.scale;
-  if (this.editForm.instrument) payload.instrument = this.editForm.instrument;
+  adminDeleteComment(commentId: string): void {
+    if (!this.isAdmin || !commentId) return;
+    if (!confirm('Biztosan törlöd ezt a kommentet?')) return;
 
-  payload.tags = this.editForm.tags
-    ? this.editForm.tags.split(',').map(t => t.trim()).filter(Boolean)
-    : [];
+    this.isDeletingCommentId = commentId;
 
-  this.isSavingEdit = true;
-  this.editError = null;
+    this.http
+      .delete(`${this.loopService.apiUrl}/api/admin/comments/${commentId}`)
+      .subscribe({
+        next: () => {
+          this.comments = this.comments.filter(c => c._id !== commentId);
+          this.isDeletingCommentId = null;
+        },
+        error: (err) => {
+          console.error('Komment törlés hiba:', err);
+          this.isDeletingCommentId = null;
+          alert(err?.error?.message || 'A komment törlése nem sikerült.');
+        }
+      });
+  }
 
-  this.http.patch<{ success: boolean; data?: any }>(
-    `${this.loopService.apiUrl}/api/admin/loops/${this.loop._id}`,
-    payload
-  ).subscribe({
-    next: (res) => {
-     
-      this.loop = res?.data ? res.data : { ...this.loop, ...payload };
-      if (!res?.data && payload.tags) this.loop.tags = payload.tags;
 
-      this.isSavingEdit = false;
+  openEditModal(): void {
+    console.log('[loop-detail] openEditModal clicked');
+    this.editError = null;
+    this.isEditModalOpen = true;
+
+    this.editForm = {
+      name: (this.loop.title ?? this.loop.customName ?? this.loop.filename ?? ''),
+      bpm: typeof this.loop.bpm === 'number' ? this.loop.bpm : null,
+      key: this.loop.key ?? '',
+      scale: this.loop.scale ?? '',
+      instrument: this.loop.instrument ?? '',
+      tags: Array.isArray(this.loop.tags) ? this.loop.tags.join(', ') : (this.loop.tags || '')
+    };
+  }
+
+  closeEditModal(evt?: Event) {
+    if (!evt || evt.target === evt.currentTarget) {
       this.isEditModalOpen = false;
-    },
-    error: (err) => {
-      console.error('Loop mentés hiba:', err);
-      this.isSavingEdit = false;
-      this.editError = err?.error?.message || 'A mentés nem sikerült.';
     }
-  });
-}
+  }
 
-//   //favorite
-//   isFavorite = false;
-//   isCheckingFavorite = false;
 
-//   // A komponens osztályhoz új metódusok
-//   checkFavoriteStatus(): void {
-//     if (!this.authService.isLoggedIn() || !this.loop?._id) return;
-    
-//     this.isCheckingFavorite = true;
-//     this.favoriteService.checkFavoriteStatus(this.loop._id).subscribe({
-//       next: (response) => {
-//         this.isFavorite = response.isFavorite;
-//         this.isCheckingFavorite = false;
-//       },
-//       error: (err) => {
-//         console.error('Error checking favorite status:', err);
-//         this.isCheckingFavorite = false;
-//       }
-//     });
-//   }
+  saveLoopEdit(): void {
+    if (!this.isAdmin || !this.loop?._id) return;
 
-//   toggleFavorite(): void {
-//   if (!this.authService.isLoggedIn()) {
-//     this.handleLogin();
-//     return;
-//   }
+    if (this.editForm.bpm !== null) {
+      const bpm = Number(this.editForm.bpm);
+      if (isNaN(bpm) || bpm < 40 || bpm > 600) {
+        this.editError = 'A BPM értéke 40 és 600 között legyen.';
+        return;
+      }
+    }
 
-//   if (!this.loop?._id) return;
+    const payload: any = {};
 
-//   if (this.isFavorite) {
-//     this.favoriteService.removeFavorite(this.loop._id).subscribe({
-//       next: () => {
-//         this.isFavorite = false;
-//       },
-//       error: (err) => {
-//         console.error('Error removing favorite:', err);
-//         this.errorMessage = 'Error removing from favorites';
-//       }
-//     });
-//   } else {
-//     this.favoriteService.addFavorite(this.loop._id).subscribe({
-//       next: () => {
-//         this.isFavorite = true;
-//       },
-//       error: (err) => {
-//         console.error('Error adding favorite:', err);
-//         this.errorMessage = 'Error adding to favorites';
-//       }
-//     });
-//   }
-// }
+    if ('title' in this.loop) payload.title = (this.editForm.name || '').trim();
+    else payload.filename = (this.editForm.name || '').trim();
+
+    if (this.editForm.bpm !== null) payload.bpm = Number(this.editForm.bpm);
+    if (this.editForm.key) payload.key = this.editForm.key;
+    if (this.editForm.scale) payload.scale = this.editForm.scale;
+    if (this.editForm.instrument) payload.instrument = this.editForm.instrument;
+
+    payload.tags = this.editForm.tags
+      ? this.editForm.tags.split(',').map(t => t.trim()).filter(Boolean)
+      : [];
+
+    this.isSavingEdit = true;
+    this.editError = null;
+
+    this.http.patch<{ success: boolean; data?: any }>(
+      `${this.loopService.apiUrl}/api/admin/loops/${this.loop._id}`,
+      payload
+    ).subscribe({
+      next: (res) => {
+
+        this.loop = res?.data ? res.data : { ...this.loop, ...payload };
+        if (!res?.data && payload.tags) this.loop.tags = payload.tags;
+
+        this.isSavingEdit = false;
+        this.isEditModalOpen = false;
+      },
+      error: (err) => {
+        console.error('Loop mentés hiba:', err);
+        this.isSavingEdit = false;
+        this.editError = err?.error?.message || 'A mentés nem sikerült.';
+      }
+    });
+  }
 }

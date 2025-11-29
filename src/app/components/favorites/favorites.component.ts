@@ -21,18 +21,18 @@ import { WaveformService } from '../../services/waveform.service';
 })
 export class FavoritesComponent implements OnInit, OnDestroy {
   @ViewChildren('audioPlayer') audioPlayers!: QueryList<ElementRef<HTMLAudioElement>>;
-
+  toast = { text: '', variant: 'default' as 'success' | 'error' | 'default', timer: 0 as any };
   favoriteLoops: ILoop[] = [];
   isLoading = true;
 
-  // audio state
+  // audio
   currentlyPlayingId: string | null = null;
   waveforms: { [key: string]: number[] } = {};
   currentPositions: { [key: string]: number } = {};
   durations: { [key: string]: number } = {};
   volumes: { [key: string]: number } = {};
 
-  // report modal
+  // report
   isLoopReportModalOpen = false;
   reportTargetLoopId: string | null = null;
   loopReportReason = '';
@@ -56,7 +56,7 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     tags: ''
   };
 
-  // const-ok
+  // const
   keys = ["A","Am","A#","A#m","B","Bm","C","Cm","C#","C#m","D","Dm","D#","D#m","E","Em","F","Fm","F#","F#m","G","Gm","G#","G#m"];
   scales = ["major","minor","dorian","phrygian","lydian","mixolydian","locrian"];
   instruments = ["Kick","Snare","Hihat","Clap","Cymbal","Percussion","Bass","Synth","Guitar","Vocal","FX"];
@@ -65,11 +65,11 @@ export class FavoritesComponent implements OnInit, OnDestroy {
 
   constructor(
     private favoriteService: FavoriteService,
-    public loopService: LoopService, // Public, hogy a HTML elérje az apiUrl-t
+    public loopService: LoopService,
     public authService: AuthService,
     private reportsSvc: ReportsService,
     private http: HttpClient,
-    private waveformService: WaveformService // 2. Injektáljuk
+    private waveformService: WaveformService
   ) {}
 
   ngOnInit(): void {
@@ -93,7 +93,7 @@ export class FavoritesComponent implements OnInit, OnDestroy {
           
           this.favoriteLoops.forEach(l => {
             this.volumes[l._id] = 0.7;
-            this.generateWaveform(l._id); // 3. Hívjuk az új generátort
+            this.generateWaveform(l._id);
           });
           this.isLoading = false;
         },
@@ -105,34 +105,28 @@ export class FavoritesComponent implements OnInit, OnDestroy {
       });
   }
 
-  // 4. JAVÍTOTT URL KEZELÉS (Ugyanaz mint a loops.component-ben)
   getAudioUrl(path?: string | null): string {
     if (!path) return '';
 
-    // Localhost javítás
     if (path.includes('localhost:3000')) {
         const relative = path.replace('http://localhost:3000', '').replace('https://localhost:3000', '');
         return `${this.loopService.apiUrl}${relative}`;
     }
 
-    // Google Drive
     const driveIdMatch = path.match(/[?&]id=([A-Za-z0-9_\-]+)/);
     if (path.includes('drive.google.com') && driveIdMatch) {
       const fileId = driveIdMatch[1];
       return `${this.loopService.apiUrl}/api/files/${fileId}`;
     }
 
-    // Teljes URL
     if (path.startsWith('http://') || path.startsWith('https://')) {
       return path;
     }
 
-    // Relatív
     const cleanPath = path.replace(/^\/?uploads\//, 'uploads/');
     return `${this.loopService.apiUrl}/${cleanPath}`;
   }
 
-  // 5. JAVÍTOTT WAVEFORM GENERÁLÁS (Service-en keresztül)
   async generateWaveform(loopId: string): Promise<void> {
     const loop = this.favoriteLoops.find(l => l._id === loopId);
     if (!loop) return;
@@ -140,12 +134,10 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     const audioUrl = this.getAudioUrl(loop.path);
     if (!audioUrl) return;
 
-    // Használjuk a közös service-t, ami cache-el és stabil
     const wf = await this.waveformService.getOrCreate(loopId, audioUrl);
     this.waveforms[loopId] = wf;
   }
 
-  // Lejátszás
   togglePlay(loopId: string, audioEl: HTMLAudioElement | ElementRef<HTMLAudioElement>): void {
     const audio = audioEl instanceof ElementRef ? audioEl.nativeElement : audioEl;
 
@@ -181,7 +173,6 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     this.currentlyPlayingId = null;
   }
 
-  // Progress / seek / volume
   updateProgress(loopId: string) {
     const el = document.querySelector<HTMLAudioElement>(`#fav-audio-${loopId}`);
     if (el) {
@@ -215,7 +206,6 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Like (loops)
   hasLiked(loop: ILoop): boolean {
     const uid = this.authService.getUserId();
     if (!uid || !loop?.likedBy) return false;
@@ -225,7 +215,10 @@ export class FavoritesComponent implements OnInit, OnDestroy {
 
   toggleLike(loop: any): void {
     const uid = this.authService.getUserId();
-    if (!uid) { alert('Please log in to like loops'); return; }
+    if (!uid) { 
+      this.showToast('Jelentkezz be a likeoláshoz!', 'error'); 
+      return; 
+    }
     const idStr = uid.toString();
 
     if (this.hasLiked(loop)) {
@@ -234,7 +227,14 @@ export class FavoritesComponent implements OnInit, OnDestroy {
           loop.likes = resp.likes;
           loop.likedBy = loop.likedBy.filter((x: any) => x.toString() !== idStr);
         },
-        error: (e) => console.error('Unlike error:', e)
+        error: (e) => {
+          console.error('Unlike error:', e);
+          if (e.status === 403) {
+             this.showToast('Erősítsd meg az e-mail címedet!', 'error');
+          } else {
+             this.showToast('Hiba történt.', 'error');
+          }
+        }
       });
     } else {
       this.loopService.likeLoop(loop._id).subscribe({
@@ -243,7 +243,16 @@ export class FavoritesComponent implements OnInit, OnDestroy {
           if (!loop.likedBy) loop.likedBy = [];
           loop.likedBy.push(uid);
         },
-        error: (e) => console.error('Like error:', e)
+        error: (e) => {
+          console.error('Like error:', e);
+          if (e.status === 403 && e.error?.code === 'BANNED') {
+             this.showToast('Tiltott fiókkal nem likeolhatsz.', 'error');
+          } else if (e.status === 403 && e.error?.code === 'EMAIL_NOT_VERIFIED') {
+             this.showToast('Erősítsd meg az e-mail címedet!', 'error');
+          } else {
+             this.showToast('Hiba történt.', 'error');
+          }
+        }
       });
     }
   }
@@ -251,14 +260,16 @@ export class FavoritesComponent implements OnInit, OnDestroy {
   async downloadLoop(loop: ILoop): Promise<void> {
     try {
       const verified = await this.authService.isUserVerified().toPromise();
-      if (!verified) { alert('Előbb igazold az e-mail címedet.'); return; }
+      if (!verified) { 
+        this.showToast('Erősítsd meg az e-mail címedet a letöltéshez!', 'error'); 
+        return; 
+      }
 
       this.loopService.downloadLoop(loop._id).subscribe({
         next: (response: any) => {
           if (response && response.downloadUrl) {
             let url = response.downloadUrl;
             
-            // Localhost fix
             if (url.includes('localhost:3000')) {
                url = url.replace('http://localhost:3000', this.loopService.apiUrl);
                url = url.replace('https://localhost:3000', this.loopService.apiUrl);
@@ -286,9 +297,25 @@ export class FavoritesComponent implements OnInit, OnDestroy {
             a.remove();
           }
         },
-        error: (err) => {
-          if (err.status === 402) alert('Nincs elég kredited!');
-          else console.error(err);
+        error: async (err) => {
+          console.error('Download error:', err);
+          if (err.status === 401) {
+             this.showToast('Jelentkezz be a letöltéshez!', 'error');
+             return;
+          }
+
+          const payload = await this.readErrorPayload(err);
+          const code = payload?.code;
+
+          if (code === 'NO_CREDITS') {
+            this.showToast('Nincs elég kredited! Tölts fel loopot a szerzéshez.', 'error');
+          } else if (code === 'BANNED') {
+            this.showToast('A fiókod tiltva van, a letöltés nem engedélyezett.', 'error');
+          } else if (code === 'EMAIL_NOT_VERIFIED') {
+            this.showToast('Erősítsd meg az e-mail címedet!', 'error');
+          } else {
+            this.showToast(payload?.message || 'A letöltés nem sikerült.', 'error');
+          }
         }
       });
     } catch (e) {
@@ -296,7 +323,6 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Remove favorite
   removeFavorite(loopId: string): void {
     this.favoriteService.removeFavorite(loopId).subscribe({
       next: () => {
@@ -311,7 +337,6 @@ export class FavoritesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ... Report és Admin metódusok változatlanul maradhatnak ...
   openLoopReportModal(loopId: string) {
     if (!this.authService.isLoggedIn()) { alert('Please log in to report loops'); return; }
     this.reportTargetLoopId = loopId;
@@ -440,4 +465,22 @@ export class FavoritesComponent implements OnInit, OnDestroy {
   }
 
   trackById(_: number, item: any) { return item?._id; }
+
+  showToast(message: string, type: 'success' | 'error' = 'success') {
+    this.toast.text = message;
+    this.toast.variant = type;
+    if (this.toast.timer) clearTimeout(this.toast.timer);
+    this.toast.timer = setTimeout(() => {
+      this.toast.text = '';
+    }, 3000);
+  }
+
+  private readErrorPayload(err: any): Promise<any> {
+    if (err?.error instanceof Blob) {
+      return err.error.text().then((t: string) => {
+        try { return JSON.parse(t || '{}'); } catch { return {}; }
+      });
+    }
+    return Promise.resolve(err?.error || {});
+  }
 }

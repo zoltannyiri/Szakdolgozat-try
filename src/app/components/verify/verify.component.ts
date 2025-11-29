@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router'; // RouterModule hozzáadva
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
@@ -8,7 +8,7 @@ type State = 'loading' | 'success' | 'expired' | 'invalid' | 'error';
 @Component({
   selector: 'app-verify',
   standalone: true,
-  imports: [CommonModule, RouterModule], // RouterModule importálva
+  imports: [CommonModule, RouterModule],
   templateUrl: './verify.component.html',
 })
 export class VerifyComponent implements OnInit {

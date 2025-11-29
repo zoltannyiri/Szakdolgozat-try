@@ -13,7 +13,7 @@ export class FavoriteService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   addFavorite(loopId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/loops/${loopId}/favorite`, {});
@@ -34,17 +34,14 @@ export class FavoriteService {
   }
 
   toggleFavorite(loopId: string, isFavorite: boolean): Observable<any> {
-    return isFavorite 
+    return isFavorite
       ? this.removeFavorite(loopId)
       : this.addFavorite(loopId);
   }
 
-
-
-  // új: teljesítmény miatt
   getFavoriteIds() {
-  return this.http.get<{ success: boolean; ids: string[] }>(
-    `${this.apiUrl}/api/favorites/ids`
-  );
-}
+    return this.http.get<{ success: boolean; ids: string[] }>(
+      `${this.apiUrl}/api/favorites/ids`
+    );
+  }
 }

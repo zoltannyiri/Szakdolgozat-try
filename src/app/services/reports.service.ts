@@ -26,7 +26,6 @@ export class ReportsService {
 
   constructor(private http: HttpClient) {}
 
-  // Oldalsáv számlálók
   getCounts(status: ReportStatus = 'pending'): Observable<{ success: boolean; data: Record<ReportType, number> }> {
     return this.http.get<ReportCountsWire>(`${this.api}/admin/reports/counts`).pipe(
       map(res => {

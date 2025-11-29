@@ -17,7 +17,6 @@ export class AdminLoopsComponent implements OnInit {
   errorMessage = '';
 
   searchTerm = '';
-  // sortField: string = 'createdAt';
   sortDirection: 'asc' | 'desc' = 'desc';
   sortField: string = 'uploadDate';
   currentPage = 1;
@@ -27,7 +26,7 @@ export class AdminLoopsComponent implements OnInit {
 
   selectedLoop: any = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.loadLoops();
@@ -58,19 +57,19 @@ export class AdminLoopsComponent implements OnInit {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: () => {
-      this.loops = this.loops.filter(l => l._id !== loopId);
-      const maxPage = Math.max(1, Math.ceil(this.filteredLoops.length / this.itemsPerPage));
-      this.showToast('Loop sikeresen törölve', 'success');
-    },
-    error: (err) => {
-      console.error('Loop törlése sikertelen:', err);
-      this.errorMessage = 'Nem sikerült törölni a loopot.';
-      this.showToast('Hiba történt a törlés során', 'error');
-    }
-  });
-}
+        this.loops = this.loops.filter(l => l._id !== loopId);
+        const maxPage = Math.max(1, Math.ceil(this.filteredLoops.length / this.itemsPerPage));
+        this.showToast('Loop sikeresen törölve', 'success');
+      },
+      error: (err) => {
+        console.error('Loop törlése sikertelen:', err);
+        this.errorMessage = 'Nem sikerült törölni a loopot.';
+        this.showToast('Hiba történt a törlés során', 'error');
+      }
+    });
+  }
 
-   deleteLoopFromModal(loopId: string) {
+  deleteLoopFromModal(loopId: string) {
     if (!confirm('Biztosan törlöd ezt a loopot?')) return;
 
     const token = localStorage.getItem('token');
@@ -78,7 +77,6 @@ export class AdminLoopsComponent implements OnInit {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: () => {
-        // Modal bezárása és lista frissítése
         this.closeModal();
         this.loadLoops();
         this.showToast('Loop sikeresen törölve', 'success');
@@ -94,78 +92,57 @@ export class AdminLoopsComponent implements OnInit {
   applyFilters() {
     this.currentPage = 1;
   }
-
-  // showToast(message: string, type: 'success' | 'error' = 'success') {
-  //   const toast = document.createElement('div');
-  //   toast.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-xl backdrop-blur-sm shadow-lg transition-all duration-300 ${
-  //     type === 'success' ? 'bg-emerald-900/90 text-emerald-100 border border-emerald-700' : 'bg-rose-900/90 text-rose-100 border border-rose-700'
-  //   }`;
-  //   toast.textContent = message;
-  //   document.body.appendChild(toast);
-
-  //   setTimeout(() => {
-  //     document.body.removeChild(toast);
-  //   }, 3000);
-  // }
   showToast(message: string, type: 'success' | 'error' = 'success') {
     this.toast.text = message;
     this.toast.variant = type;
-    
+
     if (this.toast.timer) clearTimeout(this.toast.timer);
-    
+
     this.toast.timer = setTimeout(() => {
       this.toast.text = '';
     }, 3000);
   }
 
-  // get filteredLoops() {
-  //   const term = this.searchTerm.toLowerCase();
-  //   return this.loops.filter(loop =>
-  //     (loop.title || '').toLowerCase().includes(term) ||
-  //     (loop.username || '').toLowerCase().includes(term)
-  //   );
-  // }
-
   get filteredLoops() {
-  const term = this.searchTerm.toLowerCase();
-  return this.loops.filter(loop => {
-    const title = (loop.filename || '').toLowerCase();
-    const uploader = (loop.uploader?.username || '').toLowerCase();
-    return title.includes(term) || uploader.includes(term);
-  });
-}
+    const term = this.searchTerm.toLowerCase();
+    return this.loops.filter(loop => {
+      const title = (loop.filename || '').toLowerCase();
+      const uploader = (loop.uploader?.username || '').toLowerCase();
+      return title.includes(term) || uploader.includes(term);
+    });
+  }
 
 
-get sortedLoops() {
-  const sorted = [...this.filteredLoops];
-  sorted.sort((a, b) => {
-    if (this.sortField === 'uploadDate') {
-      const av = new Date(a.uploadDate || a.createdAt || 0).getTime();
-      const bv = new Date(b.uploadDate || b.createdAt || 0).getTime();
-      return this.sortDirection === 'asc' ? av - bv : bv - av;
-    }
+  get sortedLoops() {
+    const sorted = [...this.filteredLoops];
+    sorted.sort((a, b) => {
+      if (this.sortField === 'uploadDate') {
+        const av = new Date(a.uploadDate || a.createdAt || 0).getTime();
+        const bv = new Date(b.uploadDate || b.createdAt || 0).getTime();
+        return this.sortDirection === 'asc' ? av - bv : bv - av;
+      }
 
-    if (this.sortField === 'uploader') {
-      const av = (a.uploader?.username || '').toLowerCase();
-      const bv = (b.uploader?.username || '').toLowerCase();
-      return this.sortDirection === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
-    }
+      if (this.sortField === 'uploader') {
+        const av = (a.uploader?.username || '').toLowerCase();
+        const bv = (b.uploader?.username || '').toLowerCase();
+        return this.sortDirection === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+      }
 
-    const aVal = (a[this.sortField] ?? '').toString().toLowerCase();
-    const bVal = (b[this.sortField] ?? '').toString().toLowerCase();
-    if (isNaN(aVal as any) && isNaN(bVal as any)) {
-      return this.sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    }
+      const aVal = (a[this.sortField] ?? '').toString().toLowerCase();
+      const bVal = (b[this.sortField] ?? '').toString().toLowerCase();
+      if (isNaN(aVal as any) && isNaN(bVal as any)) {
+        return this.sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
 
-    const an = Number(a[this.sortField] ?? 0);
-    const bn = Number(b[this.sortField] ?? 0);
-    return this.sortDirection === 'asc' ? an - bn : bn - an;
-  });
-  return sorted;
-}
+      const an = Number(a[this.sortField] ?? 0);
+      const bn = Number(b[this.sortField] ?? 0);
+      return this.sortDirection === 'asc' ? an - bn : bn - an;
+    });
+    return sorted;
+  }
 
 
-  
+
 
   get paginatedLoops() {
     const start = (this.currentPage - 1) * this.itemsPerPage;
@@ -191,13 +168,6 @@ get sortedLoops() {
   }
 
   exportToCSV() {
-    // const rows = this.sortedLoops.map(loop => ({
-    //   Cím: loop.title,
-    //   Feltöltő: loop.username,
-    //   Dátum: new Date(loop.createdAt).toLocaleDateString(),
-    //   Likeok: loop.likes,
-    //   Letöltések: loop.downloads
-    // }));
     const rows = this.sortedLoops.map(loop => ({
       Cím: loop.filename,
       Feltöltő: loop.uploader?.username || '',
@@ -224,22 +194,7 @@ get sortedLoops() {
   }
 
 
-// openModal(loop: any) {
-//   const token = localStorage.getItem('token');
-//   this.http.get<any>(`${environment.apiUrl}/api/admin/loops/${loop._id}`, {
-//     headers: { Authorization: `Bearer ${token}` }
-//   }).subscribe({
-//     next: (res) => {
-//       this.selectedLoop = res.loop;
-//     },
-//     error: (err) => {
-//       console.error('Részletek betöltése sikertelen:', err);
-//       this.selectedLoop = loop; // fallback, ha nem jön be a részletes
-//     }
-//   });
-// }
-
-openModal(loop: any) {
+  openModal(loop: any) {
     const token = localStorage.getItem('token');
     this.http.get<any>(`${environment.apiUrl}/api/admin/loops/${loop._id}`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -257,46 +212,43 @@ openModal(loop: any) {
   }
 
 
-closeModal() {
-  this.selectedLoop = null;
-  document.body.style.overflow = 'auto';
-}
+  closeModal() {
+    this.selectedLoop = null;
+    document.body.style.overflow = 'auto';
+  }
 
-// getAudioUrl(path: string): string {
-//   return `${environment.apiUrl}/${path}`;
-// }
-getAudioUrl(path: string): string {
-  if (!path) return '';
-  if (/^https?:\/\//i.test(path)) return path;
-  return `${environment.apiUrl}/${path.replace(/^\/+/, '')}`;
-}
+  getAudioUrl(path: string): string {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${environment.apiUrl}/${path.replace(/^\/+/, '')}`;
+  }
 
-getLoopLink(loopId: string): string {
-  return `/loop-detail/${loopId}`;
-}
+  getLoopLink(loopId: string): string {
+    return `/loop-detail/${loopId}`;
+  }
 
-openInNewTab(loopId: string) {
-  window.open(this.getLoopLink(loopId), '_blank');
-}
+  openInNewTab(loopId: string) {
+    window.open(this.getLoopLink(loopId), '_blank');
+  }
 
 
-totalLikes(): number {
-  return this.loops.reduce((sum, loop) => sum + (loop.likes || 0), 0);
-}
+  totalLikes(): number {
+    return this.loops.reduce((sum, loop) => sum + (loop.likes || 0), 0);
+  }
 
-totalDownloads(): number {
-  return this.loops.reduce((sum, loop) => sum + (loop.downloads || 0), 0);
-}
+  totalDownloads(): number {
+    return this.loops.reduce((sum, loop) => sum + (loop.downloads || 0), 0);
+  }
 
-formatDuration(seconds?: number): string {
-  if (!seconds || seconds <= 0) return "0:00";
-  const total = Math.floor(seconds);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+  formatDuration(seconds?: number): string {
+    if (!seconds || seconds <= 0) return "0:00";
+    const total = Math.floor(seconds);
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
 
-get Math() {
-  return Math;
-}
+  get Math() {
+    return Math;
+  }
 }

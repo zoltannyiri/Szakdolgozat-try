@@ -80,31 +80,6 @@ mongoose
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// app.post("/api/register", async (req, res) => {
-//     try{
-//         const { username, email, password } = req.body;
-//         const existingUser = await User.findOne({ username });
-//         if (existingUser) {
-//             return res.status(400).json({ message: "Username already exists" });
-//         }
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         const newUser = new User({
-//             username,
-//             email,
-//             password: hashedPassword,
-//             role: "user",
-//         });
-
-//         await newUser.save();
-//         res.status(201).json({ message: "Registration successful" });
-//     }
-//     catch (error) {
-//         console.error("Registration error:", error);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// });
-
 app.use("/api", registerRoutes); 
 app.use("/api", loginRoutes);
 app.use('/api', googleAuthRoutes);
@@ -118,67 +93,7 @@ interface CustomRequest extends Request {
 interface DecodedToken {
     user: any;
 }
-
-// app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
-//     try {
-//       const userId = req.user.userId;
-//       const user = await User.findById(userId).select("-password");
-  
-//       if (!user) {
-//         return res.status(404).json({ message: "User not found" });
-//       }
-  
-//       return res.json({ user });
-//     } catch (error) {
-//       console.log("Error fetching profile:", error);
-//       res.status(500).json({ message: "Server error" });
-//     }
-//   });
-
-
-  // //létrehozva: 03. 24. 
-  // app.get("/api/profile/:username", async (req: CustomRequest, res: Response) => {
-  //   try {
-  //     const { username } = req.params;  // Az URL-ben szereplő felhasználónév
-  //     const user = await User.findOne({ username }).select("-password");  // Megkeressük a felhasználót
-  
-  //     if (!user) {
-  //       return res.status(404).json({ message: "User not found" });
-  //     }
-  
-  //     return res.json({ user });
-  //   } catch (error) {
-  //     console.log("Error fetching profile:", error);
-  //     res.status(500).json({ message: "Server error" });
-  //   }
-  // });
-
-//   // A PUT végpont hozzáadása (aboutme miatt)
-// app.put("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
-//   try {
-//     const { aboutMe } = req.body;  // A frissített adat
-//     const userId = req.user.userId;  // A bejelentkezett felhasználó ID-ja
-
-//     // A felhasználó keresése ID alapján
-//     const user = await User.findById(userId);
-    
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     // A felhasználó adatainak frissítése
-//     user.aboutMe = aboutMe;
-//     await user.save();  // Az adatok mentése
-
-//     return res.json({ message: "Profile updated successfully", user });
-//   } catch (error) {
-//     console.log("Error updating profile:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-
-//avatar feltöltés, 05.31.
+// Profilkép feltöltése
 app.post('/api/profile/upload-avatar', authenticateToken, uploadAvatar.single('avatar'), async (req: CustomRequest, res: Response) => {
   try {
     const userId = req.user.userId;
@@ -202,47 +117,7 @@ app.post('/api/profile/upload-avatar', authenticateToken, uploadAvatar.single('a
   }
 });
 
-
-
-
-//ÉRTESÍTÉSEK
-// Értesítések lekérdezése
-// // Értesítések lekérdezése
-// app.get('/api/notifications', authenticateToken, async (req: CustomRequest, res: Response) => {
-//   try {
-//     const notifications = await Notification.find({ userId: req.user.userId })
-//       .populate<{ user: { username: string; profileImage?: string } }>({
-//         path: 'user',
-//         select: 'username profileImage',
-//         model: 'User'
-//       })
-//       .sort({ createdAt: -1 })
-//       .lean();
-
-//     const formattedNotifications = notifications.map(notification => {
-//       // Explicit típus definiálás
-//       const user = notification.user as { username: string; profileImage?: string } | undefined;
-      
-//       return {
-//         ...notification,
-//         message: notification.message,
-//         user: user ? {
-//           username: user.username,
-//           profileImage: user.profileImage // Opcionális mező
-//         } : undefined
-//       };
-//     });
-
-//     res.status(200).json({
-//       success: true,
-//       data: formattedNotifications
-//     });
-//   } catch (error) {
-//     console.error('Hiba:', error);
-//     res.status(500).json({ message: 'Szerver hiba' });
-//   }
-// });
-
+// Értesítések lekérése
 app.get('/api/notifications', authenticateToken, async (req: CustomRequest, res: Response) => {
   try {
     const notifications = await Notification.find({ userId: req.user.userId })
@@ -268,7 +143,6 @@ function getNotificationText(type: string): string {
   switch(type) {
     case 'comment': return 'kommentelt egy loopod alatt';
     case 'download': return 'letöltötte a loopodat';
-    // ... egyéb típusok
     default: return 'interakciót végzett a loopoddal';
   }
 }
@@ -309,56 +183,6 @@ app.put('/api/notifications/read-all', authenticateToken, async (req: CustomRequ
   }
 });
 
-  
-  
-
-
-
-
-
-
-
-// áthelyezve a middlewarebe
-// export const authenticateToken = (req: CustomRequest, res: Response, next: NextFunction) =>{
-//     const authHeader = req.headers["authorization"];
-//     const token = authHeader && authHeader.split(" ")[1];
-//     if (!token) return res.status(401).json({ message: "No token provided, authorization denied"});
-
-//     try{
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedToken;
-//         // req.user = decoded.user; ez nem működik, mert a `decoded` objektum nem tartalmazza a `user` kulcsot
-
-//         req.user = decoded;
-//         next();
-
-//     }catch (error){
-//         return res.status(403).json({ message: "Invalid or expired token"});
-//     }
-
-//     // jwt.verify(token as string, process.env.JWT_SECRET as string, (err, user) => {
-//     //     if (err) return res.sendStatus(403);
-//     //     req.user = user;
-//     //     next();
-//     // });
-// }
-
-// app.get("/api/profile", authenticateToken, async (req: CustomRequest, res: Response) => {
-//     try{
-//         const userId = req.user.userId;
-//         const user = await User.findById(userId).select("-password");
-
-//         if (!user){
-//             return res.status(404).json({ message: "User not found" });
-//         }
-//         console.log(user.username)
-//         return res.json({ user });
-//     } catch (error){
-//         console.log("Error fetching profile:", error);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// });
-
-
 app.get('/api/validate-token', authenticateToken, async (req: CustomRequest, res: Response) => {
   try {
     const user = await User.findById(req.user.userId);
@@ -376,7 +200,6 @@ app.get('/api/validate-token', authenticateToken, async (req: CustomRequest, res
 
 
 //email validálás
-//módosítva: 2025. 04. 27
 app.get('/api/verify-email', async (req: Request, res: Response) => {
   try {
     const { token } = req.query;
@@ -410,37 +233,8 @@ app.get('/api/verify-email', async (req: Request, res: Response) => {
     res.status(500).json({ message: "Szerver hiba" });
   }
 });
-// //email validálás újraküldése
-// app.post('/api/resend-verification', authenticateToken, async (req: CustomRequest, res: Response) => {
-//   try {
-//     const user = await User.findById(req.user.userId);
-//     if (!user) return res.status(404).json({ message: "User not found" });
-    
-//     if (user.isVerified) {
-//       return res.status(400).json({ message: "User already verified" });
-//     }
-    
-//     // Token generálás és mentés
-//     const verificationToken = crypto.randomBytes(20).toString('hex');
-//     user.verificationToken = verificationToken;
-//     user.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 óra
-//     await user.save();
-    
-//     // Email küldése
-//     await sendVerificationEmail(user.email, verificationToken);
-    
-//     res.json({ message: "Verification email sent" });
-//   } catch (error) {
-//     console.error("Resend verification error:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-
-
 
 //chat
-// Socket.IO logic
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
 
@@ -482,29 +276,7 @@ app.use('/api', chatRoutes);
 
 app.use("/api/profile", profileRoutes);
 
-// verifikálás
 app.use('/api', verifyRoutes);
-
-//teszt
-
-// app.post('/api/_dev/test-mail', async (req, res) => {
-//   try {
-//     await sendVerificationEmail({
-//       to: 'zolikaa0@gmail.com',
-//       link: 'http://localhost:4200/verify?uid=demo&token=demo',
-//       username: 'Teszt Elek',
-//     });
-//     res.json({ ok: true });
-//   } catch (e:any) {
-//     console.error('Test mail error:', e);
-//     res.status(500).json({ ok: false, message: e?.message || 'send fail' });
-//   }
-// });
-
-
-// feltöltés
-// app.use("/api", loopRoutes);
-// Loop routes közvetlenül a server.ts-ben
 const allowedOrigins = [
   'http://localhost:4200', 
   'https://szakdolgozat-frontend-pi.vercel.app',   
@@ -537,11 +309,8 @@ app.use('/uploads', express.static('uploads'));
 app.post('/api/loop-detail/:id/like', authenticateToken, checkVerifiedOrBanned, likeLoop);
 app.post('/api/loop-detail/:id/unlike', authenticateToken, checkVerifiedOrBanned, unlikeLoop);
 
-
-
 //favorite hozzáadás
 app.use("/api", favoriteRoutes);
-
 
 
 //ADMIN
@@ -561,7 +330,6 @@ app.post('/api/loop-detail/:id/unlike', authenticateToken, blockIfBanned, unlike
 
 
 //REPORT
-// app.use('/api/reports', reportRoutes);
 app.use('/api', reportRoutes);
 
 // oauth
@@ -576,11 +344,3 @@ app.use('/api', userCommentsRoutes);
 
 console.log("Registering admin routes...");
 console.log("Admin routes registered");
-// app.use('/api', adminRoutes);
-// app.use('/api/admin/users', adminRoutes);
-
-// commented at 03.11 19:00
-// import App from "./app";
-// import loginController from "./controllers/login.controller";
-
-// const app = new App([loginController]);

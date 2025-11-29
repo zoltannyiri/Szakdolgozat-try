@@ -30,7 +30,7 @@ export class RegisterComponent {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   countries: string[] = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Argentina", "Armenia", "Australia", "Austria",
@@ -87,7 +87,7 @@ export class RegisterComponent {
       next: () => {
         this.isLoading = false;
         this.successMessage = 'Sikeres regisztráció! Átirányítás...';
-        
+
         setTimeout(() => {
           this.router.navigate(['/home']);
         }, 1500);
@@ -95,12 +95,12 @@ export class RegisterComponent {
       error: (err) => {
         this.isLoading = false;
         this.successMessage = 'Sikeres regisztráció! Kérlek jelentkezz be.';
-        this.registerData = { 
-          username: '', 
-          email: '', 
-          password: '', 
-          confirmPassword: '', 
-          country: '' 
+        this.registerData = {
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          country: ''
         };
       }
     });

@@ -1,7 +1,6 @@
 <div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 p-3 sm:p-6 pb-24 sm:pb-6">
   <div class="max-w-7xl mx-auto space-y-4 sm:space-y-8">
 
-    <!-- HEADER & STATS -->
     <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-4 sm:p-8">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
         <div>
@@ -10,7 +9,6 @@
           </h1>
         </div>
 
-        <!-- STATUS FILTER BUTTONS -->
         <div class="flex flex-wrap gap-2 w-full lg:w-auto rounded-xl bg-slate-700/60 p-1 backdrop-blur-sm border border-slate-600/30">
           <button
             class="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all text-center whitespace-nowrap"
@@ -51,7 +49,6 @@
 
       </div>
 
-      <!-- STATS GRID -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-600/30">
         <div class="text-center p-3 sm:p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm">
           <div class="text-xl sm:text-2xl font-bold text-amber-400">{{ counts.comment }}</div>
@@ -72,10 +69,8 @@
       </div>
     </div>
 
-    <!-- FILTER TABS + REFRESH -->
     <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
       <div class="w-full sm:w-auto">
-        <!-- ITT A VÁLTOZÁS: grid grid-cols-2 mobilon -->
         <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 rounded-2xl border border-slate-600/30 bg-slate-800/60 p-2 backdrop-blur-sm">
           <button
             *ngFor="let t of tabs"
@@ -87,7 +82,6 @@
               'text-slate-300 hover:bg-slate-700/60': activeTab.key !== t.key
             }"
           >
-            <!-- Az order-first és order-last osztályokat eltávolítottam -->
             <span>{{ t.label }}</span>
             <span
               *ngIf="t.count !== undefined"
@@ -114,7 +108,6 @@
       </button>
     </div>
 
-    <!-- LIST SECTION -->
     <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl overflow-hidden">
       
       <div *ngIf="loading" class="space-y-4 p-4 sm:p-8 animate-pulse">
@@ -141,7 +134,6 @@
           
           <div class="relative rounded-2xl border border-slate-600/30 bg-slate-700/40 p-4 sm:p-6 backdrop-blur-sm">
             
-            <!-- Type indicator stripe -->
             <div
               class="absolute left-0 top-0 h-full w-1 sm:w-1.5 rounded-l-2xl"
               [ngClass]="{
@@ -151,7 +143,6 @@
               }"
             ></div>
 
-            <!-- Header Badges -->
             <div class="flex flex-wrap items-start gap-2 sm:gap-3 pl-2 sm:pl-4 mb-4">
               <span
                 class="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-medium backdrop-blur-sm border"
@@ -191,7 +182,6 @@
               </span>
             </div>
 
-            <!-- Content Grid -->
             <div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 pl-2 sm:pl-4">
               <div class="sm:col-span-2">
                 <div class="text-xs text-slate-400 mb-1.5 sm:mb-2 flex items-center gap-2">
@@ -224,7 +214,6 @@
               </div>
             </div>
 
-            <!-- Actions Bar -->
             <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pl-2 sm:pl-4">
               <button
                 type="button"
@@ -266,7 +255,6 @@
               </div>
             </div>
 
-            <!-- Expanded Details -->
             <div *ngIf="expanded[r._id]" class="mt-6 rounded-2xl border border-slate-600/30 bg-slate-600/20 p-4 sm:p-6 backdrop-blur-sm">
               <ng-container [ngSwitch]="r.type">
                 
@@ -400,7 +388,6 @@
       </div>
     </div>
 
-    <!-- Pagination -->
     <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-400">
       <div class="flex items-center gap-3 bg-slate-700/40 rounded-xl px-4 py-3 backdrop-blur-sm">
         <i class="bi bi-flag text-amber-400"></i>

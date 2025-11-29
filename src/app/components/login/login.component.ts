@@ -26,7 +26,7 @@ export class LoginComponent implements AfterViewInit {
   showPassword = false;
   isLoading = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   togglePassword() {
     this.showPassword = !this.showPassword;
@@ -57,9 +57,9 @@ export class LoginComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     const init = () => {
       const btn = document.getElementById('googleBtn');
-      if (!window.google || !btn) { 
-        setTimeout(init, 100); 
-        return; 
+      if (!window.google || !btn) {
+        setTimeout(init, 100);
+        return;
       }
 
       window.google.accounts.id.initialize({
@@ -89,7 +89,7 @@ export class LoginComponent implements AfterViewInit {
 
     this.errorMessage = '';
     this.isLoading = true;
-    
+
     this.authService.loginWithGoogle(idToken).subscribe({
       next: () => {
         this.isLoading = false;

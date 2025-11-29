@@ -41,44 +41,33 @@ export class ChatComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private auth: AuthService,
     private http: HttpClient
-  ) {}
+  ) { }
 
   private asDate(v: any): Date | null {
-  if (!v) return null;
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? null : d;
-}
+    if (!v) return null;
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  }
 
-ngOnInit(): void {
-  this.senderId = this.auth.getUserId() || '';
-  this.currentUserId = this.senderId;
+  ngOnInit(): void {
+    this.senderId = this.auth.getUserId() || '';
+    this.currentUserId = this.senderId;
 
-  this.http.get(`${environment.apiUrl}/api/profile`, {
-    headers: { Authorization: `Bearer ${this.auth.getToken()}` }
-  }).subscribe((res: any) => {
-    const u = res?.user || {};
-    this.me = { id: u._id, username: u.username || '', profileImage: u.profileImage };
-    if (this.me.id) this.userCache[this.me.id] = { username: this.me.username, profileImage: this.me.profileImage };
-  });
+    this.http.get(`${environment.apiUrl}/api/profile`, {
+      headers: { Authorization: `Bearer ${this.auth.getToken()}` }
+    }).subscribe((res: any) => {
+      const u = res?.user || {};
+      this.me = { id: u._id, username: u.username || '', profileImage: u.profileImage };
+      if (this.me.id) this.userCache[this.me.id] = { username: this.me.username, profileImage: this.me.profileImage };
+    });
 
-  this.route.queryParams.subscribe(params => {
-    this.receiverId = params['userId'];
+    this.route.queryParams.subscribe(params => {
+      this.receiverId = params['userId'];
 
-    // this.http.get(`${environment.apiUrl}/api/users/${this.receiverId}/public`, {
-    //   headers: { Authorization: `Bearer ${this.auth.getToken()}` }
-    // }).subscribe((u: any) => {
-    //   this.userCache[this.receiverId] = {
-    //     username: u?.username || '',
-    //     profileImage: u?.profileImage,
-    //     lastActive: this.asDate(u?.lastActive)
-    //   };
-    // }, () => {
-    // });
-
-    this.connectSocket();
-    this.loadMessages();
-  });
-}
+      this.connectSocket();
+      this.loadMessages();
+    });
+  }
 
   ngOnDestroy(): void {
     if (this.typingTimeout) clearTimeout(this.typingTimeout);
@@ -200,40 +189,40 @@ ngOnInit(): void {
 
 
   isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() &&
-         a.getMonth() === b.getMonth() &&
-         a.getDate() === b.getDate();
-}
+    return a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+  }
 
-isToday(d: Date): boolean {
-  const today = new Date();
-  return this.isSameDay(d, today);
-}
+  isToday(d: Date): boolean {
+    const today = new Date();
+    return this.isSameDay(d, today);
+  }
 
-isYesterday(d: Date): boolean {
-  const y = new Date();
-  y.setDate(y.getDate() - 1);
-  return this.isSameDay(d, y);
-}
+  isYesterday(d: Date): boolean {
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    return this.isSameDay(d, y);
+  }
 
-shouldShowDateDivider(index: number): boolean {
-  if (!this.messages || this.messages.length === 0) return false;
-  if (index === 0) return true;
-  const cur = this.messages[index].timestamp as Date;
-  const prev = this.messages[index - 1].timestamp as Date;
-  return !this.isSameDay(cur, prev);
-}
+  shouldShowDateDivider(index: number): boolean {
+    if (!this.messages || this.messages.length === 0) return false;
+    if (index === 0) return true;
+    const cur = this.messages[index].timestamp as Date;
+    const prev = this.messages[index - 1].timestamp as Date;
+    return !this.isSameDay(cur, prev);
+  }
 
-getDateLabelFor(index: number): string {
-  const d = this.messages[index].timestamp as Date;
-  if (this.isToday(d)) return 'Ma';
-  if (this.isYesterday(d)) return 'Tegnap';
-  return d.toLocaleDateString('hu-HU', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-}
+  getDateLabelFor(index: number): string {
+    const d = this.messages[index].timestamp as Date;
+    if (this.isToday(d)) return 'Ma';
+    if (this.isYesterday(d)) return 'Tegnap';
+    return d.toLocaleDateString('hu-HU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
 
 
 

@@ -2,7 +2,6 @@
   <div class="pointer-events-none absolute inset-0 opacity-[0.03] [background-image:url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
 
   <div class="relative mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-8">
-    <!-- HEADER -->
     <section class="mb-6 sm:mb-8 rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm p-4 sm:p-6 shadow-xl">
       <div class="flex flex-col gap-4 sm:flex-row">
         <div class="relative flex-1">
@@ -29,7 +28,6 @@
       </div>
     </section>
 
-    <!-- UPLOAD INFO -->
     <div *ngIf="uploadInfoMessage" class="mb-4">
       <div
         class="rounded-xl px-4 py-3 text-sm backdrop-blur-sm"
@@ -42,7 +40,6 @@
       </div>
     </div>
 
-    <!-- UPLOAD MODAL -->
     <div *ngIf="isUploadModalOpen"
          class="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 overflow-y-auto"
          (click)="closeUploadModal($event)">
@@ -55,7 +52,6 @@
           <button (click)="toggleUploadModal()" class="rounded-full p-2 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200 transition-all"><i class="bi bi-x-lg text-lg"></i></button>
         </div>
 
-        <!-- <div class="space-y-6"> -->
           <div class="flex flex-col gap-6">
           <div>
             <label class="mb-2 block text-sm font-medium text-slate-300">Válassz egy WAV vagy AIFF fájlt (max 20MB)</label>
@@ -116,7 +112,6 @@
       </div>
     </div>
 
-    <!-- ADVANCED SEARCH MODAL -->
     <div *ngIf="isAdvancedSearchOpen"
          class="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm overflow-y-auto"
          (click)="closeAdvancedSearch($event)">
@@ -182,10 +177,7 @@
       </div>
     </div>
 
-    <!-- LOOPS LIST -->
-    <!-- <div class="space-y-6"> -->
       <div class="flex flex-col gap-6">
-      <!-- LOADING -->
       <div *ngIf="isLoading" class="flex items-center justify-center py-12">
         <div class="flex flex-col items-center text-slate-400">
           <i class="bi bi-arrow-repeat animate-spin text-4xl mb-3 text-amber-400"></i>
@@ -193,7 +185,6 @@
         </div>
       </div>
 
-      <!-- EMPTY STATE -->
       <div *ngIf="!isLoading && loops.length === 0" class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-12 text-center shadow-xl backdrop-blur-sm">
         <div class="mx-auto mb-4 h-20 w-20 rounded-2xl bg-slate-700/40 flex items-center justify-center backdrop-blur-sm">
           <i class="bi bi-music-note-beamed text-4xl text-slate-400"></i>
@@ -202,7 +193,6 @@
         <p class="text-sm text-slate-400">Változtass a szűrés értékein</p>
       </div>
 
-      <!-- LOOP CARDS -->
       <div *ngFor="let loop of loops" 
            class="group rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-4 sm:p-6 shadow-xl transition-all duration-300 hover:border-slate-500/50 hover:bg-slate-800/60 backdrop-blur-sm">
         
@@ -221,8 +211,6 @@
           (error)="onAudioError(audioPlayer)">
         </audio>
 
-
-        <!-- LOOP HEADER -->
         <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div class="flex-1 w-full">
             <div class="mb-3 flex flex-wrap items-center gap-3">
@@ -244,10 +232,8 @@
             </div>
           </div>
 
-          <!-- ACTION BUTTONS -->
           <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0">
             <div class="flex items-center gap-3">
-            <!-- LIKE BUTTON -->
             <button
               (click)="toggleLike(loop)"
               class="inline-flex h-10 w-10 items-center justify-center
@@ -259,8 +245,7 @@
                 [ngClass]="hasLiked(loop._id) ? 'text-rose-500' : 'text-slate-400'">
               </i>
             </button>
-            
-            <!-- FAVORITE BUTTON -->
+
             <button
               (click)="toggleFavorite(loop)"
               class="inline-flex h-10 w-10 items-center justify-center
@@ -273,14 +258,12 @@
               </i>
             </button>
             
-            <!-- DOWNLOAD BUTTON -->
             <button (click)="downloadLoop(loop)" 
                     class="rounded-full p-2.5 text-slate-400 transition-all hover:bg-emerald-500/20 hover:text-emerald-400 backdrop-blur-sm"
                     title="Download loop">
               <i class="bi bi-download text-sm"></i>
             </button>
             
-            <!-- REPORT BUTTON -->
             <ng-container *ngIf="!isAdmin">
               <button (click)="openLoopReportModal(loop._id)" 
                       class="rounded-full p-2.5 text-slate-400 transition-all hover:bg-rose-500/20 hover:text-rose-400 backdrop-blur-sm"
@@ -289,7 +272,6 @@
               </button>
             </ng-container>
             
-            <!-- ADMIN BUTTONS -->
             <ng-container *ngIf="isAdmin">
               <button (click)="adminDeleteLoop(loop)" 
                       class="rounded-full p-2.5 text-slate-400 transition-all hover:bg-rose-500/20 hover:text-rose-400 backdrop-blur-sm"
@@ -311,7 +293,6 @@
           </div>
         </div>
 
-        <!-- TAGS -->
         <div class="mb-6 flex flex-wrap gap-2">
           <span *ngFor="let tag of loop.tags" 
                 class="rounded-full bg-slate-700/50 px-3 py-1 text-xs text-slate-300 ring-1 ring-inset ring-slate-600/50 backdrop-blur-sm hover:bg-slate-600/50 transition-colors">
@@ -319,11 +300,9 @@
           </span>
         </div>
 
-        <!-- PLAYER SECTION -->
         <div class="rounded-xl border border-slate-600/30 bg-slate-800/40 p-4 backdrop-blur-sm">
           <div class="relative mb-4 h-16 sm:h-20 cursor-pointer overflow-hidden rounded-lg bg-slate-700/30 ring-1 ring-inset ring-slate-600/30" 
                (click)="seekAudio($event, loop._id, true)">
-            <!-- Static waveform -->
             <div class="absolute inset-0 flex items-center opacity-60">
               <div class="flex h-8 w-full items-end">
                 <div *ngFor="let value of waveforms[loop._id] || []; let i = index" 
@@ -331,7 +310,6 @@
                      [style.height.%]="value * 0.8"></div>
               </div>
             </div>
-            <!-- Active waveform -->
             <div class="absolute inset-0 flex items-center overflow-hidden" [style.width.%]="getProgress(loop._id)">
               <div class="flex h-8 items-end">
                 <div *ngFor="let value of waveforms[loop._id] || []; let i = index" 
@@ -342,7 +320,6 @@
             <div class="absolute top-0 bottom-0 ml-1 w-0.5 bg-amber-400" [style.left.%]="getProgress(loop._id)"></div>
           </div>
 
-          <!-- PLAYER CONTROLS -->
           <div class="flex items-center justify-between gap-2 sm:gap-4">
             <button (click)="togglePlay(loop._id, audioPlayer)" 
                     class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg transition-all hover:scale-105 hover:shadow-amber-500/40 group flex-shrink-0">
@@ -372,8 +349,6 @@
         </div>
       </div>
 
-      
-        <!-- PAGINATION -->
         <div *ngIf="!isLoading && total > pageSize" class="mt-8 flex flex-col items-center gap-4">
           <div class="text-sm text-slate-400">
             <span class="text-slate-200 font-medium">{{ fromIndex }}</span>–<span class="text-slate-200 font-medium">{{ toIndex }}</span>
@@ -381,7 +356,6 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <!-- Prev -->
             <button
               (click)="prevPage()"
               [disabled]="page === 1"
@@ -389,7 +363,6 @@
               ‹ Előző
             </button>
 
-            <!-- Page numbers -->
             <button
               *ngFor="let p of pageNumbers"
               (click)="goToPage(p)"
@@ -400,7 +373,6 @@
               {{ p }}
             </button>
 
-            <!-- Next -->
             <button
               (click)="nextPage()"
               [disabled]="page === totalPages"
@@ -413,7 +385,6 @@
 
     </div>
 
-    <!-- REPORT MODAL -->
     <div *ngIf="isLoopReportModalOpen"
          class="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm overflow-y-auto"
          (click)="closeLoopReportModal($event)">
@@ -444,7 +415,6 @@
       </div>
     </div>
 
-    <!-- EDIT MODAL (ADMIN) -->
     <div *ngIf="isEditModalOpen"
          class="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm overflow-y-auto"
          (click)="closeEditModal($event)">
@@ -512,5 +482,15 @@
         </div>
       </div>
     </div>
+  </div>
+  <div *ngIf="toast.text" 
+     [class]="'fixed bottom-10 left-1/2 z-[100] -translate-x-1/2 transform transition-all duration-300 rounded-xl border px-6 py-3 shadow-2xl backdrop-blur-md ' + 
+              (toast.variant === 'success' ? 'bg-emerald-900/90 text-emerald-100 border-emerald-500/50' : 
+               toast.variant === 'error' ? 'bg-rose-900/90 text-rose-100 border-rose-500/50' : 
+               'bg-slate-800/90 text-slate-100 border-slate-600/50')">
+  <div class="flex items-center gap-3">
+    <i *ngIf="toast.variant === 'success'" class="bi bi-check-circle-fill text-emerald-400 text-lg"></i>
+    <i *ngIf="toast.variant === 'error'" class="bi bi-exclamation-triangle-fill text-rose-400 text-lg"></i>
+    <span class="font-medium text-sm sm:text-base">{{ toast.text }}</span>
   </div>
 </div>

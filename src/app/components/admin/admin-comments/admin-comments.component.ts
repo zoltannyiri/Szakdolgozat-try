@@ -210,10 +210,6 @@ export class AdminCommentsComponent implements OnInit {
     return `/loop-detail/${loopId}`;
   }
 
-  // getUserProfileLink(userId: string): string {
-  //   return `/profile/${userId}`;
-  // }
-
   activeUsersCount(): number {
     const uniqueUsers = new Set(this.comments.map(comment => comment.user?._id).filter(id => id));
     return uniqueUsers.size;

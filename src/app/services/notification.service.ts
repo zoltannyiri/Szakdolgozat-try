@@ -5,18 +5,18 @@ import { environment } from '../environments/environment';
 import { AuthService } from './auth.service';
 
 interface Notification {
-    id: string;
-    userId: string;
-    type: string;
-    message: string;
-    relatedItemId: string;
-    read: boolean;
-    createdAt: Date;
-    user?: {
-      username: string;
-      profileImage?: string;
-    };
-  }
+  id: string;
+  userId: string;
+  type: string;
+  message: string;
+  relatedItemId: string;
+  read: boolean;
+  createdAt: Date;
+  user?: {
+    username: string;
+    profileImage?: string;
+  };
+}
 
 @Injectable({
   providedIn: 'root'
@@ -24,17 +24,13 @@ interface Notification {
 export class NotificationService {
   private apiUrl = `${environment.apiUrl}/api/notifications`;
 
-  
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService) { }
 
-    constructor(
-        private http: HttpClient,
-        private authService: AuthService) {}
-
-        
-
-        getNotifications(): Observable<{success: boolean, data: Notification[]}> {
-            return this.http.get<{success: boolean, data: Notification[]}>(this.apiUrl);
-          }
+  getNotifications(): Observable<{ success: boolean, data: Notification[] }> {
+    return this.http.get<{ success: boolean, data: Notification[] }>(this.apiUrl);
+  }
 
   markAsRead(id: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/read`, {});

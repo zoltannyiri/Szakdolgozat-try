@@ -39,7 +39,6 @@ function ensureTransporter() {
 
   const host     = process.env.SMTP_HOST || 'smtp-relay.brevo.com';
   const port     = Number(process.env.SMTP_PORT || 587);
-  // Biztosítjuk, hogy false legyen, ha nincs beállítva
   const secure   = process.env.SMTP_SECURE === 'true'; 
   const user     = process.env.SMTP_USER;
   const pass     = process.env.SMTP_PASS;
@@ -49,15 +48,13 @@ function ensureTransporter() {
   transporter = nodemailer.createTransport({
     host,
     port,
-    secure, // Brevo esetén false
+    secure,
     auth: { user, pass },
-    // --- EZ A KÉT SOR A KULCS A RENDERHEZ: ---
-    family: 4,     // Kényszerített IPv4 (ez oldja meg a fagyást!)
+    family: 4,
     tls: { 
-      rejectUnauthorized: false, // Segít, ha a Render SSL tanúsítványa nem tetszik a Brevonak
+      rejectUnauthorized: false,
       minVersion: 'TLSv1.2'
     },
-    // -----------------------------------------
     logger: true,
     debug: true,
   }as SMTPTransport.Options);

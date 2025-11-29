@@ -18,7 +18,6 @@
           </a>
         </div>
 
-        <!-- Desktop -->
         <nav class="hidden lg:flex items-center gap-1 flex-1 justify-center">
           <a [routerLink]="['/home']"
              routerLinkActive="nav-active"
@@ -33,16 +32,6 @@
             <i class="bi bi-music-note-beamed"></i>
             Loopok
           </a>
-
-          <!-- <a class="nav-item cursor-pointer">
-            <i class="bi bi-folder"></i>
-            Projects
-          </a>
-
-          <a class="nav-item cursor-pointer">
-            <i class="bi bi-info-circle"></i>
-            About
-          </a> -->
 
           <a *ngIf="isAdmin"
             [routerLink]="['/admin','dashboard']"
@@ -122,7 +111,6 @@
                 </div>
               </div>
 
-              <!-- Notifications -->
               <div class="relative">
                 <button (click)="toggleNotifications()"
                   class="icon-btn group notification-btn-trigger"
@@ -220,22 +208,10 @@
                     <i class="bi bi-person-circle"></i>
                     Profil
                   </button>
-                  <!-- <button class="dropdown-item">
-                    <i class="bi bi-music-note-list"></i>
-                    Loopjaim
-                  </button> -->
-                  <!-- <button class="dropdown-item">
-                    <i class="bi bi-chat-text"></i>
-                    Kommentjeim
-                  </button> -->
                   <button class="dropdown-item" [routerLink]="['/favorites']">
                     <i class="bi bi-heart"></i>
                     Kedvencek
                   </button>
-                  <!-- <button class="dropdown-item">
-                    <i class="bi bi-gear"></i>
-                    Beállítások
-                  </button> -->
                   
                   <div class="border-t border-slate-600/30 mt-2 pt-2">
                     <button *ngIf="isAdmin" 
@@ -306,14 +282,6 @@
         <i class="bi bi-music-note-beamed"></i>
         Loopok
       </a>
-      <!-- <a class="mobile-item">
-        <i class="bi bi-folder"></i>
-        Projects
-      </a>
-      <a class="mobile-item">
-        <i class="bi bi-info-circle"></i>
-        About
-      </a> -->
       <a *ngIf="isAdmin"
         class="mobile-item admin-mobile"
         [routerLink]="['/admin','dashboard']"

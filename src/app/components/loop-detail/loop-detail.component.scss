@@ -6,25 +6,24 @@
 
 .like-button {
   transition: all 0.3s ease;
-  color: #9CA3AF; /* gray-400 */
+  color: #9CA3AF;
   stroke-width: 1.5;
   
   &:hover {
     transform: scale(1.1);
-    color: #FCA5A5; /* red-300 */
+    color: #FCA5A5;
   }
   
   &.liked {
-    color: #EF4444; /* red-500 */
+    color: #EF4444;
     stroke-width: 2;
     
     &:hover {
-      color: #DC2626; /* red-600 */
+      color: #DC2626;
     }
   }
 }
 
-/* Animációk */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -34,7 +33,6 @@
   animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* Egyedi görgetősáv */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -53,7 +51,6 @@
   background: rgba(79, 70, 229, 0.7);
 }
 
-/* Input range testreszabása */
 input[type="range"] {
   appearance: none;
   -webkit-appearance: none;
@@ -79,18 +76,18 @@ input[type="range"]:hover::-webkit-slider-thumb {
 
 .favorite-button {
   transition: all 0.3s ease;
-  color: #9CA3AF; /* gray-400 */
+  color: #9CA3AF;
   
   &:hover {
     transform: scale(1.1);
-    color: #FBBF24; /* yellow-400 */
+    color: #FBBF24;
   }
   
   &.favorited {
-    color: #F59E0B; /* yellow-500 */
+    color: #F59E0B;
     
     &:hover {
-      color: #D97706; /* yellow-600 */
+      color: #D97706;
     }
   }
 }

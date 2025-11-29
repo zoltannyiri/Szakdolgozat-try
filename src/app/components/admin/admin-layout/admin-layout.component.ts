@@ -32,7 +32,6 @@ export class AdminLayoutComponent implements OnInit {
       next: (res) => {
         if (res.success && res.data) {
           this.stats.activeUsers = res.data.activeUsers ?? 0;
-          // console.log('Sidebar stats:', this.stats);
         }
       },
       error: (err) => {

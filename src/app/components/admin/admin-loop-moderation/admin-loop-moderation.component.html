@@ -1,6 +1,5 @@
 <div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 p-6">
   <div class="max-w-7xl mx-auto space-y-8">
-    <!-- CÍMSOR + összegző -->
     <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-8">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -8,7 +7,7 @@
             Loop moderáció
           </h1>
           <p class="mt-2 text-slate-400">
-            Itt bírálhatod el a friss feltöltéseket. Az első 5 feltöltés moderációt igényel.
+            Friss felhasználók feltöltéseinek elbírálása.
           </p>
         </div>
         
@@ -26,7 +25,6 @@
       </div>
     </div>
 
-    <!-- HIBA/SUCCESS sáv -->
     <div *ngIf="errorMessage" class="rounded-2xl border border-rose-600/30 bg-gradient-to-b from-rose-800/80 to-rose-900/80 backdrop-blur-sm shadow-xl p-6">
       <div class="flex items-center gap-3 text-rose-300">
         <i class="bi bi-exclamation-triangle text-xl"></i>
@@ -37,59 +35,6 @@
       </div>
     </div>
 
-    <!-- SZŰRŐSÁV -->
-    <!-- <section class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6">
-      <form class="grid grid-cols-1 gap-4 md:grid-cols-6">
-        <div class="md:col-span-2">
-          <label class="mb-2 block text-sm font-medium text-slate-300">Keresés (fájlnév / tag)</label>
-          <input type="text" [(ngModel)]="filters.q" name="q"
-                 placeholder="pl. hihat, 140bpm, fájlnév"
-                 (keyup.enter)="refresh()"
-                 class="w-full rounded-xl border border-slate-600/30 bg-slate-700/40 backdrop-blur-sm px-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/30 transition-all"/>
-        </div>
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-300">BPM (min)</label>
-          <input type="number" [(ngModel)]="filters.minBpm" name="minBpm" min="40" max="300"
-                 class="w-full rounded-xl border border-slate-600/30 bg-slate-700/40 backdrop-blur-sm px-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/30 transition-all"/>
-        </div>
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-300">BPM (max)</label>
-          <input type="number" [(ngModel)]="filters.maxBpm" name="maxBpm" min="40" max="300"
-                 class="w-full rounded-xl border border-slate-600/30 bg-slate-700/40 backdrop-blur-sm px-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/30 transition-all"/>
-        </div>
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-300">Hangnem</label>
-          <input type="text" [(ngModel)]="filters.key" name="key" placeholder="pl. C, F#, Gm…"
-                 class="w-full rounded-xl border border-slate-600/30 bg-slate-700/40 backdrop-blur-sm px-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/30 transition-all"/>
-        </div>
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-300">Skála</label>
-          <select [(ngModel)]="filters.scale" name="scale"
-                  class="w-full rounded-xl border border-slate-600/30 bg-slate-700/40 backdrop-blur-sm px-4 py-3 text-sm text-slate-100 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/30 transition-all">
-            <option value="" class="bg-slate-800">—</option>
-            <option class="bg-slate-800">major</option>
-            <option class="bg-slate-800">minor</option>
-            <option class="bg-slate-800">dorian</option>
-            <option class="bg-slate-800">phrygian</option>
-            <option class="bg-slate-800">lydian</option>
-            <option class="bg-slate-800">mixolydian</option>
-            <option class="bg-slate-800">locrian</option>
-          </select>
-        </div>
-        <div class="md:col-span-6 flex items-center justify-end gap-3">
-          <button type="button" (click)="clearFilters()"
-                  class="rounded-xl border border-slate-600/30 bg-slate-700/40 backdrop-blur-sm px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-600/40 transition-all">
-            Szűrők törlése
-          </button>
-          <button type="button" (click)="refresh()"
-                  class="rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-medium text-white hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl">
-            Szűrés alkalmazása
-          </button>
-        </div>
-      </form>
-    </section> -->
-
-    <!-- LISTA ÁLLAPOTOK -->
     <div *ngIf="isLoading" class="space-y-4 p-8 animate-pulse">
       <div *ngFor="let i of [1,2,3]" class="flex items-center space-x-4">
         <div class="h-4 rounded bg-slate-700/60 flex-1"></div>
@@ -110,12 +55,10 @@
       </div>
     </div>
 
-    <!-- LOOP KÁRTYÁK -->
     <div class="space-y-6" *ngIf="!isLoading && pendingLoops?.length">
       <article *ngFor="let loop of pendingLoops"
                class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 transition-all hover:-translate-y-0.5 hover:shadow-2xl">
         
-        <!-- FELSŐ SOR: Fájlnév + meta badge-ek -->
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0">
             <h3 class="truncate text-xl font-semibold text-slate-100" title="{{ loop.filename }}">
@@ -134,23 +77,14 @@
                 <i class="bi bi-speaker"></i>
                 {{ loop.instrument || '—' }}
               </span>
-              <!-- <span class="inline-flex items-center gap-1 rounded-full bg-slate-500/20 px-3 py-1.5 font-medium text-slate-300 backdrop-blur-sm border border-slate-500/30">
-                <i class="bi bi-clock"></i>
-                {{ loop.duration ? (loop.duration/60 | number:'1.0-0') + ' min ' + (loop.duration%60 | number:'1.0-0') + ' s' : '—' }}
-              </span> -->
               <span class="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-3 py-1.5 font-medium text-amber-300 backdrop-blur-sm border border-amber-500/30"
                     *ngIf="loop.uploadDate">
                 <i class="bi bi-calendar3"></i>
                 {{ loop.uploadDate | date:'yyyy.MM.dd. HH:mm' }}
               </span>
-              <!-- <span class="inline-flex items-center gap-1 rounded-full bg-slate-500/20 px-3 py-1.5 font-medium text-slate-400 backdrop-blur-sm border border-slate-500/30">
-                <i class="bi bi-hash"></i>
-                {{ loop._id }}
-              </span> -->
             </div>
           </div>
 
-          <!-- Feltöltő -->
           <div class="flex items-center gap-3 shrink-0">
             <div class="grid h-12 w-12 place-items-center rounded-full bg-slate-700/60 text-sm font-semibold text-slate-300 backdrop-blur-sm border border-slate-600/30">
               {{ (loop.uploader?.username || ' ? ') | slice:0:2 | uppercase }}
@@ -164,9 +98,7 @@
           </div>
         </div>
 
-        <!-- KÖZÉPSŐ RÉSZ: Tag-ek + előnézet -->
         <div class="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
-          <!-- Meta + tagek -->
           <div class="lg:col-span-2">
             <div class="mb-3 text-sm font-medium text-slate-300">Címkék</div>
             <div class="flex flex-wrap gap-2">
@@ -182,16 +114,13 @@
             </div>
           </div>
 
-          <!-- Audio előnézet -->
           <div class="rounded-xl border border-slate-600/30 bg-slate-700/40 p-4 backdrop-blur-sm">
             <div class="mb-3 text-sm font-medium text-slate-300">Előnézet</div>
             <audio [src]="loop.path" controls class="w-full rounded-lg"></audio>
           </div>
         </div>
 
-        <!-- AKCIÓSOR -->
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <!-- Indok -->
           <div class="flex-1">
             <label class="mb-2 block text-sm font-medium text-slate-300">Elutasítás indoka</label>
             <input type="text"
@@ -201,7 +130,6 @@
             <p class="mt-2 text-xs text-slate-400">Jóváhagyáshoz nem kötelező, elutasításhoz ajánlott.</p>
           </div>
 
-          <!-- Gombok -->
           <div class="flex shrink-0 items-center gap-3">
             <button (click)="approve(loop)"
                     class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-3 text-sm font-medium text-white hover:from-emerald-500 hover:to-green-500 transition-all shadow-lg hover:shadow-xl group/tooltip relative">
