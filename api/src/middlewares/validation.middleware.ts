@@ -4,58 +4,57 @@ import * as yup from "yup";
 // Felhasználó validációs séma
 const userValidationSchema = yup.object({
   username: yup.string()
-    .required("Username is required")
-    .min(3, "Username must be at least 3 characters")
-    .max(20, "Username cannot be longer than 20 characters")
-    .matches(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers and underscores"),
+    .required("Felhasználónév megadása kötelező")
+    .min(3, "A felhasználónévnek legalább 3 karakter hosszúnak kell lennie")
+    .max(20, "A felhasználónév nem lehet hosszabb 20 karakternél")
+    .matches(/^[a-zA-Z0-9_]+$/, "A felhasználónév csak betűket, számokat és aláhúzásokat tartalmazhat"),
   
   email: yup.string()
-    .email("Invalid email format")
-    .required("Email is required")
-    .max(100, "Email cannot be longer than 100 characters"),
+    .email("Helytelen email formátum")
+    .required("Email megadása kötelező")
+    .max(100, "Email nem lehet hosszabb 100 karakternél"),
   
   password: yup.string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters") // Csökkentettük 6 karakterre
-    .max(50, "Password cannot be longer than 50 characters"),
-    // Eltávolítottuk a komplexitási követelményeket
+    .required("A jelszó megadása kötelező")
+    .min(6, "A jelszónak legalább 6 karakter hosszúnak kell lennie")
+    .max(50, "A jelszó nem lehet hosszabb 50 karakternél"),
     
   country: yup.string()
-    .required("Country is required")
-    .max(50, "Country name cannot be longer than 50 characters")
+    .required("Ország megadása kötelező")
+    // .max(50, "Country name cannot be longer than 50 characters")
 });
 
 // Loop metaadatok validációs sémája
 export const loopMetadataSchema = yup.object({
   bpm: yup
     .number()
-    .required('BPM is required')
-    .min(40, 'BPM must be at least 40')
-    .max(300, 'BPM cannot exceed 300'),
+    .required('BPM megadása kötelező')
+    .min(40, 'A BPM értékének legalább 40-nek kell lennie')
+    .max(300, 'A BPM értéke nem haladhatja meg a 300-at'),
 
   key: yup
     .string()
-    .required('Key is required')
-    .max(4, 'Key too long'),
+    .required('Kulcs megadása kötelező')
+    .max(4, 'A kulcs nem lehet hosszabb 4 karakternél'),
 
   genre: yup
     .string()
-    .required('Genre is required')
-    .max(50, 'Genre too long'),
+    .required('Hangszer megadása kötelező')
+    .max(50, 'A hangszer nem lehet hosszabb 50 karakternél'),
 
   category: yup
     .string()
-    .required('Category is required')
-    .max(50, 'Category too long'),
+    .required('Kategória megadása kötelező')
+    .max(50, 'A kategória nem lehet hosszabb 50 karakternél'),
 
   tags: yup
     .array()
-    .of(yup.string().max(20, 'Tag too long'))
-    .max(10, 'Max 10 tags'),
+    .of(yup.string().max(20, 'A tag nem lehet hosszabb 20 karakternél')),
+    // .max(10, 'Max 10 tag lehet'),
 
   customName: yup
     .string()
-    .max(50, 'Custom name too long')
+    .max(50, 'Egyedi név nem lehet hosszabb 50 karakternél')
 });
 
 // Felhasználó adatok validációja

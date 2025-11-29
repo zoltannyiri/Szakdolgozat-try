@@ -64,13 +64,13 @@
 
               <span class="inline-flex items-center gap-2 rounded-lg bg-slate-700/40 px-2 py-1 sm:px-3 sm:py-1.5 backdrop-blur-sm">
                 <i class="bi bi-calendar-event text-orange-400"></i>
-                Tagság: {{ userData?.date | date:'yyyy. MMM' }}
+                Regisztrált: {{ userData?.date | date:'yyyy. MMM' }}
               </span>
 
               <span class="inline-flex items-center gap-2 rounded-lg bg-slate-700/40 px-2 py-1 sm:px-3 sm:py-1.5 backdrop-blur-sm">
                 <i class="bi bi-activity"
                    [ngClass]="{ 'text-emerald-400': isActive, 'text-amber-400': !isActive }"></i>
-                Utoljára: {{ userData?.lastLogin | date:'MMM d, HH:mm' }}
+                Utoljára belépett: {{ userData?.lastLogin | date:'MMM d, HH:mm' }}
               </span>
             </div>
             

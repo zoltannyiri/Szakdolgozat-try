@@ -112,23 +112,44 @@ export class LoopsComponent implements OnInit, OnDestroy {
   keys = ["A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
   // scales = ["Rap", "major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
   scales = [
-    "Drums",
-    "Percussion",
-    "Bass",
-    "Bass Guitar",
-    "Bass Synth",
-    "Guitar Acoustic",
-    "Guitar Electric",
-    "Piano",
-    "Pad",
-    "Synth",
-    "Strings",
-    "Vocal",
-    "FX",
-    "Arpeggio",
-    "Bells"
+    "Hip Hop", 
+    "Trap", 
+    "Drill", 
+    "R&B", 
+    "Pop", 
+    "Lo-Fi", 
+    "EDM", 
+    "House", 
+    "Techno", 
+    "Dubstep", 
+    "Cinematic", 
+    "Rock", 
+    "Jazz", 
+    "Afrobeat", 
+    "Reggaeton",
+    "Ambient",
+    "Funk",
+    "Soul"
   ];
-  instruments = ["Kick", "Snare", "Hihat", "Clap", "Cymbal", "Percussion", "Bass", "Synth", "Guitar", "Vocal", "FX"];
+  instruments = ["Kick",
+    "Snare",
+    "Hi-Hat",
+    "Clap",
+    "Drum Loop",
+    "Bass", 
+    "808", 
+    "Synth", 
+    "Piano", 
+    "Guitar", 
+    "Strings", 
+    "Brass", 
+    "Woodwind", 
+    "Vocal", 
+    "FX", 
+    "Pad", 
+    "Pluck", 
+    "Percussion"
+  ];
 
   constructor(
     private loopService: LoopService,
