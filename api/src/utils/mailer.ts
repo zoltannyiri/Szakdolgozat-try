@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
 
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+
 let transporter: nodemailer.Transporter | null = null;
 
 function ensureTransporter() {
@@ -24,15 +26,23 @@ function ensureTransporter() {
   //   tls: { minVersion: 'TLSv1.2' },
   // });
   transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,              // VÁLTÁS: 465 helyett 587 (sokkal stabilabb felhőben)
+  secure: false,          // FONTOS: 587-es portnál ez kötelezően FALSE!
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false
-  }
-});
+    rejectUnauthorized: false, // Ez megengedi a kapcsolatot akkor is, ha a Render tanúsítványa nem tetszik a Google-nek
+    minVersion: "TLSv1.2"
+  },
+  family: 4,              // IPv4 kényszerítése (hogy ne akadjon el a DNS)
+  logger: true,           // Logolás bekapcsolva
+  debug: true,            // Debug infók
+  connectionTimeout: 10000, // 10 másodperc után dobjon hibát, ne fagyjon le örökre
+  greetingTimeout: 5000     // Ha a szerver nem köszön vissza 5 mp alatt, bontsa
+} as SMTPTransport.Options);
 
   console.log('[mailer] Using', { host, port, secure, user, from });
 
