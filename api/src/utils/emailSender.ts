@@ -17,8 +17,6 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       <h2>Kérjük erősítse meg email címét</h2>
       <p>Kattintson a linkre: ${process.env.FRONTEND_URL}/verify-email?token=${token}</p>
     `;
-
-    // Próbáljuk meg betölteni a template fájlt, ha létezik
     try {
       const templatePath = path.join(__dirname, '../templates/verificationEmail.hbs');
       if (fs.existsSync(templatePath)) {
@@ -26,7 +24,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
         const template = handlebars.compile(templateSource);
         html = template({
           verificationUrl: `${process.env.FRONTEND_URL}/verify-email?token=${token}`,
-          supportEmail: process.env.SUPPORT_EMAIL || 'support@loopshare.com'
+          supportEmail: process.env.SUPPORT_EMAIL
         });
       }
     } catch (templateError) {
@@ -41,6 +39,6 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     });
   } catch (error) {
     console.error("Email küldési hiba:", error);
-    throw error; // Dobd tovább a hibát, de a regisztráció ettől függetlenül megtörténik
+    throw error;
   }
 };

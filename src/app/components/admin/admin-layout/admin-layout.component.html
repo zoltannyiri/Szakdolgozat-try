@@ -1,8 +1,7 @@
 <div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] flex flex-col md:flex-row">
   
-  <!-- DESKTOP SIDEBAR (Hidden on mobile) -->
   <aside class="hidden md:flex flex-col w-72 bg-gradient-to-b from-slate-800/90 to-slate-900/90 text-slate-100 p-6 border-r border-slate-700/30 backdrop-blur-md h-screen sticky top-0">
-    <!-- Brand -->
+
     <div class="flex items-center gap-3 mb-8 p-4 rounded-xl bg-slate-800/50 border border-slate-700/30">
       <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
         <i class="bi bi-music-note-beamed text-white text-lg"></i>
@@ -13,7 +12,6 @@
     </div>
 
     <nav class="space-y-2 flex-1">
-      <!-- Dashboard -->
       <a routerLink="/admin/dashboard" routerLinkActive="bg-slate-800/60 border-slate-600/50" class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors">
         <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
           <i class="bi bi-speedometer2 text-slate-300"></i>
@@ -23,7 +21,6 @@
         </div>
       </a>
 
-      <!-- Users -->
       <a routerLink="/admin/users" routerLinkActive="bg-slate-800/60 border-slate-600/50" class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors">
         <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
           <i class="bi bi-people text-slate-300"></i>
@@ -33,7 +30,6 @@
         </div>
       </a>
 
-      <!-- Loops -->
       <a routerLink="/admin/loops" routerLinkActive="bg-slate-800/60 border-slate-600/50" class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors">
         <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
           <i class="bi bi-music-note-beamed text-slate-300"></i>
@@ -43,7 +39,6 @@
         </div>
       </a>
 
-      <!-- Comments -->
       <a routerLink="/admin/comments" routerLinkActive="bg-slate-800/60 border-slate-600/50" class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors">
         <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
           <i class="bi bi-chat-dots text-slate-300"></i>
@@ -53,7 +48,6 @@
         </div>
       </a>
 
-      <!-- Reports -->
       <a routerLink="/admin/reports" routerLinkActive="bg-slate-800/60 border-slate-600/50" class="navitem group flex items-center gap-3 px-3 py-3 rounded-lg border border-transparent hover:bg-slate-800/60 transition-colors">
         <div class="icon w-9 h-9 rounded-md bg-slate-700/60 flex items-center justify-center">
           <i class="bi bi-flag text-slate-300"></i>
@@ -64,7 +58,6 @@
       </a>
     </nav>
 
-    <!-- Bottom Stats (Desktop only) -->
     <div class="mt-auto pt-6">
       <div class="rounded-xl border border-slate-700/30 bg-slate-800/40 p-4 mb-4">
         <div class="grid grid-cols-2 gap-3 text-center">
@@ -83,7 +76,6 @@
     </div>
   </aside>
 
-  <!-- MOBILE TOP BAR (Visible only on mobile) -->
   <header class="md:hidden sticky top-0 z-30 flex items-center justify-between bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 shadow-lg">
     <div class="flex items-center gap-3">
       <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
@@ -93,13 +85,10 @@
     </div>
   </header>
 
-  <!-- MAIN CONTENT AREA -->
-  <!-- mb-20 added on mobile to prevent content being hidden behind bottom nav -->
   <main class="flex-1 p-4 md:p-6 overflow-auto mb-20 md:mb-0">
     <router-outlet></router-outlet>
   </main>
 
-  <!-- MOBILE BOTTOM NAVIGATION (Visible only on mobile) -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#0f172a]/95 border-t border-slate-700/50 backdrop-blur-xl z-50 safe-area-pb shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]">
     <div class="flex justify-around items-center h-16 px-1">
       

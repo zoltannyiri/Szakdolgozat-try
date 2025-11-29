@@ -12,7 +12,6 @@ const FavoriteSchema: Schema = new Schema<IFavorite>({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Egyedi index a user és loop kombinációra
 FavoriteSchema.index({ user: 1, loop: 1 }, { unique: true });
 
 export default mongoose.model<IFavorite>("Favorite", FavoriteSchema);

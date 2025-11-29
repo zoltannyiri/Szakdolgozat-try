@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface ILoop extends Document {
   genre: any;
-  _id: string; // Explicit string típus
+  _id: string;
   filename: string;
   path: string;
   uploader: mongoose.Types.ObjectId;
@@ -16,13 +16,9 @@ export interface ILoop extends Document {
   likes: number;
   likedBy: mongoose.Types.ObjectId[];
   downloads: number;
-
-  // drive
   driveFileId?: string;
   webViewLink?: string;
   webContentLink?: string;
-
-  // új logika: admin engedélyezés
   status: 'pending' | 'approved' | 'rejected';
   moderatedBy?: Types.ObjectId | null;
   moderatedAt?: Date | null;
@@ -43,13 +39,9 @@ const LoopSchema: Schema = new Schema<ILoop>({
   likes: { type: Number, default: 0 },
   likedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
   downloads: { type: Number, default: 0 },
-
-  // drive
   driveFileId: { type: String },
   webViewLink: { type: String },
   webContentLink: { type: String },
-
-  // új logika: admin engedélyezés
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', index: true },
   moderatedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
   moderatedAt: { type: Date, default: null },

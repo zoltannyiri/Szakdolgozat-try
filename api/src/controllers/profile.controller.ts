@@ -2,7 +2,6 @@ import { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User from "../models/user.model";
-// import { sendVerificationEmail } from "../utils/emailSender";
 import { CustomRequest } from "../middlewares/auth.middleware";
 import { issueVerification } from "../utils/verify"; 
 import { Request, Response } from "express";
@@ -92,9 +91,6 @@ export const changeEmail: RequestHandler = async (req, res) => {
       email: dbUser.email,
       username: dbUser.username,
     });
-
-    // try { await sendVerificationEmail(newEmail, dbUser.verificationToken!); } catch {}
-
     return res.json({ success: true, message: "Email sikeresen megváltoztatva. Kérjük, erősítsd meg az új e-mail címedet." });
   } catch (error) {
     console.error("Change email error:", error);
@@ -212,7 +208,7 @@ function normalizeUrlOrEmail(key: SocialKey, value: string): string {
 
 export async function updateSocials(req: Request, res: Response) {
   try {
-    const uid = (req as CustomRequest).user?.userId;   // <<< EZT használd
+    const uid = (req as CustomRequest).user?.userId;
     if (!uid) return res.status(401).json({ message: "Unauthorized" });
 
     const incoming = req.body?.socials || {};

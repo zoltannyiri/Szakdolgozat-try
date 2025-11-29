@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model";
-// import { sendVerificationEmail } from "../utils/emailSender";
 import crypto from 'crypto';
 import { validateUser } from "../middlewares/validation.middleware";
 import { issueVerification } from "../utils/verify";
@@ -14,12 +13,12 @@ router.post("/register", validateUser, async (req: Request, res: Response) => {
     try {
         const { username, email, password, country } = req.body;
         
-        // Ellenőrizzük, hogy létezik-e már a felhasználó
+        // létezik-e már a felhasználó
         const existingUser = await User.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
             return res.status(400).json({ 
                 success: false,
-                message: "Username or email already exists" 
+                message: "Már létezik ilyen felhasználónév vagy email cím" 
             });
         }
 
@@ -27,7 +26,7 @@ router.post("/register", validateUser, async (req: Request, res: Response) => {
         if (existingUserByEmail) {
             return res.status(400).json({ 
                 success: false,
-                message: "Email already exists" 
+                message: "Már létezik ilyen email cím" 
             });
         }
 
@@ -56,7 +55,7 @@ router.post("/register", validateUser, async (req: Request, res: Response) => {
 
         await newUser.save();
 
-        // Email küldése (hiba esetén is mentjük a felhasználót)
+        // Email küldése
        try {
       await issueVerification({
         _id: newUser._id,
@@ -71,94 +70,16 @@ router.post("/register", validateUser, async (req: Request, res: Response) => {
 
     return res.status(201).json({
       success: true,
-      message: "Registration successful",
+      message: "Sikeres regisztráció",
       userId: newUser._id,
     });
   } catch (error) {
     console.error("Registration error:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error during registration",
+      message: "Szerverhiba a regisztráció során",
     });
   }
 });
 
 export default router;
-
-
-// commented at 04. 27
-// import { Router, Request, Response } from "express";
-// import bcrypt from "bcryptjs";
-// import jwt from "jsonwebtoken";
-// import User from "../models/user.model";
-
-// const router = Router();
-
-// router.post("/register", async (req, res) => {
-//     try{
-//         const { username, email, password, country } = req.body;
-//         const existingUser = await User.findOne({ username });
-//         if (existingUser) {
-//             return res.status(400).json({ message: "Username already exists" });
-//         }
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         console.log(country);
-//         const newUser = new User({
-//             username,
-//             email,
-//             password: hashedPassword,
-//             role: "user",
-//             date: new Date(),
-//             country,
-//         });
-
-//         await newUser.save();
-//         res.status(201).json({ message: "Registration successful" });
-//     }
-//     catch (error) {
-//         console.error("Registration error:", error);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// });
-
-// export default router;
-
-// commented at 03.11 19:00
-// // register.controller.ts
-// import { Request, Response } from 'express';
-// import UserModel from '../models/user.model';
-// import bcrypt from 'bcryptjs';
-
-// export const register = async (req: Request, res: Response) => {
-//   try {
-//     const { username, password } = req.body;
-
-//     // Ellenőrizzük, hogy létezik-e már a felhasználó
-//     const existingUser = await UserModel.findOne({ username });
-//     if (existingUser) {
-//       return res.status(400).json({ 
-//         message: 'A felhasználónév már foglalt!' 
-//       });
-//     }
-
-//     // Jelszó hashelése
-//     const salt = await bcrypt.genSalt(10);
-//     const hashedPassword = await bcrypt.hash(password, salt);
-
-//     // Felhasználó létrehozása
-//     const newUser = new UserModel({
-//       username,
-//       password: hashedPassword
-//     });
-
-//     await newUser.save();
-
-//     res.status(200).json({ 
-//       message: 'Sikeres regisztráció' 
-//     });
-//   } catch (error) {
-//     res.status(500).json({ 
-//       message: 'Hiba történt a regisztráció során' 
-//     });
-//   }
-// };

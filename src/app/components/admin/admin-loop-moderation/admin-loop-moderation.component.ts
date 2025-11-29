@@ -89,7 +89,7 @@ export class AdminLoopModerationComponent implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        this.errorMessage = 'Nem sikerült betölteni a várólistát.';
+        this.errorMessage = 'Nem sikerült betölteni a listát.';
         this.isLoading = false;
       }
     });

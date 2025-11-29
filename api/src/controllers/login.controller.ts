@@ -10,40 +10,32 @@ router.post("/login", async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
-
         if (!user) {
             return res.status(400).json({ message: "Hibás felhasználónév vagy jelszó" });
         }
-
         // jelszavas fiókok
         if (user.provider && user.provider !== "local") {
             return res.status(400).json({
                 message: "Ez a fiók Google-bejelentkezéshez van társítva. Kérlek, jelentkezz be a Google gombbal.",
             });
         }
-
         // ha nincs jelszó
         if (!user.password) {
             return res.status(400).json({
-                message: "A fiókodhoz nincs jelszó társítva. Jelentkezz be a Google-lel vagy állíts be jelszót.",
+                message: "A fiókodhoz nincs jelszó társítva. Jelentkezz be a Google-lel.",
             });
         }
-
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Hibás felhasználónév vagy jelszó" });
         }
-
         await User.updateOne({ _id: user._id }, { lastLogin: new Date() });
-
         const token = jwt.sign(
             { userId: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET as string,
             { expiresIn: "1h" }
         );
-
         const updatedUser = await User.findById(user._id);
-
         res.json({ token, user: { email: user.email, lastLogin: updatedUser?.lastLogin } });
     } catch (error) {
         console.error("Login error:", error);

@@ -1,14 +1,11 @@
 import express from 'express';
 import { authenticateToken } from '../middlewares/auth.middleware';
 import { requireAdmin } from '../middlewares/admin.middleware';
-import User from '../models/user.model';
 import { getAdminStats, getWeeklyRegistrations, getWeeklyUploads, listLoopsAdmin, updateUserRole } from '../controllers/admin.controller';
 import Loop from '../models/loop.model';
 
 import { getAllUsers, deleteUserById } from '../controllers/admin.controller';
-import { getAllLoops } from '../controllers/admin.controller';
 import { getAllLoopsForAdmin, deleteLoopById } from '../controllers/admin.controller';
-// import { getAllReports, updateReportStatus } from '../controllers/report.controller';
 import { deleteCommentAdmin } from '../controllers/comment.controller';
 import { listReports, setReportStatus } from '../controllers/report.controller';
 import { updateLoopAdmin } from '../controllers/loop.controller';
@@ -20,31 +17,10 @@ import { getAllCommentsAdmin, getCommentDetailsAdmin } from '../controllers/comm
 
 const router = express.Router();
 
-// router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
-//   try {
-//     const users = await User.find().select('-password');
-//     res.json({ users });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Hiba a felhasználók lekérésekor.' });
-//   }
-// });
-// router.get('/admin/users', authenticateToken, requireAdmin, async (req, res) => {
-//   try {
-//     const users = await User.find().select('-password');
-//     res.json({ users });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Hiba a felhasználók lekérésekor.' });
-//   }
-// });
-
-// router.get("/users", authenticateToken, requireAdmin, getAllUsers);
-// router.get("/users", authenticateToken, requireAdmin, getAllUsers);
 router.get("/", authenticateToken, requireAdmin, getAllUsers);
-// router.delete('/users/:id', authenticateToken, requireAdmin, deleteUserById);
 router.get("/stats", authenticateToken, requireAdmin, getAdminStats);
 router.get('/stats/weekly-uploads', authenticateToken, requireAdmin, getWeeklyUploads);
 router.get('/stats/weekly-registrations', authenticateToken, requireAdmin, getWeeklyRegistrations);
-// router.get('/loops', authenticateToken, requireAdmin, getAllLoopsForAdmin);
 router.get('/loops', authenticateToken, requireAdmin, listLoopsAdmin);
 router.delete('/loops/:id', authenticateToken, requireAdmin, deleteLoopById);
 router.delete('/comments/:id', authenticateToken, requireAdmin, deleteCommentAdmin);
@@ -72,7 +48,6 @@ router.delete('/comments/:id', authenticateToken, requireAdmin, deleteCommentAdm
 
 router.patch('/users/:id/role', authenticateToken, requireAdmin, updateUserRole);
 
-// IDEIGLENES TESZT MIATT:
 router.get('/loops/status-summary', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const byStatus = await Loop.aggregate([
@@ -84,7 +59,6 @@ router.get('/loops/status-summary', authenticateToken, requireAdmin, async (req,
   }
 });
 
-// Egy loop részleteinek lekérése
 router.get('/loops/:id', authenticateToken,requireAdmin, async (req, res) => {
   try {
     const loop = await Loop.findById(req.params.id).populate('uploader', 'username');

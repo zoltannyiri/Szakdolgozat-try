@@ -1,7 +1,6 @@
 <div class="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-slate-100 p-6">
   <div class="max-w-7xl mx-auto space-y-8">
 
-    <!-- HEADER SECTION -->
     <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-8">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -10,7 +9,6 @@
           </h1>
         </div>
         
-        <!-- QUICK ACTIONS -->
         <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
           <button (click)="refreshData()"
                   class="flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl">
@@ -39,9 +37,7 @@
       </div>
     </div>
 
-    <!-- MAIN STATS GRID -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- USERS CARD -->
       <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] group"
            (click)="goTo('users')">
         <div class="flex items-center justify-between mb-4">
@@ -58,7 +54,6 @@
         </div>
       </div>
 
-      <!-- LOOPS CARD -->
       <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] group"
            (click)="goTo('loops')">
         <div class="flex items-center justify-between mb-4">
@@ -75,7 +70,6 @@
         </div>
       </div>
 
-      <!-- COMMENTS CARD -->
       <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.02] group"
            (click)="goTo('comments')">
         <div class="flex items-center justify-between mb-4">
@@ -92,7 +86,6 @@
         </div>
       </div>
 
-      <!-- DOWNLOADS CARD -->
       <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
         <div class="flex items-center justify-between mb-4">
           <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
@@ -107,7 +100,6 @@
         </div>
       </div>
 
-      <!-- LIKES CARD -->
       <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
         <div class="flex items-center justify-between mb-4">
           <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-rose-500 to-red-500 flex items-center justify-center shadow-lg">
@@ -122,7 +114,6 @@
         </div>
       </div>
 
-      <!-- ACTIVE USERS CARD -->
       <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
         <div class="flex items-center justify-between mb-4">
           <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-lime-500 to-green-500 flex items-center justify-center shadow-lg">
@@ -138,9 +129,7 @@
       </div>
     </div>
 
-    <!-- CHARTS SECTION -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- WEEKLY UPLOADS CHART -->
       <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-3">
@@ -162,7 +151,6 @@
         </apx-chart>
       </div>
 
-      <!-- WEEKLY REGISTRATIONS CHART -->
       <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-3">
@@ -184,28 +172,5 @@
         </apx-chart>
       </div>
     </div>
-
-    <!-- RECENT ACTIVITY -->
-    <!-- <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-sm shadow-xl p-6">
-      <h2 class="text-xl font-semibold text-slate-200 mb-6 flex items-center gap-3">
-        <i class="bi bi-clock-history text-amber-400"></i>
-        Legutóbbi tevékenységek
-      </h2>
-      <div class="space-y-4">
-        <div *ngFor="let activity of recentActivities" class="flex items-center gap-4 p-4 rounded-xl bg-slate-700/40 backdrop-blur-sm border border-slate-600/30">
-          <div class="w-10 h-10 rounded-xl bg-slate-600/50 flex items-center justify-center">
-            <i [class]="getActivityIcon(activity.type)" class="text-amber-400"></i>
-          </div>
-          <div class="flex-1">
-            <p class="text-slate-200 font-medium">{{ activity.message }}</p>
-            <p class="text-sm text-slate-400">{{ activity.time }}</p>
-          </div>
-          <span class="px-3 py-1 rounded-full text-xs font-medium bg-slate-600/50 text-slate-300">
-            {{ activity.type }}
-          </span>
-        </div>
-      </div>
-    </div> -->
-
   </div>
 </div>

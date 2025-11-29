@@ -18,7 +18,6 @@ export async function blockIfBanned(req: CustomRequest, res: Response, next: Nex
         code: 'BANNED',
         message: forever
           ? 'A fiók véglegesen tiltva.'
-          // : `A fiók ideiglenesen tiltva eddig: ${user.bannedUntil.toISOString()}`, //${readableDate}
           : `A fiók ideiglenesen tiltva eddig: ${readableDate}`,
         until: user.bannedUntil,
         reason: user.banReason || '',

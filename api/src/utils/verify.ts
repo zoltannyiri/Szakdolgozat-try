@@ -5,8 +5,8 @@ import { sendVerificationEmail } from './mailer';
 const sha256 = (s: string) => crypto.createHash('sha256').update(s).digest('hex');
 
 export async function issueVerification(user: { _id: any; email: string; username: string; }) {
-  const raw = crypto.randomBytes(32).toString('hex');     // nyers token a linkben
-  const tokenHash = sha256(raw);                          // hash megy DB-be
+  const raw = crypto.randomBytes(32).toString('hex');
+  const tokenHash = sha256(raw);
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   await User.updateOne(
@@ -14,7 +14,7 @@ export async function issueVerification(user: { _id: any; email: string; usernam
     { $set: { verificationToken: tokenHash, verificationTokenExpires: expires, isVerified: false } }
   );
 
-  const appUrl = process.env.APP_URL || 'http://localhost:4200'; // FRONT URL
+  const appUrl = process.env.APP_URL || 'http://localhost:4200';
   const link = `${appUrl}/verify?uid=${user._id}&token=${raw}`;
 
   await sendVerificationEmail({ to: user.email, link, username: user.username });

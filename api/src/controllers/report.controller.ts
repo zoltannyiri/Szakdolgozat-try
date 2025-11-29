@@ -211,7 +211,6 @@ export const listReports = async (req: Request, res: Response) => {
             .populate({ path: 'loop', select: '_id filename' })
             .lean<PopulatedComment | null>();
 
-          // meta feltöltése, ha hiányos
           const meta = {
             ...(r.meta || {}),
             commentText: c?.text ?? r.meta?.commentText,
@@ -270,7 +269,7 @@ export const listReports = async (req: Request, res: Response) => {
 
           const meta = {
             ...(r.meta || {}),
-            username: u?.username ?? r.meta?.username, // meta.username kitöltése, ha hiányzott
+            username: u?.username ?? r.meta?.username,
           };
 
           return {

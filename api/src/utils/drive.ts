@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-
 const DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
 const oauth2 = new google.auth.OAuth2(
@@ -15,7 +14,7 @@ const oauth2 = new google.auth.OAuth2(
   process.env.OAUTH_REDIRECT_URI
 );
 
-// refresh token beállítása
+// refresh token
 oauth2.setCredentials({
   refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
 });
@@ -24,7 +23,7 @@ if (!DRIVE_FOLDER_ID) {
   throw new Error('GOOGLE_DRIVE_FOLDER_ID nincs beállítva (.env)!');
 }
 
-// oauth2 kliens
+// oauth2
 const drive = google.drive({ version: 'v3', auth: oauth2 });
 
 export async function uploadBufferToDrive(
@@ -46,7 +45,6 @@ export async function uploadBufferToDrive(
     requestBody: fileMetadata,
     media,
     fields: 'id, webViewLink, webContentLink',
-    // supportsAllDrives: true, 
   });
 
   const fileId = res.data.id!;
@@ -55,8 +53,6 @@ export async function uploadBufferToDrive(
     fileId,
     requestBody: { role: 'reader', type: 'anyone' },
   });
-
-  // const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
   const downloadUrl = `${process.env.API_BASE_URL}/api/files/${fileId}`;
 
   return {

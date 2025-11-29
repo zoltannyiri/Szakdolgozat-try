@@ -50,9 +50,6 @@ router.post('/auth/google', async (req: Request, res: Response) => {
     let user = await User.findOne({ googleId }) || await User.findOne({ email });
 
     if (user) {
-      // **NINCS** többé hibadobás jelszavas fiókra – itt linkeljük a Google-t
-
-      // Ha a Google szerint verifikált az email, de nálunk még nem
       if (email_verified && !user.isVerified) {
         const cfg = await getCreditConfig();
         const upd = await User.updateOne(
@@ -60,7 +57,6 @@ router.post('/auth/google', async (req: Request, res: Response) => {
           {
             $set: {
               isVerified: true,
-              // csak googleId-t frissítünk, a provider-t nem írjuk felül
               googleId: user.googleId || googleId,
             },
             $inc: {
@@ -75,24 +71,16 @@ router.post('/auth/google', async (req: Request, res: Response) => {
         }
       }
 
-      // googleId linkelése, ha még nincs
+      // googleId linkelése
       if (!user.googleId) {
         user.googleId = googleId as string;
       }
-
-      // provider-t NEM írjuk át 'google'-re, ha már jelszavas user is lehet
-      // (így a /login továbbra is engedi a jelszavas bejelentkezést)
-
       if (!user.username) {
         user.username = await uniqueUsername(name || email);
       }
-      // if (!user.profileImage && picture) {
-      //   user.profileImage = picture;
-      // }
       user.lastLogin = new Date();
       await user.save();
     } else {
-      // Új user létrehozása JELSZÓ NÉLKÜL (kezdő kreditek configból)
       const cfg = await getCreditConfig();
       user = new User({
         email,
@@ -103,7 +91,6 @@ router.post('/auth/google', async (req: Request, res: Response) => {
         credits:
           (cfg.initialCreditsForNewUser ?? 0) +
           (email_verified ? (cfg.bonusOnVerify ?? 0) : 0),
-        // profileImage: picture || undefined,
         lastLogin: new Date(),
       });
       await user.save();

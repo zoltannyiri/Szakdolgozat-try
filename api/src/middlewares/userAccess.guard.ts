@@ -12,7 +12,7 @@ export async function checkVerifiedOrBanned(
     const user = await User.findById(uid).select('isVerified bannedUntil banReason');
     if (!user) return res.status(401).json({ success: false, message: 'Not authenticated' });
 
-    // 1: verifikációs ellenőrzés
+    // verifikációs ellenőrzés
     if (!user.isVerified) {
       return res.status(403).json({
         success: false,
@@ -21,7 +21,7 @@ export async function checkVerifiedOrBanned(
       });
     }
 
-    // 2: aktív ban
+    // aktív ban
     const activeBan = user.bannedUntil && user.bannedUntil.getTime() > Date.now();
     if (activeBan) {
       const forever = user.bannedUntil!.getUTCFullYear() >= 9999;

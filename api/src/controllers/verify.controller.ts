@@ -10,7 +10,6 @@ export async function verifyAccount(req: Request, res: Response) {
       return res.status(400).json({ success: false, message: 'Missing uid or token' });
     }
 
-    // verifikált volt eddig?
     const before = await User.findById(uid).select('isVerified credits');
     if (!before) {
       return res.status(404).json({ success: false, message: 'User not found' });

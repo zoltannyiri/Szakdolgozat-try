@@ -9,22 +9,14 @@ import {
 } from '../controllers/report.controller';
 import { createLoopReport } from '../controllers/report.controller';
 import { createProfileReport } from '../controllers/report.controller';
-import { blockIfBanned } from '../middlewares/ban.middleware';
 import { checkVerifiedOrBanned } from '../middlewares/userAccess.guard';
 
 
 const router = Router();
 
-// user oldal: komment jelentése
 router.post('/reports/comments/:commentId', authenticateToken, checkVerifiedOrBanned, createCommentReport);
-
-// user oldal: loop jelentése
 router.post('/reports/loops/:loopId', authenticateToken, checkVerifiedOrBanned, createLoopReport);
-
-// user oldal: profil jelentése
 router.post('/reports/profiles/:userId', authenticateToken, checkVerifiedOrBanned, createProfileReport);
-
-// admin oldali cuccok
 router.get('/admin/reports', authenticateToken, requireAdmin, listReports);
 router.patch('/admin/reports/:id/status', authenticateToken, requireAdmin, setReportStatus);
 router.get('/admin/reports/counts', authenticateToken, requireAdmin, getReportCounts);

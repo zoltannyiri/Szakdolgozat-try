@@ -29,8 +29,6 @@ router.get("/loops/:loopId/favorite-status",
   authenticateToken, 
   checkFavoriteStatus);
 
-
-// új: teljesítmény miatt
 router.get("/favorites/ids",
   authenticateToken,
   getFavoriteIds);

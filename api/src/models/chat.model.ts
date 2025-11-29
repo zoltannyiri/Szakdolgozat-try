@@ -27,5 +27,3 @@ const ChatMessageSchema = new Schema<IChatMessage>({
 });
 
 export const ChatModel = mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);
-
-// export default mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);

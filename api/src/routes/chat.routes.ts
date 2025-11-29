@@ -3,9 +3,6 @@ import { authenticateToken, CustomRequest } from '../middlewares/auth.middleware
 import { ChatModel } from '../models/chat.model';
 import { checkVerified } from '../middlewares/verify.middleware';
 import User from '../models/user.model';
-import { send } from 'process';
-
-// import { CustomRequest } from '../types/custom-request';
 
 const router = express.Router();
 
@@ -43,7 +40,7 @@ router.get('/messages', authenticateToken, checkVerified, async (req: Request & 
 });
 
 
-// ÚJ: Üzenetek olvasottra állítása
+// Üzenetek olvasottra állítása
 router.put('/messages/mark-read/:fromUserId', authenticateToken, checkVerified, async (req: CustomRequest, res) => {
   const currentUserId = req.user.userId;
   const fromUserId = req.params.fromUserId;
@@ -130,35 +127,3 @@ router.get('/chats/summary', authenticateToken, checkVerified, async (req: Reque
 
 
 export default router;
-
-
-// import express, { Request } from 'express';
-// import { authenticateToken } from '../middlewares/auth.middleware';
-// import { ChatModel } from '../models/chat.model';
-
-// const router = express.Router();
-
-// router.get('/messages', authenticateToken, async (req: Request & { user?: any }, res) => {
-//   const senderId = req.user?.userId;
-//   const receiverId = req.query.receiverId as string;
-
-//   if (!receiverId) {
-//     return res.status(400).json({ message: 'receiverId szükséges a lekérdezéshez' });
-//   }
-
-//   try {
-//     const messages = await ChatModel.find({
-//       $or: [
-//         { senderId, receiverId },
-//         { senderId: receiverId, receiverId: senderId }
-//       ]
-//     }).sort({ timestamp: 1 });
-
-//     res.json({ messages });
-//   } catch (err) {
-//     console.error('[Chat] Hiba az üzenetek lekérdezésekor:', err);
-//     res.status(500).json({ message: 'Szerver hiba' });
-//   }
-// });
-
-// export default router;

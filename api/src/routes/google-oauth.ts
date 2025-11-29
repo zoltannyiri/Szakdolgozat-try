@@ -25,12 +25,7 @@ router.get("/callback", async (req, res) => {
     const code = req.query.code as string | undefined;
     if (!code) return res.status(400).send("No code");
     const { tokens } = await oauth2.getToken(code);
-
-
     const refresh = tokens.refresh_token;
-    console.log("==== GOOGLE_REFRESH_TOKEN ====");
-    console.log(refresh || "NINCS refresh_token – nézd meg a prompt=consent-et");
-    console.log("================================");
 
     return res.send(
       refresh

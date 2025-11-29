@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { environment } from '../../../environments/environment'; // igazítsd az elérési utat ha kell
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-layout',

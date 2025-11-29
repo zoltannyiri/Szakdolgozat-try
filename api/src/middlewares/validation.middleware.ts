@@ -21,10 +21,9 @@ const userValidationSchema = yup.object({
     
   country: yup.string()
     .required("Ország megadása kötelező")
-    // .max(50, "Country name cannot be longer than 50 characters")
 });
 
-// Loop metaadatok validációs sémája
+// Loop metaadatok validációs séma
 export const loopMetadataSchema = yup.object({
   bpm: yup
     .number()
@@ -50,14 +49,13 @@ export const loopMetadataSchema = yup.object({
   tags: yup
     .array()
     .of(yup.string().max(20, 'A tag nem lehet hosszabb 20 karakternél')),
-    // .max(10, 'Max 10 tag lehet'),
 
   customName: yup
     .string()
     .max(50, 'Egyedi név nem lehet hosszabb 50 karakternél')
 });
 
-// Felhasználó adatok validációja
+// Felhasználó adatok validáció séma
 export const validateUser = (req: Request, res: Response, next: NextFunction) => {
   userValidationSchema
     .validate(req.body, { abortEarly: false })
@@ -79,7 +77,7 @@ export const validateUser = (req: Request, res: Response, next: NextFunction) =>
 };
 
 
-// Általános profil adatok (nem módosít e-mailt/jelszót!)
+// profil adatok
 const generalProfileSchema = yup.object({
   firstName: yup.string().max(50),
   lastName: yup.string().max(50),
@@ -137,10 +135,9 @@ export const validatePasswordChange = (req: Request, res: Response, next: NextFu
     });
 };
 
-// Loop metaadatok validációja
+// Loop metaadatok
 export const validateLoopMetadata = (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Metaadatok kiolvasása (lehet stringként érkezik)
     const metadata = typeof req.body.metadata === 'string' 
       ? JSON.parse(req.body.metadata) 
       : req.body.metadata;
@@ -171,7 +168,7 @@ export const validateLoopMetadata = (req: Request, res: Response, next: NextFunc
   }
 };
 
-// Bejelentkezés validátora
+// Bejelentkezés validáció séma
 export const validateLogin = (req: Request, res: Response, next: NextFunction) => {
   yup.object({
     username: yup.string().required("Username or email is required"),
@@ -220,46 +217,3 @@ export function validateSocials(req: Request, res: Response, next: NextFunction)
   }
   next();
 }
-
-//commented at 04. 27
-// import { Request, Response, NextFunction } from "express";
-// import * as yup from "yup";
-
-
-// const userValidationSchema = yup.object({
-//   username: yup.string().required("Username is required"),
-//   email: yup.string().email("Invalid email").required("Email is required"),
-//   password: yup
-//     .string()
-//     .min(6, "Password must be at least 6 characters")
-//     .required("Password is required"),
-// });
-
-// export const validateUser = (req: Request, res: Response, next: NextFunction) => {
-//   userValidationSchema
-//     .validate(req.body, { abortEarly: false }) // Validáljuk a kérés törzsét
-//     .then(() => {
-//       next(); // Ha a validáció sikerült, lépjen a következő middleware-re
-//     })
-//     .catch((err: { errors: any; }) => {
-//       res.status(400).json({ message: "Validation failed", errors: err.errors });
-//     });
-// };
-
-
-
-
-
-
-// commented  at 03.11 19:00
-// import { Request, Response, NextFunction } from "express";
-
-// export const validateLogin = (req: Request, res: Response, next: NextFunction) => {
-//     const { username, password } = req.body;
-
-//     if (!username || !password) {
-//         return res.status(400).json({ message: "Felhasználónév és jelszó szükséges!" });
-//     }
-
-//     next();
-// };

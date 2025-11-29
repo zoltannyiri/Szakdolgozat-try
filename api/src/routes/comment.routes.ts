@@ -4,7 +4,6 @@ import Loop from '../models/loop.model';
 
 const router = express.Router();
 
-// Saját kommentek lekérése userId alapján
 router.get('/users/:userId/comments', async (req, res) => {
   try {
     const { userId } = req.params;

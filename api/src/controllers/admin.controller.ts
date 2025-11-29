@@ -6,14 +6,7 @@ import CreditConfig from "../models/creditConfig.model";
 import { getCreditConfig, invalidateCreditConfigCache } from "../utils/creditConfig";
 import Notification from '../models/notification.model';
 
-// export const getAllUsers = async (req: Request, res: Response) => {
-//   try {
-//     const users = await User.find().select('-password'); // ne küldjük vissza a jelszót
-//     res.status(200).json({ success: true, users });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Hiba a felhasználók lekérésekor.', error });
-//   }
-// };
+
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     console.log("[getAllUsers] Fetching users...");
@@ -113,7 +106,6 @@ export const listLoopsAdmin: RequestHandler = async (req, res) => {
 };
 
 
-
 export const getWeeklyUploads = async (req: Request, res: Response) => {
   try {
     const oneWeekAgo = new Date();
@@ -138,7 +130,6 @@ export const getWeeklyUploads = async (req: Request, res: Response) => {
       }
     ]);
 
-    // hiányzó napokon 0
     const result: Record<string, number> = {};
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
@@ -235,9 +226,6 @@ export const getAllLoopsForAdmin = async (req: Request, res: Response) => {
   }
 };
 
-
-
-
 export const deleteLoopById = async (req: Request, res: Response) => {
   try {
     const loopId = req.params.id;
@@ -265,7 +253,6 @@ export const getCreditSettings = async (_req: Request, res: Response) => {
   }
 };
 
-
 export const updateCreditSettings = async (req: Request, res: Response) => {
   try {
     const payload: Partial<{
@@ -275,16 +262,12 @@ export const updateCreditSettings = async (req: Request, res: Response) => {
       downloadCost: number;
       rewardPerDownloadToUploader: number;
     }> = req.body || {};
-
-
     const cfg = await CreditConfig.findOne();
     if (!cfg) {
       const created = await CreditConfig.create(payload);
       invalidateCreditConfigCache();
       return res.json({ success: true, data: created });
     }
-
-
     if (payload.initialCreditsForNewUser != null)
       cfg.initialCreditsForNewUser = Number(payload.initialCreditsForNewUser);
     if (payload.bonusOnVerify != null)

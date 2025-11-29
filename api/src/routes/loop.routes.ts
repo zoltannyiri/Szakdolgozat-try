@@ -12,19 +12,15 @@ import { requireDownloadCredit } from "../middlewares/credits.middleware";
 
 const router = Router();
 
-// Meglévő loop útvonalak
 router.post("/upload", authenticateToken, checkVerifiedOrBanned, upload.single("loop"), validateLoopMetadata, uploadLoop);
   
 router.get("/loops", getLoops);
 router.get('/loops/:id', getLoopById);
 router.get("/loops/download/:id", authenticateToken, checkVerifiedOrBanned, requireDownloadCredit, downloadLoop);
 router.get("/loops/:id/download", authenticateToken, checkVerifiedOrBanned, requireDownloadCredit, downloadLoop);
-// Loop letöltése
 router.get("/loop-detail/download/:id",
     authenticateToken,
-    // checkVerified,
     checkVerifiedOrBanned,
-    // blockIfBanned,
     requireDownloadCredit,
     downloadLoop
   );
@@ -33,7 +29,6 @@ router.get("/loop-detail/download/:id",
     authenticateToken,
     checkVerifiedOrBanned,
     requireDownloadCredit,
-    // blockIfBanned,
     downloadLoop
   );
 
@@ -41,7 +36,6 @@ router.get("/loop-detail/download/:id",
     authenticateToken,
     checkVerifiedOrBanned,
     requireDownloadCredit,
-    // blockIfBanned,
     downloadLoop
   );
 
@@ -61,9 +55,6 @@ router.get("/debug-file/:filename", (req, res) => {
     });
   });
   
-  
-
-// Új komment útvonalak
 router.post('/loops/:loopId/comments', authenticateToken, checkVerifiedOrBanned, addComment);
 router.get('/loops/:loopId/comments', getCommentsForLoop);
 
