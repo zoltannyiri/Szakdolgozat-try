@@ -549,14 +549,14 @@
         </div>
 
         <!-- Action buttons -->
-        <div class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-4 sm:p-5 shadow-xl backdrop-blur-sm">
+        <div *ngIf="!isCurrentUser" class="rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-4 sm:p-5 shadow-xl backdrop-blur-sm">
           <h4 class="mb-3 text-sm font-semibold text-amber-400">Műveletek</h4>
           <div class="space-y-2">
-            <button (click)="startChatWithUser()" 
+            <button *ngIf="!isCurrentUser" (click)="startChatWithUser()" 
                     class="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-2.5 text-sm font-medium hover:from-amber-600 hover:to-orange-600 transition-all">
               <i class="bi bi-chat-dots-fill"></i> Üzenetküldés
             </button>
-            <button *ngIf="!isCurrentUser" (click)="openProfileReportModal()" 
+            <button *ngIf="!isAdmin" (click)="openProfileReportModal()" 
                     class="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-rose-700 to-red-700 px-4 py-2.5 text-sm font-medium hover:from-rose-600 hover:to-red-600 transition-all">
               <i class="bi bi-flag-fill"></i> Profil jelentése
             </button>

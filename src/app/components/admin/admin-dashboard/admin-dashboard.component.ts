@@ -38,29 +38,6 @@ export class AdminDashboardComponent implements OnInit {
     activeUsers: 0
   };
 
-  recentActivities = [
-    {
-      type: 'upload',
-      message: 'Új loop feltöltve: "Chill Beat 2024"',
-      time: '5 perccel ezelőtt'
-    },
-    {
-      type: 'user',
-      message: 'Új felhasználó regisztrált: musiclover123',
-      time: '15 perccel ezelőtt'
-    },
-    {
-      type: 'comment',
-      message: 'Új komment a "Jazz Loop" loopon',
-      time: '25 perccel ezelőtt'
-    },
-    {
-      type: 'download',
-      message: '"Hip Hop Beat" letöltve 15 alkalommal',
-      time: '1 órával ezelőtt'
-    }
-  ];
-
   public chartOptions: ChartOptions = {
     series: [
       {
