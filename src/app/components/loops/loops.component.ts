@@ -148,7 +148,9 @@ export class LoopsComponent implements OnInit, OnDestroy {
     "FX", 
     "Pad", 
     "Pluck", 
-    "Percussion"
+    "Percussion",
+    "Bells",
+    "Organ"
   ];
 
   constructor(
