@@ -4,33 +4,63 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 let transporter: nodemailer.Transporter | null = null;
 
+// function ensureTransporter() {
+//   if (transporter) return transporter;
+
+//   const host     = process.env.SMTP_HOST || 'smtp.gmail.com';
+//   const port     = Number(process.env.SMTP_PORT || 465);
+//   const secure   =
+//     String(process.env.SMTP_SECURE ?? (port === 465)).toLowerCase() === 'true' || port === 465;
+//   const user     = process.env.SMTP_USER || '';
+//   const pass     = process.env.SMTP_PASS || '';
+//   const fromName = process.env.MAIL_FROM_NAME || 'LoopHub';
+//   const from     = process.env.SMTP_USER_FROM || user;
+
+//   transporter = nodemailer.createTransport({
+//     host,
+//     port,
+//     secure,
+//     auth: { user, pass },
+//     logger: true,
+//     debug: true,
+//     tls: { minVersion: 'TLSv1.2' },
+//   });
+
+//   console.log('[mailer] Using', { host, port, secure, user, from });
+
+//   transporter.verify()
+//     .then(() => console.log('[mailer] SMTP ready'))
+//     .catch(err => console.error('[mailer] SMTP error:', err));
+
+//   return transporter;
+// }
 function ensureTransporter() {
   if (transporter) return transporter;
 
-  const host     = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const port     = Number(process.env.SMTP_PORT || 465);
-  const secure   =
-    String(process.env.SMTP_SECURE ?? (port === 465)).toLowerCase() === 'true' || port === 465;
-  const user     = process.env.SMTP_USER || '';
-  const pass     = process.env.SMTP_PASS || '';
-  const fromName = process.env.MAIL_FROM_NAME || 'LoopHub';
-  const from     = process.env.SMTP_USER_FROM || user;
+  const host     = process.env.SMTP_HOST || 'smtp-relay.brevo.com';
+  const port     = Number(process.env.SMTP_PORT || 587);
+  // Biztosítjuk, hogy false legyen, ha nincs beállítva
+  const secure   = process.env.SMTP_SECURE === 'true'; 
+  const user     = process.env.SMTP_USER;
+  const pass     = process.env.SMTP_PASS;
+
+  console.log('[mailer] Connecting to', { host, port, secure, user });
 
   transporter = nodemailer.createTransport({
     host,
     port,
-    secure,
+    secure, // Brevo esetén false
     auth: { user, pass },
+    // --- EZ A KÉT SOR A KULCS A RENDERHEZ: ---
+    family: 4,     // Kényszerített IPv4 (ez oldja meg a fagyást!)
+    tls: { 
+      rejectUnauthorized: false, // Segít, ha a Render SSL tanúsítványa nem tetszik a Brevonak
+      minVersion: 'TLSv1.2'
+    },
+    // -----------------------------------------
     logger: true,
     debug: true,
-    tls: { minVersion: 'TLSv1.2' },
-  });
-
-  console.log('[mailer] Using', { host, port, secure, user, from });
-
-  transporter.verify()
-    .then(() => console.log('[mailer] SMTP ready'))
-    .catch(err => console.error('[mailer] SMTP error:', err));
+  }as SMTPTransport.Options);
 
   return transporter;
 }
