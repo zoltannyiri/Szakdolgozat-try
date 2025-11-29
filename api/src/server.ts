@@ -509,7 +509,7 @@ const allowedOrigins = [
   'http://localhost:4200', 
   'https://szakdolgozat-frontend-pi.vercel.app',   
   'https://szakdolgozat-frontend.vercel.app',
-  'https://loop-hub.vercel.app/'
+  'https://loop-hub.vercel.app'
 ];
 app.use("/api", loopRoutes); 
 
