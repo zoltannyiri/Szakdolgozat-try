@@ -14,19 +14,28 @@ function ensureTransporter() {
   const fromName = process.env.MAIL_FROM_NAME || 'LoopHub';
   const from     = process.env.SMTP_USER_FROM || user;
 
+  // transporter = nodemailer.createTransport({
+  //   host,
+  //   port,
+  //   secure,
+  //   auth: { user, pass },
+  //   logger: true,
+  //   debug: true,
+  //   tls: { minVersion: 'TLSv1.2' },
+  // });
   transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure,                 // 465: true, 587: false
-    auth: { user, pass },
-    logger: true,
-    debug: true,
-    tls: { minVersion: 'TLSv1.2' },
-  });
+  service: 'gmail',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
 
   console.log('[mailer] Using', { host, port, secure, user, from });
 
-  // ellenőrzés
   transporter.verify()
     .then(() => console.log('[mailer] SMTP ready'))
     .catch(err => console.error('[mailer] SMTP error:', err));
