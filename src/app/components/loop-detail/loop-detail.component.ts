@@ -129,9 +129,34 @@ export class LoopDetailComponent implements OnInit {
 ) {}
 
 
+  // ngOnInit(): void {
+  //   this.checkAuthStatus();
+  //   this.isAdmin = this.checkIsAdmin();
+  //   this.route.paramMap.subscribe(params => {
+  //     const id = params.get('id');
+  //     if (id) {
+  //       this.loadLoop(id);
+  //       this.checkFavoriteStatus(id);
+  //     }
+  //   });
+  // }
   ngOnInit(): void {
     this.checkAuthStatus();
     this.isAdmin = this.checkIsAdmin();
+    if (this.authService.isLoggedIn()) {
+      this.authService.getUserProfile().subscribe({
+        next: (res: any) => {
+          if (res?.user?.role === 'admin') {
+            this.isAdmin = true;
+          } else {
+            this.isAdmin = false;
+          }
+        },
+        error: () => {
+          this.isAdmin = false;
+        }
+      });
+    }
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {

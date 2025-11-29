@@ -139,8 +139,27 @@ export class LoopsComponent implements OnInit, OnDestroy {
     private http: HttpClient
   ) { }
 
+  // ngOnInit(): void {
+  //   this.isAdmin = this.checkIsAdmin();
+  //   this.loadLoops();
+  // }
   ngOnInit(): void {
     this.isAdmin = this.checkIsAdmin();
+    if (this.authService.isLoggedIn()) {
+      this.authService.getUserProfile().subscribe({
+        next: (res: any) => {
+          if (res?.user?.role === 'admin') {
+            this.isAdmin = true;
+          } else {
+            this.isAdmin = false; 
+          }
+        },
+        error: () => {
+          this.isAdmin = false;
+        }
+      });
+    }
+
     this.loadLoops();
   }
 

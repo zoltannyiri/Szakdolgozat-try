@@ -95,7 +95,9 @@
 
             <div class="space-y-1">
               <div class="bg-slate-700/60 backdrop-blur-sm rounded-2xl rounded-tl-none px-4 py-3 border border-slate-600/50">
-                <p class="text-slate-100 text-sm leading-relaxed">{{ message.content }}</p>
+                
+                <p class="text-slate-100 text-sm leading-relaxed break-all whitespace-pre-wrap">{{ message.content }}</p>
+              
               </div>
               <div *ngIf="isLastOwnMessage(i)" class="flex items-center gap-2 text-xs text-slate-500 pl-12">
                 <span>{{ message.timestamp | date:'HH:mm' }}</span>
@@ -106,15 +108,16 @@
           </div>
 
           <div *ngIf="message.senderId === currentUserId"
-              class="max-w-[80%] ml-auto flex items-start">
+               class="max-w-[80%] ml-auto flex items-start">
             <div class="flex items-start gap-3">
-              <!-- bubble (left of avatar) -->
               <div class="space-y-1 text-right">
                 <div class="bg-gradient-to-r from-amber-600 to-orange-600 backdrop-blur-sm rounded-2xl rounded-tr-none px-4 py-3 shadow-lg">
-                  <p class="text-white text-sm leading-relaxed">{{ message.content }}</p>
+                  
+                  <p class="text-white text-sm leading-relaxed break-all whitespace-pre-wrap text-left">{{ message.content }}</p>
+                
                 </div>
                 <div *ngIf="isLastOwnMessage(i)"
-                    class="flex items-center gap-2 text-xs text-slate-500 justify-end">
+                     class="flex items-center gap-2 text-xs text-slate-500 justify-end">
                   <span>{{ message.read ? 'Olvasva' : 'Kézbesítve' }}</span>
                   <span>•</span>
                   <span>{{ message.timestamp | date:'HH:mm' }}</span>
@@ -168,7 +171,7 @@
                    (input)="onTyping()">
             <button type="button"
                     class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-amber-400 transition-colors duration-200 p-1">
-              <i class="bi bi-emoji-smile text-lg"></i>
+              <!-- <i class="bi bi-emoji-smile text-lg"></i> -->
             </button>
           </div>
 

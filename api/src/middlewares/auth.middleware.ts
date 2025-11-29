@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import User from '../models/user.model';
 
 export interface CustomRequest extends Request {
   user?: any;
@@ -24,18 +25,29 @@ interface DecodedToken {
 //   }
 // };
 // auth.middleware.ts
-export const authenticateToken = (req: CustomRequest, res: Response, next: NextFunction) => {
+export const authenticateToken = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     if (!token) return res.status(401).json({ message: "No token provided, authorization denied" });
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as jwt.JwtPayload;
-        console.log("[auth.middleware] Decoded token:", decoded);
+        const freshUser = await User.findById(decoded.userId).select('role email'); 
+        
+        if (!freshUser) {
+             return res.status(401).json({ message: "User no longer exists" });
+        }
+
         req.user = {
-            userId: decoded.userId,
-            email: decoded.email,
-            role: decoded.role
+            userId: decoded.userId, // Az ID maradhat a tokenből
+            email: freshUser.email, // Friss email (ha változott volna)
+            role: freshUser.role    // <--- A FRISS ROLE AZ ADATBÁZISBÓL!
         };
+        console.log("[auth.middleware] Decoded token:", decoded);
+        // req.user = {
+        //     userId: decoded.userId,
+        //     email: decoded.email,
+        //     role: decoded.role
+        // };
 
         console.log("[auth.middleware] User set in request:", req.user);
         next();

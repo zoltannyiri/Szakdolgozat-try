@@ -22,6 +22,8 @@ export class AdminCommentsComponent implements OnInit {
   currentPage = 1;
   itemsPerPage = 10;
 
+  toast = { text: '', variant: 'default' as 'success' | 'error' | 'default', timer: 0 as any };
+
   selectedComment: any = null;
 
   constructor(private http: HttpClient) {}
@@ -91,18 +93,28 @@ export class AdminCommentsComponent implements OnInit {
     this.currentPage = 1;
   }
 
-  showToast(message: string, type: 'success' | 'error' = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-xl backdrop-blur-sm ${
-      type === 'success' ? 'bg-emerald-900/90 text-emerald-100 border border-emerald-700' : 'bg-rose-900/90 text-rose-100 border border-rose-700'
-    }`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
+  // showToast(message: string, type: 'success' | 'error' = 'success') {
+  //   const toast = document.createElement('div');
+  //   toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-xl backdrop-blur-sm ${
+  //     type === 'success' ? 'bg-emerald-900/90 text-emerald-100 border border-emerald-700' : 'bg-rose-900/90 text-rose-100 border border-rose-700'
+  //   }`;
+  //   toast.textContent = message;
+  //   document.body.appendChild(toast);
 
-    setTimeout(() => {
-      document.body.removeChild(toast);
-    }, 3000);
-  }
+  //   setTimeout(() => {
+  //     document.body.removeChild(toast);
+  //   }, 3000);
+  // }
+  showToast(message: string, type: 'success' | 'error' = 'success') {
+  this.toast.text = message;
+  this.toast.variant = type;
+  
+  if (this.toast.timer) clearTimeout(this.toast.timer);
+  
+  this.toast.timer = setTimeout(() => {
+    this.toast.text = '';
+  }, 3000);
+}
 
   get filteredComments() {
     const term = this.searchTerm.toLowerCase();

@@ -336,4 +336,15 @@
       </div>
     </div>
   </div>
+  <div *ngIf="toast.text" 
+       [class]="'fixed bottom-20 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-300 rounded-xl border px-4 py-3 shadow-lg ' + 
+                (toast.variant === 'success' ? 'bg-emerald-900/90 text-emerald-100 border-emerald-700' : 
+                 toast.variant === 'error' ? 'bg-rose-900/90 text-rose-100 border-rose-700' : 
+                 'bg-slate-900/90 text-slate-100 border-slate-700')">
+    <div class="flex items-center gap-2">
+      <i *ngIf="toast.variant === 'success'" class="bi bi-check-circle-fill text-emerald-400"></i>
+      <i *ngIf="toast.variant === 'error'" class="bi bi-exclamation-circle-fill text-rose-400"></i>
+      {{ toast.text }}
+    </div>
+  </div>
 </div>

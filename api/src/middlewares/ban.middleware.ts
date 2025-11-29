@@ -12,12 +12,14 @@ export async function blockIfBanned(req: CustomRequest, res: Response, next: Nex
 
     if (user.bannedUntil && user.bannedUntil.getTime() > Date.now()) {
       const forever = user.bannedUntil.getUTCFullYear() >= 9999;
+      const readableDate = user.bannedUntil.toISOString().replace('T', ' ').substring(0, 16);
       return res.status(403).json({
         success: false,
         code: 'BANNED',
         message: forever
           ? 'A fiók véglegesen tiltva.'
-          : `A fiók ideiglenesen tiltva eddig: ${user.bannedUntil.toISOString()}`,
+          // : `A fiók ideiglenesen tiltva eddig: ${user.bannedUntil.toISOString()}`, //${readableDate}
+          : `A fiók ideiglenesen tiltva eddig: ${readableDate}`,
         until: user.bannedUntil,
         reason: user.banReason || '',
       });
