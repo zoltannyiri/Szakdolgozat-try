@@ -109,11 +109,12 @@ export class LoopsComponent implements OnInit, OnDestroy {
   total = 0;
 
   // Constants
-  keys = ["A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
+  keys = ["Ismeretlen", "A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
   // scales = ["Rap", "major", "minor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"];
   scales = [
     "Hip Hop", 
     "Trap", 
+    "Rap",
     "Drill", 
     "R&B", 
     "Pop", 

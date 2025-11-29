@@ -67,6 +67,7 @@ export const loopMetadataSchema = yup.object().shape({
     key: yup.string().required(),
     scale: yup.string().required().oneOf(["Hip Hop", 
     "Trap", 
+    "Rap",
     "Drill", 
     "R&B", 
     "Pop", 
