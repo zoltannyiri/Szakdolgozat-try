@@ -577,6 +577,41 @@ private setCurrentUserState(me: any) {
     }
   }
 
+  // szűrő
+  loopSearchTerm: string = '';
+  loopSortType: string = 'date_desc';
+
+  get filteredLoops(): any[] {
+    if (!this.userLoops) return [];
+
+    let loops = [...this.userLoops];
+
+    if (this.loopSearchTerm && this.loopSearchTerm.trim() !== '') {
+      const lowerTerm = this.loopSearchTerm.toLowerCase().trim();
+      loops = loops.filter(l => 
+        (l.filename || '').toLowerCase().includes(lowerTerm) || 
+        (l.bpm || '').toString().includes(lowerTerm) ||
+        (l.key || '').toLowerCase().includes(lowerTerm) ||
+        (l.scale || '').toLowerCase().includes(lowerTerm)
+      );
+    }
+
+    switch (this.loopSortType) {
+      case 'downloads_desc':
+        loops.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
+        break;
+      case 'date_desc':
+        loops.sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime());
+        break;
+      case 'all':
+      default:
+        loops.sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime());
+        break;
+    }
+
+    return loops;
+  }
+
   // nicknév módosítás
   changeUsername() {
     this.msgUsername = '';

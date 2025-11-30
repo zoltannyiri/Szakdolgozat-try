@@ -7,33 +7,36 @@
         <div class="grid grid-cols-12 gap-6">
 
           <div class="col-span-12 md:col-span-4 md:order-last flex justify-center md:justify-end mb-6 md:mb-0">
-            <div class="relative inline-block">
-              <div
-                class="h-24 w-24 sm:h-32 sm:w-32 overflow-hidden rounded-full ring-4 ring-slate-800 shadow-xl relative z-10">
-                <div *ngIf="isActive" class="absolute inset-0 rounded-full ring-[3px] ring-amber-400/60 animate-pulse">
+            <div class="flex flex-col items-center">
+              <div class="relative inline-block">
+                <div
+                  class="h-24 w-24 sm:h-32 sm:w-32 overflow-hidden rounded-full ring-4 ring-slate-800 shadow-xl relative z-10">
+                  <div *ngIf="isActive"
+                    class="absolute inset-0 rounded-full ring-[3px] ring-amber-400/60 animate-pulse">
+                  </div>
+
+                  <ng-container *ngIf="userData?.profileImage; else initials">
+                    <img [src]="apiUrl + userData.profileImage" alt="Profilkép"
+                      class="h-full w-full object-cover transition-transform duration-500 hover:scale-110" />
+                  </ng-container>
+                  <ng-template #initials>
+                    <div
+                      class="grid h-full w-full place-items-center bg-gradient-to-br from-amber-600 to-orange-600 text-3xl sm:text-4xl font-black">
+                      {{ getInitials(userData?.username || '') }}
+                    </div>
+                  </ng-template>
+                </div>
                 </div>
 
-                <ng-container *ngIf="userData?.profileImage; else initials">
-                  <img [src]="apiUrl + userData.profileImage" alt="Profilkép"
-                    class="h-full w-full object-cover transition-transform duration-500 hover:scale-110" />
-                </ng-container>
-                <ng-template #initials>
-                  <div
-                    class="grid h-full w-full place-items-center bg-gradient-to-br from-amber-600 to-orange-600 text-3xl sm:text-4xl font-black">
-                    {{ getInitials(userData?.username || '') }}
-                  </div>
-                </ng-template>
-              </div>
-
               <label *ngIf="isCurrentUser" for="avatarUpload"
-                class="absolute -bottom-2 -right-2 sm:bottom-0 sm:right-0 z-20 cursor-pointer rounded-full border border-white/20 bg-gradient-to-r from-slate-700 to-slate-800 px-3 py-1 text-xs font-medium backdrop-blur transition-all hover:from-amber-600 hover:to-orange-600 shadow-lg">
-                <i class="bi bi-camera-fill mr-1"></i> <span class="hidden sm:inline">Szerkesztés</span><span
-                  class="sm:hidden">Kép</span>
+                class="mt-4 flex items-center justify-center gap-2 rounded-full border-2 border-slate-600/50 bg-slate-900/60 px-6 py-1.5 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:border-slate-400 hover:text-white transition-all cursor-pointer backdrop-blur-sm shadow-sm">
+                <i class="bi bi-camera-fill"></i>
+                <span>Szerkesztés</span>
               </label>
               <input id="avatarUpload" type="file" accept="image/*" class="hidden"
                 (change)="onAvatarSelected($event)" />
             </div>
-          </div>
+            </div>
 
           <div class="col-span-12 md:col-span-8 flex flex-col items-center md:items-start text-center md:text-left">
             <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3">
@@ -88,7 +91,8 @@
 
               <span
                 class="inline-flex items-center gap-2 rounded-lg bg-slate-700/40 px-2 py-1 sm:px-3 sm:py-1.5 backdrop-blur-sm">
-                <i class="bi bi-activity" [ngClass]="{ 'text-emerald-400': isActive, 'text-amber-400': !isActive }"></i>
+                <i class="bi bi-activity"
+                  [ngClass]="{ 'text-emerald-400': isActive, 'text-amber-400': !isActive }"></i>
                 Utoljára belépett: {{ userData?.lastLogin | date:'MMM d, HH:mm' }}
               </span>
             </div>
@@ -110,7 +114,8 @@
 
           <button class="py-3 sm:py-4 text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap"
             [class.text-amber-400]="activeMainTab==='profile'" [class.border-amber-400]="activeMainTab==='profile'"
-            [class.text-slate-400]="activeMainTab!=='profile'" [class.border-transparent]="activeMainTab!=='profile'"
+            [class.text-slate-400]="activeMainTab!=='profile'"
+            [class.border-transparent]="activeMainTab!=='profile'"
             [class.hover:text-amber-300]="activeMainTab!=='profile'" (click)="activeMainTab='profile'">
             <i class="bi bi-person-circle mr-2"></i>Profil
           </button>
@@ -123,8 +128,10 @@
           </button>
 
           <button class="py-3 sm:py-4 text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap"
-            [class.text-amber-400]="activeMainTab==='comments'" [class.border-amber-400]="activeMainTab==='comments'"
-            [class.text-slate-400]="activeMainTab!=='comments'" [class.border-transparent]="activeMainTab!=='comments'"
+            [class.text-amber-400]="activeMainTab==='comments'"
+            [class.border-amber-400]="activeMainTab==='comments'"
+            [class.text-slate-400]="activeMainTab!=='comments'"
+            [class.border-transparent]="activeMainTab!=='comments'"
             [class.hover:text-amber-300]="activeMainTab!=='comments'" (click)="activeMainTab='comments'">
             <i class="bi bi-chat-dots-fill mr-2"></i>Kommentek
           </button>
@@ -248,7 +255,8 @@
 
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-              <h3 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+              <h3
+                class="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
                 {{ userData?.username }} loopjai</h3>
             </div>
 
@@ -285,25 +293,28 @@
               <div class="flex items-center gap-2 text-sm text-slate-300 w-full sm:w-auto">
                 <i class="bi bi-funnel text-amber-400"></i>
                 <span>Szűrő:</span>
-                <select
+                
+                <select [(ngModel)]="loopSortType"
                   class="bg-slate-700/50 border border-slate-600 rounded-md px-2 py-1 text-slate-200 text-sm focus:outline-none focus:ring-1 focus:ring-amber-400/30 flex-1 sm:flex-none">
-                  <option>Minden loop</option>
-                  <option>Leghíresebb</option>
-                  <option>Legújabb</option>
+                  <option value="all">Minden loop</option>
+                  <option value="downloads_desc">Leghíresebb</option>
+                  <option value="date_desc">Legújabb</option>
                 </select>
               </div>
 
               <div class="relative w-full sm:w-auto">
                 <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" placeholder="Keresés..."
+                
+                <input type="text" placeholder="Keresés..." [(ngModel)]="loopSearchTerm"
                   class="w-full sm:w-auto pl-9 pr-3 py-1.5 bg-slate-700/50 border border-slate-600 rounded-md text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400/30">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div *ngFor="let loop of userLoops"
+              
+              <div *ngFor="let loop of filteredLoops"
                 class="group relative rounded-xl border border-slate-600/30 bg-gradient-to-b from-slate-700/40 to-slate-800/40 p-3 sm:p-4 hover:bg-slate-700/60 transition-all duration-300 backdrop-blur-sm">
-
+                
                 <div
                   class="relative mb-3 sm:mb-4 h-24 sm:h-32 rounded-lg bg-gradient-to-br from-amber-900/20 to-orange-900/20 overflow-hidden backdrop-blur-sm">
                   <div class="absolute inset-0 flex items-end justify-center space-x-[1px] pb-2 sm:pb-3">
@@ -383,7 +394,8 @@
                   class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-slate-600/50 transition-colors">
                   <i class="bi bi-chevron-left"></i>
                 </button>
-                <button class="w-8 h-8 flex items-center justify-center rounded-md bg-amber-600 text-white">1</button>
+                <button
+                  class="w-8 h-8 flex items-center justify-center rounded-md bg-amber-600 text-white">1</button>
                 <button
                   class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-slate-600/50 transition-colors">2</button>
                 <button
