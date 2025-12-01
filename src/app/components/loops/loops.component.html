@@ -13,6 +13,18 @@
         </div>
 
         <div class="flex gap-3">
+          <button (click)="toggleWaveformMode()"
+        class="inline-flex items-center justify-center gap-2 rounded-full border px-4 py-2.5 sm:px-5 sm:py-3 text-sm font-medium transition-all backdrop-blur-sm"
+        [ngClass]="useRealWaveforms 
+          ? 'bg-amber-500/20 border-amber-400/50 text-amber-300' 
+          : 'bg-slate-700/30 border-slate-600/30 text-slate-400 hover:text-slate-200'">
+  
+  <i class="bi" [ngClass]="useRealWaveforms ? 'bi-activity' : 'bi-lightning-charge'"></i>
+  
+  <span class="hidden sm:inline">
+    {{ useRealWaveforms ? 'HQ Hullám' : 'Gyors mód' }}
+  </span>
+</button>
           <button (click)="toggleUploadModal()"
                   class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2.5 sm:px-6 sm:py-3 text-sm font-semibold text-white shadow-lg transition-all hover:from-amber-500 hover:to-orange-500 hover:shadow-amber-500/25">
             <i class="bi bi-cloud-arrow-up-fill"></i>
@@ -193,19 +205,20 @@
         <p class="text-sm text-slate-400">Változtass a szűrés értékein</p>
       </div>
 
-      <div *ngFor="let loop of loops" 
+      <div *ngFor="let loop of loops; trackBy: trackByLoopId" (mouseenter)="preloadAudio(loop._id)"
            class="group rounded-2xl border border-slate-600/30 bg-gradient-to-b from-slate-800/80 to-slate-900/80 p-4 sm:p-6 shadow-xl transition-all duration-300 hover:border-slate-500/50 hover:bg-slate-800/60 backdrop-blur-sm">
         
         <audio
           #audioPlayer
           [id]="'audio-' + loop._id"
-          [src]="getSafeAudioUrl(loop.path)"
+          [src]="audioUrls[loop._id]"
           preload="metadata"
           hidden
           (loadedmetadata)="onLoadedMeta(loop._id, audioPlayer)"
           (durationchange)="onDurationChange(loop._id, audioPlayer)"
           (canplay)="onCanPlay(loop._id)"
-          (timeupdate)="updateProgress(loop._id)"
+          
+
           (play)="onAudioPlay(loop._id)"
           (pause)="onAudioPause()"
           (error)="onAudioError(audioPlayer)">
@@ -305,16 +318,17 @@
                (click)="seekAudio($event, loop._id, true)">
             <div class="absolute inset-0 flex items-center opacity-60">
               <div class="flex h-8 w-full items-end">
-                <div *ngFor="let value of waveforms[loop._id] || []; let i = index" 
+                <div *ngFor="let value of waveforms[loop._id] || []; let i = index; trackBy: trackByIndex" 
                      class="waveform-bar mx-0.5 rounded-sm bg-slate-500 transition-all duration-100" 
                      [style.height.%]="value * 0.8"></div>
               </div>
             </div>
-            <div class="absolute inset-0 flex items-center overflow-hidden" [style.width.%]="getProgress(loop._id)">
-              <div class="flex h-8 items-end">
-                <div *ngFor="let value of waveforms[loop._id] || []; let i = index" 
-                     class="waveform-bar mx-0.5 rounded-sm bg-amber-400 transition-all duration-100" 
-                     [style.height.%]="value * 0.8"></div>
+            <div class="absolute inset-0 flex items-center text-amber-400"
+                [style.clip-path]="progressStyles[loop._id] || 'inset(0 100% 0 0)'">
+              
+              <div class="flex h-8 w-full items-end"> <div *ngFor="let value of waveforms[loop._id] || []; let i = index" 
+                    class="waveform-bar mx-0.5 rounded-sm bg-current" 
+                    [style.height.%]="value * 0.8"></div>
               </div>
             </div>
             <div class="absolute top-0 bottom-0 ml-1 w-0.5 bg-amber-400" [style.left.%]="getProgress(loop._id)"></div>

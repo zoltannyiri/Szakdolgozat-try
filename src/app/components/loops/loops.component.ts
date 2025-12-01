@@ -25,7 +25,10 @@ import { takeUntil } from 'rxjs/operators';
 export class LoopsComponent implements OnInit, OnDestroy {
   @ViewChildren('audioPlayer') audioPlayers!: QueryList<ElementRef<HTMLAudioElement>>;
 
-  toast = { text: '', variant: 'default' as 'success' | 'error' | 'default', timer: 0 as any };
+  toast = { text: '', variant: 'default' as 'success' | 'error' | 'info' | 'default', timer: 0 as any };
+  progressStyles: { [key: string]: string } = {};
+  audioUrls: { [key: string]: string } = {};
+  animationFrameId: number | null = null;
 
   // Audio
   currentlyPlayingId: string | null = null;
@@ -111,21 +114,21 @@ export class LoopsComponent implements OnInit, OnDestroy {
   // const
   keys = ["Ismeretlen", "A", "Am", "A#", "A#m", "B", "Bm", "C", "Cm", "C#", "C#m", "D", "Dm", "D#", "D#m", "E", "Em", "F", "Fm", "F#", "F#m", "G", "Gm", "G#", "G#m"];
   scales = [
-    "Hip Hop", 
-    "Trap", 
+    "Hip Hop",
+    "Trap",
     "Rap",
-    "Drill", 
-    "R&B", 
-    "Pop", 
-    "Lo-Fi", 
-    "EDM", 
-    "House", 
-    "Techno", 
-    "Dubstep", 
-    "Cinematic", 
-    "Rock", 
-    "Jazz", 
-    "Afrobeat", 
+    "Drill",
+    "R&B",
+    "Pop",
+    "Lo-Fi",
+    "EDM",
+    "House",
+    "Techno",
+    "Dubstep",
+    "Cinematic",
+    "Rock",
+    "Jazz",
+    "Afrobeat",
     "Reggaeton",
     "Ambient",
     "Funk",
@@ -136,22 +139,23 @@ export class LoopsComponent implements OnInit, OnDestroy {
     "Hi-Hat",
     "Clap",
     "Drum Loop",
-    "Bass", 
-    "808", 
-    "Synth", 
-    "Piano", 
-    "Guitar", 
-    "Strings", 
-    "Brass", 
-    "Woodwind", 
-    "Vocal", 
-    "FX", 
-    "Pad", 
-    "Pluck", 
+    "Bass",
+    "808",
+    "Synth",
+    "Piano",
+    "Guitar",
+    "Strings",
+    "Brass",
+    "Woodwind",
+    "Vocal",
+    "FX",
+    "Pad",
+    "Pluck",
     "Percussion",
     "Bells",
     "Organ"
   ];
+  useRealWaveforms = false;
 
   constructor(
     private loopService: LoopService,
@@ -170,7 +174,7 @@ export class LoopsComponent implements OnInit, OnDestroy {
           if (res?.user?.role === 'admin') {
             this.isAdmin = true;
           } else {
-            this.isAdmin = false; 
+            this.isAdmin = false;
           }
         },
         error: () => {
@@ -179,11 +183,17 @@ export class LoopsComponent implements OnInit, OnDestroy {
       });
     }
 
+    const savedSetting = localStorage.getItem('useRealWaveforms');
+    if (savedSetting !== null) {
+      this.useRealWaveforms = JSON.parse(savedSetting);
+    }
+
     this.loadLoops();
   }
 
   private destroy$ = new Subject<void>();
   ngOnDestroy() {
+    this.stopAnimationLoop();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -216,7 +226,12 @@ export class LoopsComponent implements OnInit, OnDestroy {
         loops.forEach((loop: ILoop) => {
           this.volumes[loop._id] = 0.7;
           this.favoriteStatus[loop._id] = favSet.has(loop._id);
-          this.generateWaveform(loop._id);
+          this.audioUrls[loop._id] = this.getSafeAudioUrl(loop.path);
+          if (this.useRealWaveforms) {
+            this.generateWaveform(loop._id);
+          } else {
+            this.waveforms[loop._id] = Array(100).fill(0).map(() => Math.random() * 40 + 10);
+          }
         });
 
         this.isLoading = false;
@@ -326,8 +341,8 @@ export class LoopsComponent implements OnInit, OnDestroy {
     if (!path) return '';
 
     if (path.includes('localhost:3000')) {
-        const relativePath = path.replace('http://localhost:3000', '').replace('https://localhost:3000', '');
-        return `${this.loopService.apiUrl}${relativePath.startsWith('/') ? '' : '/'}${relativePath}`;
+      const relativePath = path.replace('http://localhost:3000', '').replace('https://localhost:3000', '');
+      return `${this.loopService.apiUrl}${relativePath.startsWith('/') ? '' : '/'}${relativePath}`;
     }
 
     const driveIdMatch = path.match(/[?&]id=([A-Za-z0-9_\-]+)/);
@@ -419,18 +434,24 @@ export class LoopsComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateProgress(loopId: string) {
-    const audioElement = document.getElementById(`audio-${loopId}`) as HTMLAudioElement;
+  updateProgress(event: Event, loopId: string) {
+    const audioElement = event.target as HTMLAudioElement;
     if (audioElement) {
       this.currentPositions[loopId] = audioElement.currentTime;
       this.durations[loopId] = audioElement.duration;
+      const percent = (audioElement.currentTime / audioElement.duration) * 100;
+      const safePercent = Math.min(100, Math.max(0, percent));
+      this.progressStyles[loopId] = `inset(0 ${100 - safePercent}% 0 0)`;
     }
   }
 
   getProgress(loopId: string): number {
-    const audio = document.querySelector(`#audio-${loopId}`) as HTMLAudioElement;
-    if (!audio || !audio.duration) return 0;
-    return (audio.currentTime / audio.duration) * 100;
+    const duration = this.durations[loopId];
+    const current = this.currentPositions[loopId];
+
+    if (!duration || !current) return 0;
+
+    return (current / duration) * 100;
   }
 
   setVolume(loopId: string, newVolume: number | string): void {
@@ -445,13 +466,12 @@ export class LoopsComponent implements OnInit, OnDestroy {
 
   onAudioPlay(loopId: string) {
     this.currentlyPlayingId = loopId;
-    if (this.bandHeights[loopId]) {
-      this.animateBands(loopId);
-    }
+    this.startAnimationLoop(loopId);
   }
 
   onAudioPause() {
     this.currentlyPlayingId = null;
+    this.stopAnimationLoop();
   }
 
   isCurrentPosition(index: number, loopId: string): boolean {
@@ -643,9 +663,10 @@ export class LoopsComponent implements OnInit, OnDestroy {
 
   onLoadedMeta(loopId: string, audio: HTMLAudioElement) {
     if (!audio) return;
-    const d = Number.isFinite(audio.duration) ? audio.duration : 0;
-    this.durations[loopId] = d;
-    if (!this.waveforms[loopId]?.length) this.generateWaveform(loopId);
+    this.durations[loopId] = Number.isFinite(audio.duration) ? audio.duration : 0;
+    if (this.useRealWaveforms && !this.waveforms[loopId]?.length) {
+      this.generateWaveform(loopId);
+    }
   }
 
   onDurationChange(loopId: string, audio: HTMLAudioElement) {
@@ -655,7 +676,9 @@ export class LoopsComponent implements OnInit, OnDestroy {
   }
 
   onCanPlay(loopId: string) {
-    if (!this.waveforms[loopId]?.length) this.generateWaveform(loopId);
+    if (this.useRealWaveforms && !this.waveforms[loopId]?.length) {
+      this.generateWaveform(loopId);
+    }
   }
 
   formatTimeSafe(val: number | undefined): string {
@@ -695,56 +718,56 @@ export class LoopsComponent implements OnInit, OnDestroy {
         next: (response: any) => {
           if (response && response.downloadUrl) {
             let url = response.downloadUrl;
-            const idMatch = url.match(/\/files\/([a-zA-Z0-9_-]+)/) || 
-                            url.match(/id=([a-zA-Z0-9_-]+)/) || 
-                            url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            const idMatch = url.match(/\/files\/([a-zA-Z0-9_-]+)/) ||
+              url.match(/id=([a-zA-Z0-9_-]+)/) ||
+              url.match(/\/d\/([a-zA-Z0-9_-]+)/);
             if (idMatch && idMatch[1]) {
-               const fileId = idMatch[1];
-               url = `https://drive.google.com/uc?export=download&id=${fileId}`;
+              const fileId = idMatch[1];
+              url = `https://drive.google.com/uc?export=download&id=${fileId}`;
             } else {
-               if (url.includes('localhost:3000')) {
-                 url = url.replace('http://localhost:3000', this.loopService.apiUrl);
-                 url = url.replace('https://localhost:3000', this.loopService.apiUrl);
-               }
+              if (url.includes('localhost:3000')) {
+                url = url.replace('http://localhost:3000', this.loopService.apiUrl);
+                url = url.replace('https://localhost:3000', this.loopService.apiUrl);
+              }
             }
             console.log('Force download URL:', url);
             const a = document.createElement('a');
             a.href = url;
-            a.target = '_self'; 
+            a.target = '_self';
             a.download = loop.filename || `loop_${loop._id}`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
           }
           else if (response instanceof Blob) {
-             const url = window.URL.createObjectURL(response);
-             const a = document.createElement('a');
-             a.href = url;
-             a.download = loop.filename || `loop_${loop._id}`;
-             document.body.appendChild(a);
-             a.click();
-             window.URL.revokeObjectURL(url);
-             document.body.removeChild(a);
+            const url = window.URL.createObjectURL(response);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = loop.filename || `loop_${loop._id}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
           }
         },
         error: async (err) => {
-           if (err.status === 401) {
-              this.showToast('Jelentkezz be a letöltéshez!', 'error');
-              return;
-           }
+          if (err.status === 401) {
+            this.showToast('Jelentkezz be a letöltéshez!', 'error');
+            return;
+          }
 
-           const payload = await this.readErrorPayload(err);
-           const code = payload?.code;
+          const payload = await this.readErrorPayload(err);
+          const code = payload?.code;
 
-           if (code === 'NO_CREDITS') {
-             this.showToast('Nincs elég kredited! Tölts fel loopot.', 'error');
-           } else if (code === 'BANNED') {
-             this.showToast('A fiókod tiltva van.', 'error');
-           } else if (code === 'EMAIL_NOT_VERIFIED') {
-             this.showToast('Erősítsd meg az e-mail címedet!', 'error');
-           } else {
-             this.showToast(payload?.message || 'A letöltés nem sikerült.', 'error');
-           }
+          if (code === 'NO_CREDITS') {
+            this.showToast('Nincs elég kredited! Tölts fel loopot.', 'error');
+          } else if (code === 'BANNED') {
+            this.showToast('A fiókod tiltva van.', 'error');
+          } else if (code === 'EMAIL_NOT_VERIFIED') {
+            this.showToast('Erősítsd meg az e-mail címedet!', 'error');
+          } else {
+            this.showToast(payload?.message || 'A letöltés nem sikerült.', 'error');
+          }
         }
       });
     } catch (err) {
@@ -754,21 +777,6 @@ export class LoopsComponent implements OnInit, OnDestroy {
 
 
   bandHeights: { [key: string]: number[] } = {};
-
-  getBandHeight(loopId: string, bandIndex: number): number {
-    if (!this.bandHeights[loopId]) {
-
-      this.bandHeights[loopId] = Array(16).fill(0).map(() =>
-        Math.floor(Math.random() * 30) + 10
-      );
-
-
-      if (this.currentlyPlayingId === loopId) {
-        this.animateBands(loopId);
-      }
-    }
-    return this.bandHeights[loopId][bandIndex];
-  }
 
   initializeWaveforms() {
     this.loops.forEach(loop => {
@@ -833,9 +841,9 @@ export class LoopsComponent implements OnInit, OnDestroy {
         error: (err) => {
           console.error('Unlike error:', err);
           if (err.status === 403) {
-             this.showToast('Erősítsd meg az e-mail címedet vagy ellenőrizd a fiókod állapotát!', 'error');
+            this.showToast('Erősítsd meg az e-mail címedet vagy ellenőrizd a fiókod állapotát!', 'error');
           } else {
-             this.showToast('Hiba történt a like visszavonásakor.', 'error');
+            this.showToast('Hiba történt a like visszavonásakor.', 'error');
           }
         }
       });
@@ -849,11 +857,11 @@ export class LoopsComponent implements OnInit, OnDestroy {
         error: (err) => {
           console.error('Like error:', err);
           if (err.status === 403 && err.error?.code === 'BANNED') {
-             this.showToast('Tiltott fiókkal nem likeolhatsz.', 'error');
+            this.showToast('Tiltott fiókkal nem likeolhatsz.', 'error');
           } else if (err.status === 403 && err.error?.code === 'EMAIL_NOT_VERIFIED') {
-             this.showToast('Erősítsd meg az e-mail címedet a likeoláshoz!', 'error');
+            this.showToast('Erősítsd meg az e-mail címedet a likeoláshoz!', 'error');
           } else {
-             this.showToast('Hiba történt a likeoláskor.', 'error');
+            this.showToast('Hiba történt a likeoláskor.', 'error');
           }
         }
       });
@@ -1095,7 +1103,7 @@ export class LoopsComponent implements OnInit, OnDestroy {
     }
   }
 
-  showToast(message: string, type: 'success' | 'error' = 'success') {
+  showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {
     this.toast.text = message;
     this.toast.variant = type;
     if (this.toast.timer) clearTimeout(this.toast.timer);
@@ -1111,6 +1119,58 @@ export class LoopsComponent implements OnInit, OnDestroy {
       });
     }
     return Promise.resolve(err?.error || {});
+  }
+
+  preloadAudio(loopId: string) {
+    const audio = document.getElementById(`audio-${loopId}`) as HTMLAudioElement;
+    if (audio && audio.preload !== 'auto') {
+      audio.preload = 'auto'; 
+      console.log(`[Preload] Letöltés indítása: ${loopId}`);
+    }
+  }
+
+  startAnimationLoop(loopId: string) {
+    this.stopAnimationLoop();
+    const animate = () => {
+      const audio = document.getElementById(`audio-${loopId}`) as HTMLAudioElement;
+      if (audio) {
+        this.currentPositions[loopId] = audio.currentTime;
+        this.durations[loopId] = audio.duration;
+        const percent = (audio.currentTime / audio.duration) * 100;
+        const safePercent = Math.min(100, Math.max(0, isNaN(percent) ? 0 : percent));
+        this.progressStyles[loopId] = `inset(0 ${100 - safePercent}% 0 0)`;
+      }
+      if (this.currentlyPlayingId === loopId) {
+        this.animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+    this.animationFrameId = requestAnimationFrame(animate);
+  }
+
+  stopAnimationLoop() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+  }
+
+  toggleWaveformMode(): void {
+    this.useRealWaveforms = !this.useRealWaveforms;
+    localStorage.setItem('useRealWaveforms', JSON.stringify(this.useRealWaveforms));
+    this.loadLoops();
+    if (this.useRealWaveforms) {
+      this.showToast('Valós hullámformák bekapcsolva (lassabb betöltés)', 'info');
+    } else {
+      this.showToast('Gyors mód bekapcsolva', 'success');
+    }
+  }
+
+  trackByLoopId(index: number, loop: ILoop): string {
+    return loop._id;
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 
 

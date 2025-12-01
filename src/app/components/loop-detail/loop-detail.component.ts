@@ -89,6 +89,8 @@ export class LoopDetailComponent implements OnInit {
   editError: string | null = null;
   isDeletingCommentId: string | null = null;
 
+  animationFrameId: number | null = null;
+  smoothProgress: number = 0;
 
   editForm: {
     name: string;
@@ -149,6 +151,10 @@ export class LoopDetailComponent implements OnInit {
         this.checkFavoriteStatus(id);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.stopAnimationLoop();
   }
 
   checkAuthStatus(): void {
@@ -338,6 +344,7 @@ export class LoopDetailComponent implements OnInit {
         .then(() => {
           this.isPlaying = true;
           audio.volume = this.volume;
+          this.startAnimationLoop();
         })
         .catch(err => {
           console.error('Playback error:', err);
@@ -346,15 +353,18 @@ export class LoopDetailComponent implements OnInit {
     } else {
       audio.pause();
       this.isPlaying = false;
+      this.stopAnimationLoop();
     }
   }
 
   onAudioPlay(): void {
     this.isPlaying = true;
+    this.startAnimationLoop();
   }
 
   onAudioPause(): void {
     this.isPlaying = false;
+    this.stopAnimationLoop();
   }
 
   onAudioError(audioElement: HTMLAudioElement): void {
@@ -382,6 +392,7 @@ export class LoopDetailComponent implements OnInit {
     audio.currentTime = newTime;
 
     this.currentTime = newTime;
+    this.smoothProgress = percentClicked;
   }
 
   setVolume(): void {
@@ -426,28 +437,47 @@ export class LoopDetailComponent implements OnInit {
       console.log('User verified status:', isVerified);
 
       this.loopService.downloadLoop(this.loop._id).subscribe({
-        next: (blob: Blob) => {
-          console.log('Received blob:', { size: blob.size, type: blob.type });
+        next: (response: any) => {
+          if (response && response.downloadUrl) {
+            let url = response.downloadUrl;
+            const idMatch = url.match(/\/files\/([a-zA-Z0-9_-]+)/) ||
+              url.match(/id=([a-zA-Z0-9_-]+)/) ||
+              url.match(/\/d\/([a-zA-Z0-9_-]+)/);
 
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = this.loop.filename || `loop_${this.loop._id}.wav`;
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-
-          console.log('Download completed successfully');
+            if (idMatch && idMatch[1]) {
+              const fileId = idMatch[1];
+              url = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            } else {
+              if (url.includes('localhost:3000')) {
+                url = url.replace('http://localhost:3000', this.loopService.apiUrl);
+                url = url.replace('https://localhost:3000', this.loopService.apiUrl);
+              }
+            }
+            console.log('Force download URL:', url);
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_self';
+            a.download = this.loop.filename || `loop_${this.loop._id}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+          else if (response instanceof Blob) {
+            console.log('Received blob:', { size: response.size, type: response.type });
+            const url = window.URL.createObjectURL(response);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = this.loop.filename || `loop_${this.loop._id}.wav`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          }
         },
         error: async (err) => {
-          console.error('Download failed:', {
-            error: err,
-            loopId: this.loop?._id,
-            path: this.loop?.path
-          });
+          console.error('Download failed:', err);
 
-          if (err?.status === 401) {
+          if (err.status === 401) {
             this.handleLogin();
             this.showToast('Jelentkezz be a letöltéshez!', 'error');
             return;
@@ -456,10 +486,10 @@ export class LoopDetailComponent implements OnInit {
           const payload = await this.readErrorPayload(err);
           const code = payload?.code;
 
-          if (code === 'BANNED') {
-            this.showToast('A fiókod tiltva van, a letöltés nem engedélyezett.', 'error');
-          } else if (code === 'NO_CREDITS') {
+          if (code === 'NO_CREDITS') {
             this.showToast('Nincs elég kredited! Tölts fel loopot.', 'error');
+          } else if (code === 'BANNED') {
+            this.showToast('A fiókod tiltva van.', 'error');
           } else if (code === 'EMAIL_NOT_VERIFIED') {
             this.showToast('Erősítsd meg az e-mail címedet!', 'error');
           } else {
@@ -467,8 +497,8 @@ export class LoopDetailComponent implements OnInit {
           }
         }
       });
-    } catch (e) {
-      console.error('Error in download process:', e);
+    } catch (err) {
+      console.error('Error in download process:', err);
     }
   }
 
@@ -774,5 +804,31 @@ export class LoopDetailComponent implements OnInit {
         this.editError = err?.error?.message || 'A mentés nem sikerült.';
       }
     });
+  }
+
+  startAnimationLoop() {
+    this.stopAnimationLoop();
+    const animate = () => {
+      const audio = this.audioPlayer?.nativeElement;
+      if (audio) {
+        this.currentTime = audio.currentTime;
+        if (audio.duration > 0) {
+          this.smoothProgress = (audio.currentTime / audio.duration) * 100;
+        } else {
+          this.smoothProgress = 0;
+        }
+      }
+      if (this.isPlaying) {
+        this.animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+    this.animationFrameId = requestAnimationFrame(animate);
+  }
+
+  stopAnimationLoop() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
   }
 }
