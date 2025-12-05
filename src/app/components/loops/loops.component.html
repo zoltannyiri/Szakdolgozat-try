@@ -317,17 +317,18 @@
           <div class="relative mb-4 h-16 sm:h-20 cursor-pointer overflow-hidden rounded-lg bg-slate-700/30 ring-1 ring-inset ring-slate-600/30" 
                (click)="seekAudio($event, loop._id, true)">
             <div class="absolute inset-0 flex items-center opacity-60">
-              <div class="flex h-8 w-full items-end">
-                <div *ngFor="let value of waveforms[loop._id] || []; let i = index; trackBy: trackByIndex" 
-                     class="waveform-bar mx-0.5 rounded-sm bg-slate-500 transition-all duration-100" 
-                     [style.height.%]="value * 0.8"></div>
+              <div class="flex h-8 w-full items-end gap-[1px]">
+                <div *ngFor="let value of waveforms[loop._id] || []; let i = index; trackBy: trackByIndex"
+                    class="waveform-bar flex-1 rounded-sm bg-slate-500 transition-all duration-100"
+                    [style.height.%]="value * 0.8"></div>
               </div>
             </div>
+
             <div class="absolute inset-0 flex items-center text-amber-400"
                 [style.clip-path]="progressStyles[loop._id] || 'inset(0 100% 0 0)'">
-              
-              <div class="flex h-8 w-full items-end"> <div *ngFor="let value of waveforms[loop._id] || []; let i = index" 
-                    class="waveform-bar mx-0.5 rounded-sm bg-current" 
+              <div class="flex h-8 w-full items-end gap-[1px]">
+                <div *ngFor="let value of waveforms[loop._id] || []; let i = index"
+                    class="waveform-bar flex-1 rounded-sm bg-current"
                     [style.height.%]="value * 0.8"></div>
               </div>
             </div>

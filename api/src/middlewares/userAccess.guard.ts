@@ -17,7 +17,7 @@ export async function checkVerifiedOrBanned(
       return res.status(403).json({
         success: false,
         code: 'EMAIL_NOT_VERIFIED',
-        message: 'Email verification required'
+        message: 'Erősítsd meg az e-mail címed!'
       });
     }
 

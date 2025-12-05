@@ -627,7 +627,7 @@
         {{ userData?.username || 'Felhasználó' }} jelentése
       </h3>
       <button (click)="isProfileReportOpen=false" class="rounded p-2 hover:bg-slate-800" title="Bezárás">
-        <i class="bi bi-x-lg"></i>
+        <i class="bi bi-x-lg text-slate-300"></i>
       </button>
     </div>
 
@@ -642,7 +642,7 @@
 
     <div class="mt-4 flex justify-end gap-2">
       <button (click)="isProfileReportOpen=false"
-        class="rounded border border-slate-700 bg-slate-800 px-4 py-2 hover:bg-slate-700">Mégse</button>
+        class="rounded border border-slate-700 bg-slate-800 px-4 py-2 hover:bg-slate-700 text-slate-300">Mégse</button>
       <button (click)="submitProfileReport()" [disabled]="isReportingProfile || !profileReportReason.trim()"
         class="rounded bg-gradient-to-r from-rose-600 to-red-600 px-4 py-2 text-white hover:opacity-95 disabled:opacity-50">
         {{ isReportingProfile ? 'Küldés...' : 'Jelentés elküldése' }}

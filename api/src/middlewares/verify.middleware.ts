@@ -8,7 +8,7 @@ export const checkVerified = async (req: CustomRequest, res: Response, next: Nex
       console.error('[checkVerified] No user in request');
       return res.status(401).json({ 
         success: false,
-        message: "Authentication required" 
+        message: "Hitelesítés szükséges" 
       });
     }
     
@@ -16,14 +16,14 @@ export const checkVerified = async (req: CustomRequest, res: Response, next: Nex
     if (!user) {
       return res.status(404).json({ 
         success: false,
-        message: "User not found" 
+        message: "Nincs ilyen felhasználó" 
       });
     }
 
     if (!user.isVerified) {
       return res.status(403).json({ 
         success: false,
-        message: "Email verification required",
+        message: "Erősítsd meg az e-mail címed!",
         code: "EMAIL_NOT_VERIFIED"
       });
     }
@@ -33,7 +33,7 @@ export const checkVerified = async (req: CustomRequest, res: Response, next: Nex
     console.error("Verification check error:", error);
     res.status(500).json({ 
       success: false,
-      message: "Server error during verification check" 
+      message: "Szerverhiba" 
     });
   }
 };

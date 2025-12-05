@@ -238,18 +238,18 @@ export class LoopsComponent implements OnInit, OnDestroy {
         const elapsedMs = performance.now() - this.pageLoadStart;
         this.listLoadTimes.push(elapsedMs);
 
-        console.log(
-          `[perf] loops list betöltve ${loops.length} elemmel: ${elapsedMs.toFixed(2)} ms`
-        );
+        // console.log(
+        //   `[perf] loops list betöltve ${loops.length} elemmel: ${elapsedMs.toFixed(2)} ms`
+        // );
 
         if (this.listLoadTimes.length % 5 === 0) {
           const stats = this.getListLoadStats();
-          console.log('[perf] lista stat eddig:', {
-            mintavetelek_szama: stats.count,
-            atlag_ms: stats.avgMs.toFixed(2),
-            median_ms: stats.medianMs.toFixed(2),
-            p90_ms: stats.p90Ms.toFixed(2)
-          });
+          // console.log('[perf] lista stat eddig:', {
+          //   mintavetelek_szama: stats.count,
+          //   atlag_ms: stats.avgMs.toFixed(2),
+          //   median_ms: stats.medianMs.toFixed(2),
+          //   p90_ms: stats.p90Ms.toFixed(2)
+          // });
         }
       },
       error: () => {
@@ -895,7 +895,7 @@ export class LoopsComponent implements OnInit, OnDestroy {
   toggleFavorite(loop: ILoop): void {
     const userId = this.authService.getUserId();
     if (!userId) {
-      alert('Please log in to add loops to favorites');
+      this.showToast('Jelentkezz be, hogy kedvencekhez adhass loopot!', 'error');
       return;
     }
 
@@ -904,14 +904,28 @@ export class LoopsComponent implements OnInit, OnDestroy {
         next: () => {
           this.favoriteStatus[loop._id] = false;
         },
-        error: (err) => console.error('Error removing favorite:', err)
+        error: (err) => {
+          console.error('Error removing favorite:', err);
+          if (err.status === 403 && err.error?.code === 'EMAIL_NOT_VERIFIED') {
+            this.showToast('Erősítsd meg az e-mail címedet, hogy kezelhesd a kedvenceket!', 'error');
+          } else {
+            this.showToast('Hiba történt a kedvencekből törlés közben.', 'error');
+          }
+        }
       });
     } else {
       this.favoriteService.addFavorite(loop._id).subscribe({
         next: () => {
           this.favoriteStatus[loop._id] = true;
         },
-        error: (err) => console.error('Error adding favorite:', err)
+        error: (err) => {
+          console.error('Error adding favorite:', err);
+          if (err.status === 403 && err.error?.code === 'EMAIL_NOT_VERIFIED') {
+            this.showToast('Erősítsd meg az e-mail címedet!', 'error');
+          } else {
+            this.showToast('Hiba történt a kedvencekhez adás közben.', 'error');
+          }
+        }
       });
     }
   }
@@ -1072,13 +1086,17 @@ export class LoopsComponent implements OnInit, OnDestroy {
   get pageNumbers(): number[] {
     const total = this.totalPages;
     const current = this.page;
-    const windowSize = 7;
-    if (total <= windowSize) return Array.from({ length: total }, (_, i) => i + 1);
-    const half = Math.floor(windowSize / 2);
-    let start = Math.max(1, current - half);
-    let end = Math.min(total, start + windowSize - 1);
-    if (end - start + 1 < windowSize) start = Math.max(1, end - windowSize + 1);
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    const windowSize = 3;
+    if (total <= windowSize) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 2) {
+      return [1, 2, 3];
+    }
+    if (current >= total - 1) {
+      return [total - 2, total - 1, total];
+    }
+    return [current - 1, current, current + 1];
   }
 
 
@@ -1125,7 +1143,7 @@ export class LoopsComponent implements OnInit, OnDestroy {
     const audio = document.getElementById(`audio-${loopId}`) as HTMLAudioElement;
     if (audio && audio.preload !== 'auto') {
       audio.preload = 'auto'; 
-      console.log(`[Preload] Letöltés indítása: ${loopId}`);
+      // console.log(`[Preload] Letöltés indítása: ${loopId}`);
     }
   }
 

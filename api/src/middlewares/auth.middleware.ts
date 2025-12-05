@@ -29,7 +29,7 @@ export const authenticateToken = async (req: CustomRequest, res: Response, next:
         next();
     } catch (error) {
         console.error("[auth.middleware] Token invalid:", error);
-        return res.status(403).json({ message: "Invalid or expired token" });
+        return res.status(403).json({ message: "Hiba történt." });
     }
 };
 
